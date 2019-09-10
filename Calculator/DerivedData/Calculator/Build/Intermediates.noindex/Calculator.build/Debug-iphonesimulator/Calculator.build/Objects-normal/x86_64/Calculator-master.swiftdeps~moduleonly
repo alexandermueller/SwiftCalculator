@@ -1,0 +1,9 @@
+version: "Apple Swift version 5.0.1 (swiftlang-1001.0.82.4 clang-1001.0.46.5)"
+options: "981eb6297cc9a1135e6f2b0100eb31d1"
+build_time: [1568143541, 422461000]
+inputs:
+  "/Users/alex/Coding/Swift Learning/Calculator/Calculator/ArithmeticExpression.swift": [1568134126, 71798340]
+  "/Users/alex/Coding/Swift Learning/Calculator/Calculator/Double+toSimpleNumericString.swift": [1568129795, 249564119]
+  "/Users/alex/Coding/Swift Learning/Calculator/Calculator/ViewController.swift": [1568143541, 190945358]
+  "/Users/alex/Coding/Swift Learning/Calculator/Calculator/String+Checks.swift": [1568138960, 433343303]
+  "/Users/alex/Coding/Swift Learning/Calculator/Calculator/AppDelegate.swift": [1568142706, 842810372]
