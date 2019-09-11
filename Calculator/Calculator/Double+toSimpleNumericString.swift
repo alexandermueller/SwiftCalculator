@@ -20,10 +20,6 @@ extension Double {
             return stringValue
         } else if self.remainder(dividingBy: 1) == 0 {
             let endOfIntegerValue = stringValue.firstIndex(of: ".") ?? stringValue.endIndex
-            
-            print(String(self))
-            print(stringValue)
-            
             return String(stringValue[..<endOfIntegerValue])
         }
         
