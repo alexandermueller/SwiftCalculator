@@ -10,10 +10,14 @@ import Foundation
 
 extension Double {
     func toSimpleNumericString() -> String {
+        guard !self.isNaN else {
+            return String("NaN")
+        }
+
         if Double(Int(self)) == Double(self) {
             return String(Int(self))
-        } else {
-            return String(self)
         }
+        
+        return String(self)
     }
 }

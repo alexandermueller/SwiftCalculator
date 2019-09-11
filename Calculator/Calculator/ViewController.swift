@@ -152,9 +152,20 @@ class ViewController: UIViewController {
             }
             
             if lastExpression.isDouble() {
-                expressionList[expressionCount - 1] = lastExpression == "0" ? button.rawValue : lastExpression + button.rawValue
+                var newExpression: String {
+                    switch lastExpression {
+                    case "0":
+                        return buttonText
+                    case "-0":
+                        return "-" + buttonText
+                    default:
+                        return lastExpression + buttonText
+                    }
+                }
+                
+                expressionList[expressionCount - 1] = newExpression
             } else {
-                expressionList += [button.rawValue]
+                expressionList += [buttonText]
             }
             
             return
@@ -163,16 +174,26 @@ class ViewController: UIViewController {
             return
         case .decimal:
             if lastExpression.isInt() {
-                expressionList[expressionCount - 1] = lastExpression + button.rawValue
+                expressionList[expressionCount - 1] = lastExpression + buttonText
             }
             
             return
-        case .add, .subtract, .multiply, .divide, .exponent:
-            if lastExpression.isOpenParen() || !lastExpression.isProperDouble() && !lastExpression.isCloseParen(){
+        case .subtract:
+            if expressionList == ["0"] {
+                expressionList = ["-0"]
+            } else if [Button.add, Button.subtract, Button.multiply, Button.divide, Button.exponent, Button.open].map({$0.rawValue}).contains(lastExpression) {
+                expressionList += ["-0"]
+            } else if lastExpression.isCloseParen() || lastExpression.isProperDouble() {
+                expressionList += [buttonText]
+            }
+            
+            return
+        case .add, .multiply, .divide, .exponent:
+            if lastExpression.isOpenParen() || !lastExpression.isProperDouble() && !lastExpression.isCloseParen() {
                 return
             }
             
-            expressionList += [button.rawValue]
+            expressionList += [buttonText]
             
             return
         case .open:

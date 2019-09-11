@@ -41,10 +41,17 @@ indirect enum ArithmeticExpression {
 }
 
 func parseExpression(_ expressionList: [String]) -> ArithmeticExpression {
-    //        var pieces: [String] = expression.components(separatedBy: " ")
-    //
-    //        while pieces.count > 0 {
-    //
-    //        }
+    guard expressionList.count > 0 else {
+        return .error
+    }
+    
+    if let expression = expressionList.first, expressionList.count == 1 {
+        guard expression.isProperDouble(), let value: Double = Double(expression) else {
+            return .error
+        }
+        
+        return .number(value)
+    }
+    
     return .number(0)
 }
