@@ -37,12 +37,17 @@ enum Button: String {
 
 let kInactiveButtonColor: UIColor = .brown
 let kActiveButtonColor: UIColor = .orange
+let kViewMargin: CGFloat = 2
+let kLabelFontToHeightRatio: CGFloat = 0.33
 
 class ViewController: UIViewController {
     let backgroundView = UIView()
     let textDisplayLabel = UILabel()
     let valueDisplayLabel = UILabel()
+    let functionView = UIView()
     let buttonView = UIView()
+    
+    var functionSubviews: [String : UILabel] = [:]
     
     var currentState: UIControl.State = .normal
     var expressionList: [String] = ["0"] {
@@ -60,9 +65,25 @@ class ViewController: UIViewController {
             valueDisplayLabel.text = currentValue.toSimpleNumericString()
         }
     }
-    
     var parenBalance: Int = 0
-    var memory: Double = 0
+    var memory: Double = 0 {
+        didSet {
+            guard let memoryValueDisplayLabel = functionSubviews[Button.memory.rawValue] else {
+                return
+            }
+
+            memoryValueDisplayLabel.text = "= " + memory.toSimpleNumericString() + " "
+        }
+    }
+    var answer: Double = 0 {
+        didSet {
+            guard let answerValueDisplayLabel = functionSubviews[Button.answer.rawValue] else {
+                return
+            }
+            
+            answerValueDisplayLabel.text = "= " + answer.toSimpleNumericString() + " "
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,30 +92,8 @@ class ViewController: UIViewController {
         backgroundView.frame = view.frame
         backgroundView.backgroundColor = .black
         
-        let textDisplayLabelY: CGFloat = 35
-        let textDisplayLabelH: CGFloat = 99
-        
-        textDisplayLabel.frame = CGRect(x: 0, y: textDisplayLabelY, width: view.frame.width, height: textDisplayLabelH)
-        textDisplayLabel.backgroundColor = .white
-        textDisplayLabel.textColor = .black
-        textDisplayLabel.textAlignment = .right
-        textDisplayLabel.adjustsFontSizeToFitWidth = true
-        textDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: textDisplayLabelH * 0.33)
-        
-        let valueDisplayLabelY = textDisplayLabelY + textDisplayLabelH + 2
-        let valueDisplayLabelH = view.frame.height * 0.5 - valueDisplayLabelY - 2
-        
-        valueDisplayLabel.frame = CGRect(x: 0, y: valueDisplayLabelY, width: view.frame.width, height: valueDisplayLabelH)
-        valueDisplayLabel.backgroundColor = .white
-        valueDisplayLabel.textColor = .brown
-        valueDisplayLabel.textAlignment = .right
-        textDisplayLabel.adjustsFontSizeToFitWidth = true
-        valueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: valueDisplayLabelH * 0.33)
-        
         buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
         buttonView.isOpaque = false
-        
-        expressionList = ["0"]
         
         let buttonLayout: [[Button]] = [[  .zero, .decimal,  .equal,      .add ],
                                         [   .one,     .two,  .three, .subtract ],
@@ -103,8 +102,9 @@ class ViewController: UIViewController {
                                         [  .open,   .close, .answer, .exponent ],
                                         [ .clear,  .delete,    .set,   .memory ]]
         
-        let buttonW = buttonView.frame.width / 4
-        let buttonH = buttonView.frame.height / 6
+        let buttonW = buttonView.frame.width / CGFloat(buttonLayout[0].count)
+        let buttonH = buttonView.frame.height / CGFloat(buttonLayout.count)
+        var buttonPointSize: CGFloat = 0
         
         for (rowIndex, row) in buttonLayout.enumerated() {
             let buttonY = buttonView.frame.height - CGFloat(rowIndex + 1) * buttonH
@@ -121,12 +121,87 @@ class ViewController: UIViewController {
                 button.addTarget(self, action: #selector(buttonTouchUpOutside), for: UIControl.Event.touchUpOutside)
                 
                 buttonView.addSubview(button)
+                
+                if let label = button.titleLabel, buttonPointSize == 0 {
+                    buttonPointSize = label.font.pointSize
+                }
             }
         }
+        
+        let textDisplayLabelY: CGFloat = 35
+        let textDisplayLabelH: CGFloat = 99
+        
+        textDisplayLabel.frame = CGRect(x: 0, y: textDisplayLabelY, width: view.frame.width, height: textDisplayLabelH)
+        textDisplayLabel.backgroundColor = .white
+        textDisplayLabel.textColor = .black
+        textDisplayLabel.textAlignment = .right
+        textDisplayLabel.adjustsFontSizeToFitWidth = true
+        textDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: textDisplayLabelH * kLabelFontToHeightRatio)
+        
+        let functionViewH = buttonH 
+        let valueDisplayLabelY = textDisplayLabelY + textDisplayLabelH + kViewMargin
+        let valueDisplayLabelH = view.frame.height * 0.5 - valueDisplayLabelY - functionViewH - kViewMargin
+        
+        valueDisplayLabel.frame = CGRect(x: 0, y: valueDisplayLabelY, width: view.frame.width, height: valueDisplayLabelH)
+        valueDisplayLabel.backgroundColor = .white
+        valueDisplayLabel.textColor = .brown
+        valueDisplayLabel.textAlignment = .right
+        valueDisplayLabel.adjustsFontSizeToFitWidth = true
+        valueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: valueDisplayLabelH * kLabelFontToHeightRatio)
+        
+        buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
+        buttonView.isOpaque = false
+        
+        expressionList = ["0"]
+        
+        let functions: [Button] = [.memory, .answer]
+        let functionCount: CGFloat = CGFloat(functions.count)
+        
+        let functionViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
+        let functionViewW = view.frame.width
+        
+        let functionSubviewW: CGFloat = functionViewW / functionCount
+        
+        functionView.frame = CGRect(x: 0, y: functionViewY, width: functionViewW, height: functionViewH)
+        functionView.isOpaque = true
+        functionView.backgroundColor = kInactiveButtonColor
+        
+        for (index, function) in functions.enumerated() {
+            let functionSubviewX: CGFloat = CGFloat(index) * functionViewW / functionCount
+
+            let functionSubview = UIView()
+            functionSubview.frame = CGRect(x: functionSubviewX, y: 0, width: functionSubviewW, height: functionViewH)
+            functionSubview.isOpaque = false
+            
+            let functionTitleLabel = UILabel()
+            functionTitleLabel.frame = CGRect(x: 0, y: 0, width: buttonW, height: buttonH)
+            functionTitleLabel.backgroundColor = kInactiveButtonColor
+            functionTitleLabel.textColor = kActiveButtonColor
+            functionTitleLabel.textAlignment = .center
+            functionTitleLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
+            functionTitleLabel.text = function.rawValue
+            
+            let functionValueDisplayLabel = UILabel()
+            functionValueDisplayLabel.frame = CGRect(x: buttonW + 1, y: 0, width: functionSubviewW - buttonW, height: buttonH)
+            functionValueDisplayLabel.backgroundColor = kInactiveButtonColor
+            functionValueDisplayLabel.textColor = kActiveButtonColor
+            functionValueDisplayLabel.textAlignment = .center
+            functionValueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
+            
+            functionSubviews[function.rawValue] = functionValueDisplayLabel
+            
+            functionSubview.addSubview(functionTitleLabel)
+            functionSubview.addSubview(functionValueDisplayLabel)
+            functionView.addSubview(functionSubview)
+        }
+        
+        memory = 0
+        answer = 0
         
         view.addSubview(backgroundView)
         view.addSubview(textDisplayLabel)
         view.addSubview(valueDisplayLabel)
+        view.addSubview(functionView)
         view.addSubview(buttonView)
     }
     
@@ -146,8 +221,12 @@ class ViewController: UIViewController {
         let lastExpression: String = expressionList[expressionCount - 1]
         
         switch button {
+        case .memory, .answer:
+            if lastExpression.isDouble() && !["0", "-0"].contains(lastExpression) {
+                return
+            }
         case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
-            if lastExpression.isCloseParen() {
+            if lastExpression.isCloseParen() || lastExpression.isAFunction() {
                 return
             }
             
@@ -170,7 +249,7 @@ class ViewController: UIViewController {
             
             return
         case .equal:
-            expressionList = [currentValue.toSimpleNumericString()]
+            answer = currentValue
             return
         case .decimal:
             if lastExpression.isInt() {
@@ -179,9 +258,12 @@ class ViewController: UIViewController {
             
             return
         case .subtract:
+            var allowNegationList: [String] = [Button.add, Button.subtract, Button.multiply, Button.divide, Button.exponent, Button.open].map({$0.rawValue})
+            allowNegationList += ["-" + Button.open.rawValue]
+            
             if expressionList == ["0"] {
                 expressionList = ["-0"]
-            } else if [Button.add, Button.subtract, Button.multiply, Button.divide, Button.exponent, Button.open].map({$0.rawValue}).contains(lastExpression) {
+            } else if allowNegationList.contains(lastExpression) {
                 expressionList += ["-0"]
             } else if lastExpression.isCloseParen() || lastExpression.isProperDouble() {
                 expressionList += [buttonText]
@@ -197,8 +279,8 @@ class ViewController: UIViewController {
             
             return
         case .open:
-            if expressionList == ["0"] {
-                expressionList = [buttonText]
+            if expressionList == ["0"] || lastExpression == "-0" {
+                expressionList = lastExpression == "0" ? [buttonText] : ["-" + buttonText]
                 parenBalance += 1
                 return
             }
@@ -239,8 +321,6 @@ class ViewController: UIViewController {
             return
         case .set:
             memory = currentValue
-            return
-        case .memory, .answer:
             return
         }
     }

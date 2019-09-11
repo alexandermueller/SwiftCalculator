@@ -14,8 +14,17 @@ extension Double {
             return String("NaN")
         }
 
-        if Double(Int(self)) == Double(self) {
-            return String(Int(self))
+        let stringValue = String(self)
+        
+        if stringValue.contains("e") {
+            return stringValue
+        } else if self.remainder(dividingBy: 1) == 0 {
+            let endOfIntegerValue = stringValue.firstIndex(of: ".") ?? stringValue.endIndex
+            
+            print(String(self))
+            print(stringValue)
+            
+            return String(stringValue[..<endOfIntegerValue])
         }
         
         return String(self)
