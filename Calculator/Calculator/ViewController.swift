@@ -57,7 +57,17 @@ class ViewController: UIViewController {
             }
             
             textDisplayLabel.text = expressionList.joined(separator: " ") + " ="
-            currentValue = parseExpression(expressionList).evaluate()
+            currentValue = parseExpression(expressionList.map({
+                switch $0 {
+                case Button.memory.rawValue:
+                    return String(memory)
+                case Button.answer.rawValue:
+                    return String(answer)
+                default:
+                    return $0
+                }
+                
+            })).evaluate()
         }
     }
     var currentValue: Double = 0 {
