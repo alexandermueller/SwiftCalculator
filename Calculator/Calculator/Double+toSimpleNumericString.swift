@@ -8,6 +8,8 @@
 
 import Foundation
 
+let kMaxDisplayLength = 8
+
 extension Double {
     func toSimpleNumericString() -> String {
         guard !self.isNaN else {
@@ -19,7 +21,7 @@ extension Double {
         formatter.numberStyle = .scientific
         formatter.maximumSignificantDigits = 3
         
-        if stringValue.contains("e") {
+        if stringValue.count > kMaxDisplayLength {
             return formatter.string(from: NSNumber(value:self)) ?? "NaN"
         } else if self.remainder(dividingBy: 1) == 0 {
             let endOfIntegerValue = stringValue.firstIndex(of: ".") ?? stringValue.endIndex

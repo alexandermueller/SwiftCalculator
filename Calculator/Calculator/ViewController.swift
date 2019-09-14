@@ -225,6 +225,8 @@ class ViewController: UIViewController {
             if lastExpression.isDouble() && !["0", "-0"].contains(lastExpression) {
                 return
             }
+            
+            fallthrough
         case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
             if lastExpression.isCloseParen() || lastExpression.isAFunction() {
                 return
