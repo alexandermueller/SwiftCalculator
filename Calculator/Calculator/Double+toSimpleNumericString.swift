@@ -9,6 +9,7 @@
 import Foundation
 
 let kMaxDisplayLength = 8
+let kMaxSignificantDigits = 3
 
 extension Double {
     func toSimpleNumericString() -> String {
@@ -19,7 +20,7 @@ extension Double {
         let stringValue = String(self)
         let formatter = NumberFormatter()
         formatter.numberStyle = .scientific
-        formatter.maximumSignificantDigits = 3
+        formatter.maximumSignificantDigits = kMaxSignificantDigits
         
         if stringValue.count > kMaxDisplayLength {
             return formatter.string(from: NSNumber(value:self)) ?? "NaN"
