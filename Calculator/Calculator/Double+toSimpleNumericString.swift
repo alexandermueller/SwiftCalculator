@@ -15,9 +15,12 @@ extension Double {
         }
 
         let stringValue = String(self)
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .scientific
+        formatter.maximumSignificantDigits = 3
         
         if stringValue.contains("e") {
-            return stringValue
+            return formatter.string(from: NSNumber(value:self)) ?? "NaN"
         } else if self.remainder(dividingBy: 1) == 0 {
             let endOfIntegerValue = stringValue.firstIndex(of: ".") ?? stringValue.endIndex
             return String(stringValue[..<endOfIntegerValue])
