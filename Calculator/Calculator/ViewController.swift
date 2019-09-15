@@ -101,7 +101,7 @@ class ViewController: UIViewController {
                 return
             }
 
-            memoryValueDisplayLabel.text = "= " + memory.toSimpleNumericString() + " "
+            memoryValueDisplayLabel.text = "= " + memory.toSimpleNumericString(true) + " "
         }
     }
     var answer: Double = 0 {
@@ -110,7 +110,7 @@ class ViewController: UIViewController {
                 return
             }
             
-            answerValueDisplayLabel.text = "= " + answer.toSimpleNumericString() + " "
+            answerValueDisplayLabel.text = "= " + answer.toSimpleNumericString(true) + " "
         }
     }
     
@@ -276,7 +276,7 @@ class ViewController: UIViewController {
             
             fallthrough
         case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
-            if lastExpression.isCloseParen() || lastExpression.isAFunction() {
+            if lastExpression.isCloseParen() || lastExpression.isVariable() {
                 return
             }
             

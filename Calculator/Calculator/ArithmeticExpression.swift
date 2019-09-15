@@ -111,11 +111,10 @@ func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String :
             continue
         }
         
-        let leftSide: [String] = Array(arguments.removeFirst())
+        var parsedLeftSide: ArithmeticExpression = parseExpression(Array(arguments.removeFirst()), currentMapping)
         var expression: ArithmeticExpression = .error
         
         while arguments.count > 0 {
-            let parsedLeftSide: ArithmeticExpression = leftSide == [] ? expression : parseExpression(leftSide, currentMapping)
             let parsedRightSide: ArithmeticExpression = parseExpression(Array(arguments.removeFirst()), currentMapping)
             var parsedExpression: ArithmeticExpression {
                 switch operation {
@@ -135,6 +134,7 @@ func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String :
             }
             
             expression = parsedExpression
+            parsedLeftSide = expression
         }
         
         return expression

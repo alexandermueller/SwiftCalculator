@@ -14,11 +14,11 @@ extension String {
             return false
         }
         
-        return self.isAFunction() || self.isDouble() && lastCharacter != Character(".")
+        return self.isVariable() || self.isDouble() && lastCharacter != Character(".")
     }
     
-    func isAFunction() -> Bool {
-        return [Button.memory.rawValue, Button.answer.rawValue].contains(where: {$0 == self || "-" + $0 == self})
+    func isVariable() -> Bool {
+        return Button.variables().map({$0.rawValue}).contains(where: {$0 == self || "-" + $0 == self})
     }
     
     func isDouble() -> Bool {
