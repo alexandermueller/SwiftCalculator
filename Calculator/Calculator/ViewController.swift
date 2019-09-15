@@ -143,6 +143,7 @@ class ViewController: UIViewController {
                     button.frame = CGRect(x: buttonX, y: buttonY, width: buttonW, height: buttonH)
                     button.setTitle(buttonType.rawValue, for: .normal)
                     button.backgroundColor = kInactiveButtonColor
+                    button.setTitleColor(layout == alternateButtonLayout && buttonType == .alternate ? kActiveButtonColor : .white, for: .normal)
                     button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)
                     button.addTarget(self, action: #selector(buttonTouchUpInside), for: UIControl.Event.touchUpInside)
                     button.addTarget(self, action: #selector(buttonTouchUpOutside), for: UIControl.Event.touchUpOutside)
