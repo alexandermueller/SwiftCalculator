@@ -34,6 +34,19 @@ enum Button: String {
     case answer = "ANS"
     case memory = "MEM"
     case set = "SET"
+    
+    static func functions() -> [Button] {
+        return [.add, .subtract, .multiply, .divide, .exponent]
+    }
+    static func variables() -> [Button] {
+        return [.answer, .memory]
+    }
+    static func parentheses() -> [Button] {
+        return [.open, .close]
+    }
+    static func numbers() -> [Button] {
+        return [.zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine]
+    }
 }
 
 let kInactiveButtonColor: UIColor = .brown
@@ -45,12 +58,12 @@ class ViewController: UIViewController {
     let backgroundView = UIView()
     let textDisplayLabel = UILabel()
     let valueDisplayLabel = UILabel()
-    let functionView = UIView()
+    let variableView = UIView()
     let buttonView = UIView()
     let normalButtonView = UIView()
     let alternateButtonView = UIView()
     
-    var functionSubviews: [String : UILabel] = [:]
+    var variableSubviews: [String : UILabel] = [:]
     
     var currentState: UIControl.State = .normal
     var expressionList: [String] = ["0"] {
@@ -64,12 +77,15 @@ class ViewController: UIViewController {
                 switch $0 {
                 case Button.memory.rawValue:
                     return String(memory)
+                case "-" + Button.memory.rawValue:
+                    return String(-memory)
                 case Button.answer.rawValue:
                     return String(answer)
+                case "-" + Button.answer.rawValue:
+                    return String(-answer)
                 default:
                     return $0
                 }
-                
             })).evaluate()
         }
     }
@@ -81,7 +97,7 @@ class ViewController: UIViewController {
     var parenBalance: Int = 0
     var memory: Double = 0 {
         didSet {
-            guard let memoryValueDisplayLabel = functionSubviews[Button.memory.rawValue] else {
+            guard let memoryValueDisplayLabel = variableSubviews[Button.memory.rawValue] else {
                 return
             }
 
@@ -90,7 +106,7 @@ class ViewController: UIViewController {
     }
     var answer: Double = 0 {
         didSet {
-            guard let answerValueDisplayLabel = functionSubviews[Button.answer.rawValue] else {
+            guard let answerValueDisplayLabel = variableSubviews[Button.answer.rawValue] else {
                 return
             }
             
@@ -169,9 +185,9 @@ class ViewController: UIViewController {
         textDisplayLabel.adjustsFontSizeToFitWidth = true
         textDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: textDisplayLabelH * kLabelFontToHeightRatio)
         
-        let functionViewH = buttonH 
+        let variableViewH = buttonH
         let valueDisplayLabelY = textDisplayLabelY + textDisplayLabelH + kViewMargin
-        let valueDisplayLabelH = view.frame.height * 0.5 - valueDisplayLabelY - functionViewH - kViewMargin
+        let valueDisplayLabelH = view.frame.height * 0.5 - valueDisplayLabelY - variableViewH - kViewMargin
         
         valueDisplayLabel.frame = CGRect(x: 0, y: valueDisplayLabelY, width: view.frame.width, height: valueDisplayLabelH)
         valueDisplayLabel.backgroundColor = .white
@@ -185,45 +201,43 @@ class ViewController: UIViewController {
         
         expressionList = ["0"]
         
-        let functions: [Button] = [.memory, .answer]
-        let functionCount: CGFloat = CGFloat(functions.count)
+        let variableCount: CGFloat = CGFloat(Button.variables().count)
+        let variableViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
+        let variableViewW = view.frame.width
         
-        let functionViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
-        let functionViewW = view.frame.width
+        let variableSubviewW: CGFloat = variableViewW / variableCount
         
-        let functionSubviewW: CGFloat = functionViewW / functionCount
+        variableView.frame = CGRect(x: 0, y: variableViewY, width: variableViewW, height: variableViewH)
+        variableView.isOpaque = true
+        variableView.backgroundColor = kInactiveButtonColor
         
-        functionView.frame = CGRect(x: 0, y: functionViewY, width: functionViewW, height: functionViewH)
-        functionView.isOpaque = true
-        functionView.backgroundColor = kInactiveButtonColor
-        
-        for (index, function) in functions.enumerated() {
-            let functionSubviewX: CGFloat = CGFloat(index) * functionViewW / functionCount
+        for (index, variable) in Button.variables().enumerated() {
+            let variableSubviewX: CGFloat = CGFloat(index) * variableViewW / variableCount
 
-            let functionSubview = UIView()
-            functionSubview.frame = CGRect(x: functionSubviewX, y: 0, width: functionSubviewW, height: functionViewH)
-            functionSubview.isOpaque = false
+            let variableSubview = UIView()
+            variableSubview.frame = CGRect(x: variableSubviewX, y: 0, width: variableSubviewW, height: variableViewH)
+            variableSubview.isOpaque = false
             
-            let functionTitleLabel = UILabel()
-            functionTitleLabel.frame = CGRect(x: 0, y: 0, width: buttonW, height: buttonH)
-            functionTitleLabel.backgroundColor = kInactiveButtonColor
-            functionTitleLabel.textColor = kActiveButtonColor
-            functionTitleLabel.textAlignment = .center
-            functionTitleLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
-            functionTitleLabel.text = function.rawValue
+            let variableTitleLabel = UILabel()
+            variableTitleLabel.frame = CGRect(x: 0, y: 0, width: buttonW, height: buttonH)
+            variableTitleLabel.backgroundColor = kInactiveButtonColor
+            variableTitleLabel.textColor = kActiveButtonColor
+            variableTitleLabel.textAlignment = .center
+            variableTitleLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
+            variableTitleLabel.text = variable.rawValue
             
-            let functionValueDisplayLabel = UILabel()
-            functionValueDisplayLabel.frame = CGRect(x: buttonW + 1, y: 0, width: functionSubviewW - buttonW, height: buttonH)
-            functionValueDisplayLabel.backgroundColor = kInactiveButtonColor
-            functionValueDisplayLabel.textColor = kActiveButtonColor
-            functionValueDisplayLabel.textAlignment = .center
-            functionValueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
+            let variableValueDisplayLabel = UILabel()
+            variableValueDisplayLabel.frame = CGRect(x: buttonW + 1, y: 0, width: variableSubviewW - buttonW, height: buttonH)
+            variableValueDisplayLabel.backgroundColor = kInactiveButtonColor
+            variableValueDisplayLabel.textColor = kActiveButtonColor
+            variableValueDisplayLabel.textAlignment = .center
+            variableValueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
             
-            functionSubviews[function.rawValue] = functionValueDisplayLabel
+            variableSubviews[variable.rawValue] = variableValueDisplayLabel
             
-            functionSubview.addSubview(functionTitleLabel)
-            functionSubview.addSubview(functionValueDisplayLabel)
-            functionView.addSubview(functionSubview)
+            variableSubview.addSubview(variableTitleLabel)
+            variableSubview.addSubview(variableValueDisplayLabel)
+            variableView.addSubview(variableSubview)
         }
         
         memory = 0
@@ -232,7 +246,7 @@ class ViewController: UIViewController {
         view.addSubview(backgroundView)
         view.addSubview(textDisplayLabel)
         view.addSubview(valueDisplayLabel)
-        view.addSubview(functionView)
+        view.addSubview(variableView)
         view.addSubview(buttonView)
     }
     
@@ -270,7 +284,7 @@ class ViewController: UIViewController {
                 var newExpression: String {
                     switch lastExpression {
                     case "0":
-                        return buttonText
+                        return expressionCount == 1 ? buttonText : lastExpression
                     case "-0":
                         return "-" + buttonText
                     default:

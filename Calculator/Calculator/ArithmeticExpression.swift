@@ -15,7 +15,6 @@ indirect enum ArithmeticExpression {
     case multiplication(ArithmeticExpression, ArithmeticExpression)
     case division(ArithmeticExpression, ArithmeticExpression)
     case exponentiation(ArithmeticExpression, ArithmeticExpression)
-    case parentheses(ArithmeticExpression)
     case negation(ArithmeticExpression)
     case error
     
@@ -33,8 +32,6 @@ indirect enum ArithmeticExpression {
             return left.evaluate() / right.evaluate()
         case let .exponentiation(left, right):
             return pow(left.evaluate(), right.evaluate())
-        case let .parentheses(expression):
-            return expression.evaluate()
         case let .negation(expression):
             return -expression.evaluate()
         case .error:
@@ -115,7 +112,7 @@ func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String :
         }
         
         let leftSide: [String] = Array(arguments.removeFirst())
-        var expression: ArithmeticExpression = .number(0)
+        var expression: ArithmeticExpression = .error
         
         while arguments.count > 0 {
             let parsedLeftSide: ArithmeticExpression = leftSide == [] ? expression : parseExpression(leftSide, currentMapping)
