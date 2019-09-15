@@ -28,6 +28,7 @@ enum Button: String {
     case exponent = "^"
     case open = "("
     case close = ")"
+    case alternate = "ALT"
     case clear = "CLR"
     case delete = "DEL"
     case answer = "ANS"
@@ -46,6 +47,8 @@ class ViewController: UIViewController {
     let valueDisplayLabel = UILabel()
     let functionView = UIView()
     let buttonView = UIView()
+    let normalButtonView = UIView()
+    let alternateButtonView = UIView()
     
     var functionSubviews: [String : UILabel] = [:]
     
@@ -105,37 +108,54 @@ class ViewController: UIViewController {
         buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
         buttonView.isOpaque = false
         
-        let buttonLayout: [[Button]] = [[  .zero, .decimal,  .equal,      .add ],
-                                        [   .one,     .two,  .three, .subtract ],
-                                        [  .four,    .five,    .six, .multiply ],
-                                        [ .seven,   .eight,   .nine,   .divide ],
-                                        [  .open,   .close, .answer, .exponent ],
-                                        [ .clear,  .delete,    .set,   .memory ]]
+        let normalButtonLayout: [[Button]] = [[      .zero, .decimal,  .equal,      .add ],
+                                              [       .one,     .two,  .three, .subtract ],
+                                              [      .four,    .five,    .six, .multiply ],
+                                              [     .seven,   .eight,   .nine,   .divide ],
+                                              [      .open,   .close, .answer, .exponent ],
+                                              [ .alternate,  .delete,    .set,   .memory ]]
         
-        let buttonW = buttonView.frame.width / CGFloat(buttonLayout[0].count)
-        let buttonH = buttonView.frame.height / CGFloat(buttonLayout.count)
+        let alternateButtonLayout: [[Button]] = [[      .zero, .decimal,  .equal,      .add ],
+                                                 [       .one,     .two,  .three, .subtract ],
+                                                 [      .four,    .five,    .six, .multiply ],
+                                                 [     .seven,   .eight,   .nine,   .divide ],
+                                                 [      .open,   .close, .answer, .exponent ],
+                                                 [ .alternate,   .clear,    .set,   .memory ]]
+        
+        assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0] == alternateButtonLayout[0])
+        
+        let buttonW = buttonView.frame.width / CGFloat(normalButtonLayout[0].count)
+        let buttonH = buttonView.frame.height / CGFloat(normalButtonLayout.count)
         var buttonPointSize: CGFloat = 0
         
-        for (rowIndex, row) in buttonLayout.enumerated() {
-            let buttonY = buttonView.frame.height - CGFloat(rowIndex + 1) * buttonH
+        for (layout, buttonSubview, isVisible) in [(normalButtonLayout, normalButtonView, true), (alternateButtonLayout, alternateButtonView, false)] {
+            buttonSubview.frame = CGRect(x: 0, y: 0, width: buttonView.frame.width, height: buttonView.frame.height)
+            buttonSubview.isOpaque = false
+            buttonSubview.isHidden = !isVisible
             
-            for (columnIndex, buttonType) in row.enumerated() {
-                let buttonX = CGFloat(columnIndex % 4) * buttonW
+            for (rowIndex, row) in layout.enumerated() {
+                let buttonY = buttonView.frame.height - CGFloat(rowIndex + 1) * buttonH
                 
-                let button = UIButton()
-                button.frame = CGRect(x: buttonX, y: buttonY, width: buttonW, height: buttonH)
-                button.setTitle(buttonType.rawValue, for: .normal)
-                button.backgroundColor = kInactiveButtonColor
-                button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)
-                button.addTarget(self, action: #selector(buttonTouchUpInside), for: UIControl.Event.touchUpInside)
-                button.addTarget(self, action: #selector(buttonTouchUpOutside), for: UIControl.Event.touchUpOutside)
-                
-                buttonView.addSubview(button)
-                
-                if let label = button.titleLabel, buttonPointSize == 0 {
-                    buttonPointSize = label.font.pointSize
+                for (columnIndex, buttonType) in row.enumerated() {
+                    let buttonX = CGFloat(columnIndex % 4) * buttonW
+                    
+                    let button = UIButton()
+                    button.frame = CGRect(x: buttonX, y: buttonY, width: buttonW, height: buttonH)
+                    button.setTitle(buttonType.rawValue, for: .normal)
+                    button.backgroundColor = kInactiveButtonColor
+                    button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)
+                    button.addTarget(self, action: #selector(buttonTouchUpInside), for: UIControl.Event.touchUpInside)
+                    button.addTarget(self, action: #selector(buttonTouchUpOutside), for: UIControl.Event.touchUpOutside)
+                    
+                    buttonSubview.addSubview(button)
+                    
+                    if let label = button.titleLabel, buttonPointSize == 0 {
+                        buttonPointSize = label.font.pointSize
+                    }
                 }
             }
+            
+            buttonView.addSubview(buttonSubview)
         }
         
         let textDisplayLabelY: CGFloat = 35
@@ -231,6 +251,9 @@ class ViewController: UIViewController {
         let lastExpression: String = expressionList[expressionCount - 1]
         
         switch button {
+        case .alternate:
+            normalButtonView.isHidden = !normalButtonView.isHidden
+            alternateButtonView.isHidden = !alternateButtonView.isHidden
         case .memory, .answer:
             if lastExpression.isDouble() && !["0", "-0"].contains(lastExpression) {
                 return
@@ -291,7 +314,11 @@ class ViewController: UIViewController {
             
             return
         case .open:
-            if expressionList == ["0"] || lastExpression == "-0" {
+            if lastExpression == "-0" {
+                expressionList[expressionCount - 1] = "-" + buttonText
+                parenBalance += 1
+                return
+            } else if expressionList == ["0"] {
                 expressionList = lastExpression == "0" ? [buttonText] : ["-" + buttonText]
                 parenBalance += 1
                 return
