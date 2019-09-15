@@ -76,6 +76,8 @@ func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]
     return seen == 0 ? (mappedExpressionList: mapped, mapping: mapping) : (mappedExpressionList: [], mapping: [:])
 }
 
+// TODO: FIX PARSER, THERE ARE MANY ISSUES WITH THIS LOL
+
 func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String : [String]] = [:]) -> ArithmeticExpression {
     guard expressionList.count > 0 else {
         return .error
