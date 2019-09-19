@@ -308,7 +308,8 @@ class ViewController: UIViewController {
             
             return
         case .subtract:
-            var allowNegationList: [String] = [Button.add, Button.subtract, Button.multiply, Button.divide, Button.exponent, Button.open].map({$0.rawValue})
+            var allowNegationList: [String] = Button.functions().map({$0.rawValue})
+            allowNegationList += [Button.open.rawValue]
             allowNegationList += ["-" + Button.open.rawValue]
             
             if expressionList == ["0"] {

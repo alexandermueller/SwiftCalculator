@@ -104,7 +104,7 @@ func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String :
         return .error
     }
 
-    for operation in [Button.subtract, Button.add, Button.multiply, Button.divide, Button.exponent] {
+    for operation in Button.functions() {
         var arguments = mappedExpressionsList.split(separator: operation.rawValue)
         
         if arguments.count == 1 {
