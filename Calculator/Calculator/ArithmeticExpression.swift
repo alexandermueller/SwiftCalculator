@@ -8,6 +8,8 @@
 
 import Foundation
 
+typealias ParenthesesMappingResult = (processedExpressionList: [String], mapping: [String : [String]])
+
 indirect enum ArithmeticExpression {
     case number(Double)
     case addition(ArithmeticExpression, ArithmeticExpression)
@@ -40,7 +42,7 @@ indirect enum ArithmeticExpression {
     }
 }
 
-func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]] = [:]) -> (mappedExpressionList: [String], mapping: [String : [String]]) {
+func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]] = [:]) -> ParenthesesMappingResult {
     var seen = 0
     var startIndex = 0
     var firstParen = ""
@@ -73,7 +75,8 @@ func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]
         }
     }
     
-    return seen == 0 ? (mappedExpressionList: mapped, mapping: mapping) : (mappedExpressionList: [], mapping: [:])
+    return seen == 0 ? ParenthesesMappingResult(processedExpressionList: mapped, mapping: mapping) :
+                       ParenthesesMappingResult(processedExpressionList: [], mapping: [:])
 }
 
 func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String : [String]] = [:]) -> ArithmeticExpression {
