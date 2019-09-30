@@ -12,18 +12,20 @@ typealias ParenthesesMappingResult = (processedExpressionList: [String], mapping
 
 indirect enum ArithmeticExpression: Equatable {
     case number(Double)
+    case negation(ArithmeticExpression)
     case addition(ArithmeticExpression, ArithmeticExpression)
     case subtraction(ArithmeticExpression, ArithmeticExpression)
     case multiplication(ArithmeticExpression, ArithmeticExpression)
     case division(ArithmeticExpression, ArithmeticExpression)
     case exponentiation(ArithmeticExpression, ArithmeticExpression)
-    case negation(ArithmeticExpression)
     case error
     
     func evaluate() -> Double {
         switch self {
         case let .number(value):
             return value
+        case let .negation(expression):
+            return -expression.evaluate()
         case let .addition(left, right):
             return left.evaluate() + right.evaluate()
         case let .subtraction(left, right):
@@ -33,9 +35,8 @@ indirect enum ArithmeticExpression: Equatable {
         case let .division(left, right):
             return left.evaluate() / right.evaluate()
         case let .exponentiation(left, right):
-            return pow(left.evaluate(), right.evaluate())
-        case let .negation(expression):
-            return -expression.evaluate()
+            let rightValue = right.evaluate()
+            return rightValue.isNaN ? rightValue : pow(left.evaluate(), rightValue)
         case .error:
             return Double.nan
         }

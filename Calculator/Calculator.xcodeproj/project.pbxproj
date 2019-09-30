@@ -99,8 +99,8 @@
 		FABEBCD52326DCEE00CD024C /* CalculatorTests */ = {
 			isa = PBXGroup;
 			children = (
-				FABEBCD82326DCEE00CD024C /* Info.plist */,
 				FAA07C6C2341D27800D9E43F /* ArithmeticExpressionTests.swift */,
+				FABEBCD82326DCEE00CD024C /* Info.plist */,
 			);
 			path = CalculatorTests;
 			sourceTree = "<group>";
