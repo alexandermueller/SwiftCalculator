@@ -17,8 +17,10 @@ class ArithmeticExpressionTests: XCTestCase {
         
         let testCases: [UnitTest] = [
             UnitTest(.error, .nan),
+            UnitTest(.number(.nan), .nan),
             UnitTest(.number(2), 2),
             UnitTest(.number(-3), -3),
+            UnitTest(.number(.infinity), .infinity),
             UnitTest(.negation(.error), .nan),
             UnitTest(.negation(.number(3)), -3),
             UnitTest(.addition(.number(1), .error), .nan),
