@@ -10,7 +10,7 @@ import Foundation
 
 typealias ParenthesesMappingResult = (processedExpressionList: [String], mapping: [String : [String]])
 
-indirect enum ArithmeticExpression {
+indirect enum ArithmeticExpression: Equatable {
     case number(Double)
     case addition(ArithmeticExpression, ArithmeticExpression)
     case subtraction(ArithmeticExpression, ArithmeticExpression)

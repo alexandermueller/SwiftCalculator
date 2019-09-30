@@ -22,8 +22,23 @@ class ArithmeticExpressionTests: XCTestCase {
         
         for (index, testCase) in testCases.enumerated() {
             let output = mapParentheses(testCase.input)
-            XCTAssert(output == testCase.output, String(format: "Test Case \(index + 1) Failed. Expectd: \(testCase.output), Saw: \(output)"))
+            XCTAssert(output == testCase.output, String(format: "Test Case \(index + 1) Failed.\nExpected: \(testCase.output),\n\tSaw: \(output)"))
         }
     }
-
+    
+    func testParseExpression() {
+        typealias UnitTest = (input: [String], output: ArithmeticExpression)
+        
+        let testCases: [UnitTest] = [UnitTest([], .error),
+                                     UnitTest(["1"], .number(1)),
+                                     UnitTest(["1", "+", "2"], .addition(.number(1), .number(2))),
+                                     UnitTest(["(", "1", ")"], .number(1)),
+                                     UnitTest(["(", "1", ")", "+", "(", "1", ")"], .addition(.number(1), .number(1))),
+                                     UnitTest(["(", "1", "-", "(", "2", "+", "1", ")", ")"], .subtraction(.number(1), .addition(.number(2), .number(1))))]
+        
+        for (index, testCase) in testCases.enumerated() {
+            let output = parseExpression(testCase.input)
+            XCTAssert(output == testCase.output, String(format: "Test Case \(index + 1) Failed.\nExpected: \(testCase.output)\n\tSaw: \(output)"))
+        }
+    }
 }
