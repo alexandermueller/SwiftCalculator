@@ -84,6 +84,10 @@ class ArithmeticExpressionTests: XCTestCase {
             UnitTest(["(", "1", ")"], .number(1)),
             UnitTest(["(", "1", ")", "+", "(", "1", ")"], .addition(.number(1), .number(1))),
             UnitTest(["(", "1", "-", "(", "2", "+", "1", ")", ")"], .subtraction(.number(1), .addition(.number(2), .number(1)))),
+            UnitTest(["(", "3", "÷", "20", ")", "^", "2"], .exponentiation(.division(.number(3), .number(20)), .number(2))),
+            UnitTest(["1", "÷", "3", "^", "(", "5", "-", "7", ")"], .division(.number(1), .exponentiation(.number(3), .subtraction(.number(5), .number(7))))),
+            UnitTest(["-3", "^", "2", "^", "0.5"], .exponentiation(.number(-3), .exponentiation(.number(2), .number(0.5)))),
+            UnitTest(["(", "-3", "^", "2", ")", "^", "0.5"], .exponentiation(.exponentiation(.number(-3), .number(2)), .number(0.5)))
         ]
         
         for (index, testCase) in testCases.enumerated() {

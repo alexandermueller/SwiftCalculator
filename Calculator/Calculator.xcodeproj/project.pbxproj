@@ -87,11 +87,11 @@
 				FABEBCC32326DCED00CD024C /* ViewController.swift */,
 				FABEBCE52327FB0000CD024C /* ArithmeticExpression.swift */,
 				FABEBCE32327FA6000CD024C /* Double+toSimpleNumericString.swift */,
+				FABEBCE12327FA2C00CD024C /* String+Checks.swift */,
 				FABEBCC52326DCED00CD024C /* Main.storyboard */,
 				FABEBCC82326DCEE00CD024C /* Assets.xcassets */,
 				FABEBCCA2326DCEE00CD024C /* LaunchScreen.storyboard */,
 				FABEBCCD2326DCEE00CD024C /* Info.plist */,
-				FABEBCE12327FA2C00CD024C /* String+Checks.swift */,
 			);
 			path = Calculator;
 			sourceTree = "<group>";

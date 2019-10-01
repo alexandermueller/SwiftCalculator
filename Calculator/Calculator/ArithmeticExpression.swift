@@ -49,7 +49,7 @@ func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]
     var firstParen = ""
     var encapsulated: [String] = []
     var mapping: [String : [String]] = oldMapping
-    var mapped: [String] = []
+    var processed: [String] = []
     
     for (index, expression) in expressionList.enumerated() {
         if seen == 0 && expression.contains("(") {
@@ -67,16 +67,16 @@ func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]
             if expression == ")" {
                 let key = "p\(startIndex),\(index),\(mapping.count)"
                 mapping[key] = encapsulated
-                mapped += [(firstParen.contains("-") ? "-" : "") + key]
+                processed += [(firstParen.contains("-") ? "-" : "") + key]
                 encapsulated = []
                 continue
             }
             
-            mapped += [expression]
+            processed += [expression]
         }
     }
     
-    return seen == 0 ? ParenthesesMappingResult(processedExpressionList: mapped, mapping: mapping) :
+    return seen == 0 ? ParenthesesMappingResult(processedExpressionList: processed, mapping: mapping) :
                        ParenthesesMappingResult(processedExpressionList: [], mapping: [:])
 }
 
@@ -85,11 +85,11 @@ func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String :
         return .error
     }
     
-    let (mappedExpressionsList, currentMapping) = mapParentheses(expressionList, parenthesesMapping)
+    let (processedExpressionList, currentMapping) = mapParentheses(expressionList, parenthesesMapping)
     
-    if mappedExpressionsList.count == 0 {
+    if processedExpressionList.count == 0 {
         return .error
-    } else if mappedExpressionsList.count == 1, let expression = mappedExpressionsList.first {
+    } else if processedExpressionList.count == 1, let expression = processedExpressionList.first {
         var key = expression
         let hasNegation: Bool = key.contains(Button.subtract.rawValue)
         
@@ -109,7 +109,7 @@ func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String :
     }
 
     for operation in Button.functions() {
-        var arguments = mappedExpressionsList.split(separator: operation.rawValue)
+        var arguments = processedExpressionList.split(separator: operation.rawValue)
         
         if arguments.count == 1 {
             continue
