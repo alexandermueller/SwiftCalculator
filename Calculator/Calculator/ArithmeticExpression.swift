@@ -125,12 +125,10 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
                 expressionList += [.number(value)]
                 continue
             }
-            
-            return .error // The element encountered hasn't been accounted for yet, or isn't a proper Double yet!!
         }
         
         guard let function = possibleFunction else {
-            return .error
+            return .error // The element encountered hasn't been accounted for yet, or isn't a proper Double!!
         }
         
         var functionExpression: ArithmeticExpression {
