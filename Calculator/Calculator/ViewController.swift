@@ -113,6 +113,7 @@ let kViewMargin: CGFloat = 2
 let kLabelFontToHeightRatio: CGFloat = 0.33
 
 class ViewController: UIViewController {
+    let viewModel = ViewModel()
     let backgroundView = UIView()
     let textDisplayLabel = UILabel()
     let valueDisplayLabel = UILabel()
@@ -124,53 +125,6 @@ class ViewController: UIViewController {
     var variableSubviews: [String : UILabel] = [:]
     
     var currentState: UIControl.State = .normal
-    var expressionList: [String] = ["0"] {
-        didSet {
-            if expressionList.isEmpty {
-                expressionList = ["0"]
-            }
-            
-            textDisplayLabel.text = expressionList.joined(separator: " ") + " ="
-            currentValue = parseExpression(expressionList.map({
-                switch $0 {
-                case Variable.memory.rawValue:
-                    return String(memory)
-                case "-" + Variable.memory.rawValue:
-                    return String(-memory)
-                case Variable.answer.rawValue:
-                    return String(answer)
-                case "-" + Variable.answer.rawValue:
-                    return String(-answer)
-                default:
-                    return $0
-                }
-            })).evaluate()
-        }
-    }
-    var currentValue: Double = 0 {
-        didSet {
-            valueDisplayLabel.text = currentValue.toSimpleNumericString()
-        }
-    }
-    var parenBalance: Int = 0
-    var memory: Double = 0 {
-        didSet {
-            guard let memoryValueDisplayLabel = variableSubviews[Variable.memory.rawValue] else {
-                return
-            }
-
-            memoryValueDisplayLabel.text = "= " + memory.toSimpleNumericString(true) + " "
-        }
-    }
-    var answer: Double = 0 {
-        didSet {
-            guard let answerValueDisplayLabel = variableSubviews[Variable.answer.rawValue] else {
-                return
-            }
-            
-            answerValueDisplayLabel.text = "= " + answer.toSimpleNumericString(true) + " "
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -242,6 +196,7 @@ class ViewController: UIViewController {
         textDisplayLabel.textAlignment = .right
         textDisplayLabel.adjustsFontSizeToFitWidth = true
         textDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: textDisplayLabelH * kLabelFontToHeightRatio)
+        textDisplayLabel.text = "0 ="
         
         let variableViewH = buttonH
         let valueDisplayLabelY = textDisplayLabelY + textDisplayLabelH + kViewMargin
@@ -253,11 +208,10 @@ class ViewController: UIViewController {
         valueDisplayLabel.textAlignment = .right
         valueDisplayLabel.adjustsFontSizeToFitWidth = true
         valueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: valueDisplayLabelH * kLabelFontToHeightRatio)
+        valueDisplayLabel.text = "0"
         
         buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
         buttonView.isOpaque = false
-        
-        expressionList = ["0"]
         
         let variableCount: CGFloat = CGFloat(Variable.allCases.count)
         let variableViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
@@ -298,9 +252,6 @@ class ViewController: UIViewController {
             variableView.addSubview(variableSubview)
         }
         
-        memory = 0
-        answer = 0
-        
         view.addSubview(backgroundView)
         view.addSubview(textDisplayLabel)
         view.addSubview(valueDisplayLabel)
@@ -320,117 +271,20 @@ class ViewController: UIViewController {
             return
         }
         
-        let expressionCount = expressionList.count
-        let lastExpression: String = expressionList[expressionCount - 1]
+        viewModel.buttonPressed(button)
         
-        switch button {
-        case .variable(_):
-            if lastExpression.isDouble() && !["0", "-0"].contains(lastExpression) {
-                return
-            }
-            
-            fallthrough
-        case .digit(_):
-            if lastExpression.isCloseParen() || lastExpression.isVariable() {
-                return
-            }
-            
-            if lastExpression.isDouble() {
-                var newExpression: String {
-                    switch lastExpression {
-                    case "0":
-                        return expressionCount == 1 ? buttonText : lastExpression
-                    case "-0":
-                        return "-" + buttonText
-                    default:
-                        return lastExpression + buttonText
-                    }
-                }
-                
-                expressionList[expressionCount - 1] = newExpression
-            } else {
-                expressionList += [buttonText]
-            }
-        case .modifier(let modifier):
-            switch modifier {
-            case .decimal:
-                if lastExpression.isInt() {
-                    expressionList[expressionCount - 1] = lastExpression + buttonText
-                }
-            }
-        case .parenthesis(let parenthesis):
-            switch parenthesis {
-            case .open:
-                if lastExpression == "-0" {
-                    expressionList[expressionCount - 1] = "-" + buttonText
-                    parenBalance += 1
-                    return
-                } else if expressionList == ["0"] {
-                    expressionList = lastExpression == "0" ? [buttonText] : ["-" + buttonText]
-                    parenBalance += 1
-                    return
-                }
-    
-                if lastExpression.isCloseParen() || lastExpression.isDouble() {
-                    return
-                }
-    
-                parenBalance += 1
-                expressionList += [buttonText]
-            case .close:
-                if !lastExpression.isProperDouble() && !lastExpression.isCloseParen() || parenBalance == 0 {
-                    return
-                }
-    
-                expressionList += [buttonText]
-                parenBalance -= 1
-            }
-        case .function(let function):
-            switch function {
-            case .subtract:
-                let allowNegationList: [String] = Function.allCases.map({$0.rawValue}) + [Parenthesis.open.rawValue, "-" + Parenthesis.open.rawValue]
-
-                if expressionList == ["0"] {
-                    expressionList = ["-0"]
-                } else if allowNegationList.contains(lastExpression) {
-                    expressionList += ["-0"]
-                } else if lastExpression.isCloseParen() || lastExpression.isProperDouble() {
-                    expressionList += [buttonText]
-                }
-            case .add, .multiply, .divide, .exponent, .root:
-                if lastExpression.isOpenParen() || !lastExpression.isProperDouble() && !lastExpression.isCloseParen() {
-                    return
-                }
-    
-                expressionList += [buttonText]
-            }
-        case .setter(let setter):
-            switch setter {
-            case .equal:
-                answer = currentValue
-            case .set:
-                memory = currentValue
-            }
-        case .other(let other):
-            switch other {
-            case .alternate:
-                normalButtonView.isHidden = !normalButtonView.isHidden
-                alternateButtonView.isHidden = !alternateButtonView.isHidden
-            case .delete:
-                parenBalance += lastExpression.isCloseParen() ? 1 : lastExpression.isOpenParen() ? -1 : 0
-                
-                if lastExpression.isProperDouble() {
-                    expressionList[expressionCount - 1] = String(lastExpression.dropLast())
-                }
-                
-                // Also catches pesky "" expressions that persist after deleting doubles
-                if !expressionList[expressionCount - 1].isProperDouble() {
-                    expressionList = expressionList.dropLast()
-                }
-            case .clear:
-                expressionList = []
-                parenBalance = 0
-            }
+        textDisplayLabel.text = viewModel.expressionList.joined(separator: " ") + " ="
+        valueDisplayLabel.text = viewModel.currentValue.toSimpleNumericString(true) // TODO: This might need some fine-tuning (was false before)
+        
+        normalButtonView.isHidden = viewModel.buttonViewMode != .normal
+        alternateButtonView.isHidden = viewModel.buttonViewMode != .alternate
+        
+        if let memoryValueDisplayLabel = variableSubviews[Variable.memory.rawValue] {
+            memoryValueDisplayLabel.text = "= " + viewModel.memory.toSimpleNumericString(true) + " "
+        }
+        
+        if let answerValueDisplayLabel = variableSubviews[Variable.answer.rawValue] {
+            answerValueDisplayLabel.text = "= " + viewModel.answer.toSimpleNumericString(true) + " "
         }
     }
     
