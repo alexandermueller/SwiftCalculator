@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias ParenthesesMappingResult = (processedExpressionList: [String], mapping: [String : [String]])
+typealias ParenthesesMappingResult = (processedElementList: [String], mapping: [String : [String]])
 
 indirect enum ArithmeticExpression: Equatable {
     case number(Double)
@@ -18,6 +18,8 @@ indirect enum ArithmeticExpression: Equatable {
     case multiplication(ArithmeticExpression, ArithmeticExpression)
     case division(ArithmeticExpression, ArithmeticExpression)
     case exponentiation(ArithmeticExpression, ArithmeticExpression)
+    case root(ArithmeticExpression, ArithmeticExpression)
+    case empty
     case error
     
     func evaluate() -> Double {
@@ -37,13 +39,16 @@ indirect enum ArithmeticExpression: Equatable {
         case let .exponentiation(left, right):
             let rightValue = right.evaluate()
             return rightValue.isNaN ? rightValue : pow(left.evaluate(), rightValue)
-        case .error:
-            return Double.nan
+        case let .root(right, left):
+            let rightValue = right.evaluate()
+            return rightValue.isNaN ? rightValue : pow(left.evaluate(), 1 / rightValue)
+        case .empty, .error:
+            return .nan
         }
     }
 }
 
-func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]] = [:]) -> ParenthesesMappingResult {
+func mapParentheses(_ elementList: [String], _ oldMapping: [String : [String]] = [:]) -> ParenthesesMappingResult {
     var seen = 0
     var startIndex = 0
     var firstParen = ""
@@ -51,20 +56,20 @@ func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]
     var mapping: [String : [String]] = oldMapping
     var processed: [String] = []
     
-    for (index, expression) in expressionList.enumerated() {
-        if seen == 0 && expression.contains("(") {
-            firstParen = expression
+    for (index, element) in elementList.enumerated() {
+        if seen == 0 && element.contains("(") {
+            firstParen = element
             startIndex = index
         }
         
-        seen += expression.contains("(") ? 1 : expression == ")" ? -1 : 0
+        seen += element.contains("(") ? 1 : element == ")" ? -1 : 0
         
         if seen > 0 && startIndex != index {
-            encapsulated += [expression]
+            encapsulated += [element]
         }
         
         if seen == 0 {
-            if expression == ")" {
+            if element == ")" {
                 let key = "p\(startIndex),\(index),\(mapping.count)"
                 mapping[key] = encapsulated
                 processed += [(firstParen.contains("-") ? "-" : "") + key]
@@ -72,77 +77,85 @@ func mapParentheses(_ expressionList: [String], _ oldMapping: [String : [String]
                 continue
             }
             
-            processed += [expression]
+            processed += [element]
         }
     }
     
-    return seen == 0 ? ParenthesesMappingResult(processedExpressionList: processed, mapping: mapping) :
-                       ParenthesesMappingResult(processedExpressionList: [], mapping: [:])
+    return seen == 0 ? ParenthesesMappingResult(processedElementList: processed, mapping: mapping) :
+                       ParenthesesMappingResult(processedElementList: [], mapping: [:])
 }
 
-func parseExpression(_ expressionList: [String], _ parenthesesMapping: [String : [String]] = [:]) -> ArithmeticExpression {
-    guard expressionList.count > 0 else {
+func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [String]] = [:]) -> ArithmeticExpression {
+    // Incomplete expression!
+    guard elementList.count % 2 == 1 else {
         return .error
     }
     
-    let (processedExpressionList, currentMapping) = mapParentheses(expressionList, parenthesesMapping)
+    let (processedElementList, currentMapping) = mapParentheses(elementList, parenthesesMapping)
     
-    if processedExpressionList.count == 0 {
+    // Unbalanced parentheses!
+    if processedElementList.count == 0 {
         return .error
-    } else if processedExpressionList.count == 1, let expression = processedExpressionList.first {
-        var key = expression
-        let hasNegation: Bool = key.contains(Button.subtract.rawValue)
+    } 
+    
+    var expressionList : [ArithmeticExpression] = []
+    
+    for element in processedElementList {
+        let possibleFunction = Function(rawValue: element)
         
-        if hasNegation {
-            key.removeFirst(1)
-        }
-        
-        if let value: [String] = currentMapping[key] {
-            let parsedExpression = parseExpression(value, parenthesesMapping)
+        if possibleFunction == nil {
+            var key = element
+            let hasNegation: Bool = key.contains("-")
             
-            return hasNegation ? .negation(parsedExpression) : parsedExpression
-        } else if expression.isProperDouble(), let value: Double = Double(expression) {
-            return .number(value)
-        }
-        
-        return .error
-    }
-
-    for operation in Button.functions() {
-        var arguments = processedExpressionList.split(separator: operation.rawValue)
-        
-        if arguments.count == 1 {
-            continue
-        }
-        
-        var parsedLeftSide: ArithmeticExpression = parseExpression(Array(arguments.removeFirst()), currentMapping)
-        var expression: ArithmeticExpression = .error
-        
-        while arguments.count > 0 {
-            let parsedRightSide: ArithmeticExpression = parseExpression(Array(arguments.removeFirst()), currentMapping)
-            var parsedExpression: ArithmeticExpression {
-                switch operation {
-                case .subtract:
-                    return .subtraction(parsedLeftSide, parsedRightSide)
-                case .add:
-                    return .addition(parsedLeftSide, parsedRightSide)
-                case .multiply:
-                    return .multiplication(parsedLeftSide, parsedRightSide)
-                case .divide:
-                    return .division(parsedLeftSide, parsedRightSide)
-                case .exponent:
-                    return .exponentiation(parsedLeftSide, parsedRightSide)
-                default:
-                    return .error
-                }
+            if hasNegation {
+                key.removeFirst(1)
             }
             
-            expression = parsedExpression
-            parsedLeftSide = expression
+            if let value: [String] = currentMapping[key] {
+                let parsedExpression = parseExpression(value, parenthesesMapping)
+                
+                if parsedExpression == .error {
+                    return .error
+                }
+                
+                expressionList += [hasNegation ? .negation(parsedExpression) : parsedExpression]
+                
+                continue
+            } else if element.isProperDouble(), let value: Double = Double(element) {
+                expressionList += [.number(value)]
+                continue
+            }
+            
+            return .error // The element encountered hasn't been accounted for yet, or isn't a proper Double yet!!
         }
         
-        return expression
+        guard let function = possibleFunction else {
+            return .error
+        }
+        
+        var functionExpression: ArithmeticExpression {
+            switch function {
+            case .add:
+                return .addition(.empty, .empty)
+            case .subtract:
+                return .subtraction(.empty, .empty)
+            case .multiply:
+                return .multiplication(.empty, .empty)
+            case .divide:
+                return .division(.empty, .empty)
+            case .exponent:
+                return .exponentiation(.empty, .empty)
+            case .root:
+                return .root(.empty, .empty)
+            }
+        }
+            
+        expressionList += [functionExpression]
     }
     
-    return .error
+    for function in Function.allCases.reversed() {
+        // TODO TOMORROW!!!
+    }
+    
+    return expressionList.count == 1 ? expressionList[0] : .error
 }

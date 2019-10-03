@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum Button: String {
+enum Digit: String, CaseIterable {
     case zero = "0"
     case one = "1"
     case two = "2"
@@ -19,33 +19,91 @@ enum Button: String {
     case seven = "7"
     case eight = "8"
     case nine = "9"
+}
+
+enum Modifier: String, CaseIterable {
     case decimal = "."
-    case equal = "="
+}
+
+enum Parenthesis: String, CaseIterable {
+    case open = "("
+    case close = ")"
+}
+
+// NOTE: This has been sorted by increasing order of precedence.
+enum Function: String, CaseIterable {
     case add = "+"
     case subtract = "-"
     case multiply = "x"
     case divide = "÷"
     case exponent = "^"
-    case open = "("
-    case close = ")"
-    case alternate = "ALT"
-    case clear = "CLR"
-    case delete = "DEL"
+    case root = "√"
+}
+
+enum Variable: String, CaseIterable {
     case answer = "ANS"
     case memory = "MEM"
+}
+
+enum Setter: String, CaseIterable {
+    case equal = "="
     case set = "SET"
+}
+
+enum Other: String, CaseIterable {
+    case alternate = "ALT"
+    case delete = "DEL"
+    case clear = "CLR"
+}
+
+enum Button: Equatable {
+    case digit(Digit)
+    case modifier(Modifier)
+    case parenthesis(Parenthesis)
+    case function(Function)
+    case variable(Variable)
+    case setter(Setter)
+    case other(Other)
     
-    static func functions() -> [Button] {
-        return [.add, .subtract, .multiply, .divide, .exponent]
+    
+    // TDOD: This needs a unit test to ensure that all the types have been accounted for...
+    static func from(rawValue: String) -> Button? {
+        if let digit = Digit(rawValue: rawValue) {
+            return .digit(digit)
+        } else if let modifier = Modifier(rawValue: rawValue) {
+            return .modifier(modifier)
+        } else if let parenthesis = Parenthesis(rawValue: rawValue) {
+            return .parenthesis(parenthesis)
+        } else if let function = Function(rawValue: rawValue) {
+            return .function(function)
+        } else if let variable = Variable(rawValue: rawValue) {
+            return .variable(variable)
+        } else if let setter = Setter(rawValue: rawValue) {
+            return .setter(setter)
+        } else if let other = Other(rawValue: rawValue) {
+            return .other(other)
+        }
+        
+        return nil
     }
-    static func variables() -> [Button] {
-        return [.answer, .memory]
-    }
-    static func parentheses() -> [Button] {
-        return [.open, .close]
-    }
-    static func numbers() -> [Button] {
-        return [.zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine]
+    
+    func rawValue() -> String {
+        switch self {
+        case .digit(let button):
+            return button.rawValue
+        case .modifier(let button):
+            return button.rawValue
+        case .parenthesis(let button):
+            return button.rawValue
+        case .function(let button):
+            return button.rawValue
+        case .variable(let button):
+            return button.rawValue
+        case .setter(let button):
+            return button.rawValue
+        case .other(let button):
+            return button.rawValue
+        }
     }
 }
 
@@ -75,13 +133,13 @@ class ViewController: UIViewController {
             textDisplayLabel.text = expressionList.joined(separator: " ") + " ="
             currentValue = parseExpression(expressionList.map({
                 switch $0 {
-                case Button.memory.rawValue:
+                case Variable.memory.rawValue:
                     return String(memory)
-                case "-" + Button.memory.rawValue:
+                case "-" + Variable.memory.rawValue:
                     return String(-memory)
-                case Button.answer.rawValue:
+                case Variable.answer.rawValue:
                     return String(answer)
-                case "-" + Button.answer.rawValue:
+                case "-" + Variable.answer.rawValue:
                     return String(-answer)
                 default:
                     return $0
@@ -97,7 +155,7 @@ class ViewController: UIViewController {
     var parenBalance: Int = 0
     var memory: Double = 0 {
         didSet {
-            guard let memoryValueDisplayLabel = variableSubviews[Button.memory.rawValue] else {
+            guard let memoryValueDisplayLabel = variableSubviews[Variable.memory.rawValue] else {
                 return
             }
 
@@ -106,7 +164,7 @@ class ViewController: UIViewController {
     }
     var answer: Double = 0 {
         didSet {
-            guard let answerValueDisplayLabel = variableSubviews[Button.answer.rawValue] else {
+            guard let answerValueDisplayLabel = variableSubviews[Variable.answer.rawValue] else {
                 return
             }
             
@@ -124,21 +182,21 @@ class ViewController: UIViewController {
         buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
         buttonView.isOpaque = false
         
-        let normalButtonLayout: [[Button]] = [[      .zero, .decimal,  .equal,      .add ],
-                                              [       .one,     .two,  .three, .subtract ],
-                                              [      .four,    .five,    .six, .multiply ],
-                                              [     .seven,   .eight,   .nine,   .divide ],
-                                              [      .open,   .close, .answer, .exponent ],
-                                              [ .alternate,  .delete,    .set,   .memory ]]
+        let normalButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),    .setter(.equal),      .function(.add) ],
+                                              [        .digit(.one),         .digit(.two),     .digit(.three), .function(.subtract) ],
+                                              [       .digit(.four),        .digit(.five),       .digit(.six), .function(.multiply) ],
+                                              [      .digit(.seven),       .digit(.eight),      .digit(.nine),   .function(.divide) ],
+                                              [ .parenthesis(.open), .parenthesis(.close), .variable(.answer), .function(.exponent) ],
+                                              [  .other(.alternate),       .other(.clear),    .other(.delete),     .function(.root) ]]
         
-        let alternateButtonLayout: [[Button]] = [[      .zero, .decimal,  .equal,      .add ],
-                                                 [       .one,     .two,  .three, .subtract ],
-                                                 [      .four,    .five,    .six, .multiply ],
-                                                 [     .seven,   .eight,   .nine,   .divide ],
-                                                 [      .open,   .close, .answer, .exponent ],
-                                                 [ .alternate,   .clear,    .set,   .memory ]]
+        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),      .setter(.set),      .function(.add) ],
+                                                 [        .digit(.one),         .digit(.two),     .digit(.three), .function(.subtract) ],
+                                                 [       .digit(.four),        .digit(.five),       .digit(.six), .function(.multiply) ],
+                                                 [      .digit(.seven),       .digit(.eight),      .digit(.nine),   .function(.divide) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close), .variable(.memory), .function(.exponent) ],
+                                                 [  .other(.alternate),       .other(.clear),    .other(.delete),     .function(.root) ]]
         
-        assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0] == alternateButtonLayout[0])
+        assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0].count == alternateButtonLayout[0].count)
         
         let buttonW = buttonView.frame.width / CGFloat(normalButtonLayout[0].count)
         let buttonH = buttonView.frame.height / CGFloat(normalButtonLayout.count)
@@ -157,9 +215,9 @@ class ViewController: UIViewController {
                     
                     let button = UIButton()
                     button.frame = CGRect(x: buttonX, y: buttonY, width: buttonW, height: buttonH)
-                    button.setTitle(buttonType.rawValue, for: .normal)
+                    button.setTitle(buttonType.rawValue(), for: .normal)
                     button.backgroundColor = kInactiveButtonColor
-                    button.setTitleColor(layout == alternateButtonLayout && buttonType == .alternate ? kActiveButtonColor : .white, for: .normal)
+                    button.setTitleColor(layout == alternateButtonLayout && buttonType == .other(.alternate) ? kActiveButtonColor : .white, for: .normal)
                     button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)
                     button.addTarget(self, action: #selector(buttonTouchUpInside), for: UIControl.Event.touchUpInside)
                     button.addTarget(self, action: #selector(buttonTouchUpOutside), for: UIControl.Event.touchUpOutside)
@@ -201,7 +259,7 @@ class ViewController: UIViewController {
         
         expressionList = ["0"]
         
-        let variableCount: CGFloat = CGFloat(Button.variables().count)
+        let variableCount: CGFloat = CGFloat(Variable.allCases.count)
         let variableViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
         let variableViewW = view.frame.width
         
@@ -211,7 +269,7 @@ class ViewController: UIViewController {
         variableView.isOpaque = true
         variableView.backgroundColor = kInactiveButtonColor
         
-        for (index, variable) in Button.variables().enumerated() {
+        for (index, variable) in Variable.allCases.enumerated() {
             let variableSubviewX: CGFloat = CGFloat(index) * variableViewW / variableCount
 
             let variableSubview = UIView()
@@ -258,7 +316,7 @@ class ViewController: UIViewController {
         sender.backgroundColor = kInactiveButtonColor
         
         guard let buttonText: String = sender.title(for: currentState),
-              let button: Button = Button(rawValue: buttonText) else {
+              let button: Button = Button.from(rawValue: buttonText) else {
             return
         }
         
@@ -266,16 +324,13 @@ class ViewController: UIViewController {
         let lastExpression: String = expressionList[expressionCount - 1]
         
         switch button {
-        case .alternate:
-            normalButtonView.isHidden = !normalButtonView.isHidden
-            alternateButtonView.isHidden = !alternateButtonView.isHidden
-        case .memory, .answer:
+        case .variable(_):
             if lastExpression.isDouble() && !["0", "-0"].contains(lastExpression) {
                 return
             }
             
             fallthrough
-        case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
+        case .digit(_):
             if lastExpression.isCloseParen() || lastExpression.isVariable() {
                 return
             }
@@ -296,87 +351,86 @@ class ViewController: UIViewController {
             } else {
                 expressionList += [buttonText]
             }
-            
-            return
-        case .equal:
-            answer = currentValue
-            return
-        case .decimal:
-            if lastExpression.isInt() {
-                expressionList[expressionCount - 1] = lastExpression + buttonText
+        case .modifier(let modifier):
+            switch modifier {
+            case .decimal:
+                if lastExpression.isInt() {
+                    expressionList[expressionCount - 1] = lastExpression + buttonText
+                }
             }
-            
-            return
-        case .subtract:
-            var allowNegationList: [String] = Button.functions().map({$0.rawValue})
-            allowNegationList += [Button.open.rawValue]
-            allowNegationList += ["-" + Button.open.rawValue]
-            
-            if expressionList == ["0"] {
-                expressionList = ["-0"]
-            } else if allowNegationList.contains(lastExpression) {
-                expressionList += ["-0"]
-            } else if lastExpression.isCloseParen() || lastExpression.isProperDouble() {
+        case .parenthesis(let parenthesis):
+            switch parenthesis {
+            case .open:
+                if lastExpression == "-0" {
+                    expressionList[expressionCount - 1] = "-" + buttonText
+                    parenBalance += 1
+                    return
+                } else if expressionList == ["0"] {
+                    expressionList = lastExpression == "0" ? [buttonText] : ["-" + buttonText]
+                    parenBalance += 1
+                    return
+                }
+    
+                if lastExpression.isCloseParen() || lastExpression.isDouble() {
+                    return
+                }
+    
+                parenBalance += 1
+                expressionList += [buttonText]
+            case .close:
+                if !lastExpression.isProperDouble() && !lastExpression.isCloseParen() || parenBalance == 0 {
+                    return
+                }
+    
+                expressionList += [buttonText]
+                parenBalance -= 1
+            }
+        case .function(let function):
+            switch function {
+            case .subtract:
+                let allowNegationList: [String] = Function.allCases.map({$0.rawValue}) + [Parenthesis.open.rawValue, "-" + Parenthesis.open.rawValue]
+
+                if expressionList == ["0"] {
+                    expressionList = ["-0"]
+                } else if allowNegationList.contains(lastExpression) {
+                    expressionList += ["-0"]
+                } else if lastExpression.isCloseParen() || lastExpression.isProperDouble() {
+                    expressionList += [buttonText]
+                }
+            case .add, .multiply, .divide, .exponent, .root:
+                if lastExpression.isOpenParen() || !lastExpression.isProperDouble() && !lastExpression.isCloseParen() {
+                    return
+                }
+    
                 expressionList += [buttonText]
             }
-            
-            return
-        case .add, .multiply, .divide, .exponent:
-            if lastExpression.isOpenParen() || !lastExpression.isProperDouble() && !lastExpression.isCloseParen() {
-                return
+        case .setter(let setter):
+            switch setter {
+            case .equal:
+                answer = currentValue
+            case .set:
+                memory = currentValue
             }
-            
-            expressionList += [buttonText]
-            
-            return
-        case .open:
-            if lastExpression == "-0" {
-                expressionList[expressionCount - 1] = "-" + buttonText
-                parenBalance += 1
-                return
-            } else if expressionList == ["0"] {
-                expressionList = lastExpression == "0" ? [buttonText] : ["-" + buttonText]
-                parenBalance += 1
-                return
+        case .other(let other):
+            switch other {
+            case .alternate:
+                normalButtonView.isHidden = !normalButtonView.isHidden
+                alternateButtonView.isHidden = !alternateButtonView.isHidden
+            case .delete:
+                parenBalance += lastExpression.isCloseParen() ? 1 : lastExpression.isOpenParen() ? -1 : 0
+                
+                if lastExpression.isProperDouble() {
+                    expressionList[expressionCount - 1] = String(lastExpression.dropLast())
+                }
+                
+                // Also catches pesky "" expressions that persist after deleting doubles
+                if !expressionList[expressionCount - 1].isProperDouble() {
+                    expressionList = expressionList.dropLast()
+                }
+            case .clear:
+                expressionList = []
+                parenBalance = 0
             }
-            
-            if lastExpression.isCloseParen() || lastExpression.isDouble() {
-                return
-            }
-            
-            parenBalance += 1
-            expressionList += [buttonText]
-            
-            return
-        case .close:
-            if !lastExpression.isProperDouble() && !lastExpression.isCloseParen() || parenBalance == 0 {
-                return
-            }
-            
-            expressionList += [buttonText]
-            parenBalance -= 1
-            
-            return
-        case .clear:
-            expressionList = []
-            parenBalance = 0
-            return
-        case .delete:
-            parenBalance += lastExpression.isCloseParen() ? 1 : lastExpression.isOpenParen() ? -1 : 0
-            
-            if lastExpression.isProperDouble() {
-                expressionList[expressionCount - 1] = String(lastExpression.dropLast())
-            }
-            
-            // Also catches pesky "" expressions that persist after deleting doubles
-            if !expressionList[expressionCount - 1].isProperDouble() {
-                expressionList = expressionList.dropLast()
-            }
-            
-            return
-        case .set:
-            memory = currentValue
-            return
         }
     }
     

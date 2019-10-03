@@ -18,7 +18,7 @@ extension String {
     }
     
     func isVariable() -> Bool {
-        return Button.variables().map({$0.rawValue}).contains(where: {$0 == self || "-" + $0 == self})
+        return Variable.allCases.map({$0.rawValue}).contains(where: {$0 == self || "-" + $0 == self})
     }
     
     func isDouble() -> Bool {
@@ -30,11 +30,11 @@ extension String {
     }
     
     func isOpenParen() -> Bool {
-        return self == Button.open.rawValue
+        return self == Parenthesis.open.rawValue
     }
     
     func isCloseParen() -> Bool {
-        return self == Button.close.rawValue
+        return self == Parenthesis.close.rawValue
     }
 }
 

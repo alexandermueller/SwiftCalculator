@@ -48,6 +48,7 @@ class ArithmeticExpressionTests: XCTestCase {
             UnitTest(.exponentiation(.number(3), .number(0)), 1),
             UnitTest(.exponentiation(.number(.infinity), .number(0)), 1),
             UnitTest(.exponentiation(.number(0), .number(.infinity)), 0)
+            // TODO: Make root unit tests
         ]
         
         for (index, testCase) in testCases.enumerated() {
@@ -88,6 +89,7 @@ class ArithmeticExpressionTests: XCTestCase {
             UnitTest(["1", "÷", "3", "^", "(", "5", "-", "7", ")"], .division(.number(1), .exponentiation(.number(3), .subtraction(.number(5), .number(7))))),
             UnitTest(["-3", "^", "2", "^", "0.5"], .exponentiation(.number(-3), .exponentiation(.number(2), .number(0.5)))),
             UnitTest(["(", "-3", "^", "2", ")", "^", "0.5"], .exponentiation(.exponentiation(.number(-3), .number(2)), .number(0.5)))
+            // TODO: Make root unit tests
         ]
         
         for (index, testCase) in testCases.enumerated() {
