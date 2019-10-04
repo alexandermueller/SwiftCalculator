@@ -8,27 +8,37 @@
 
 import Foundation
 
-let kMaxDisplayLength = 8
-let kMaxSignificantDigits = 3
+enum MaxDisplayLength: Int {
+    case buttonDisplay = 8
+    case fullDisplay = 12
+    case highestLimit = 20
+}
 
 extension Double {
-    func toSimpleNumericString(_ shortenNotation: Bool = false) -> String {
+    // Forces the displayed number to be the appropriate character length depending on the display type
+    func toSimpleNumericString(for displayLimit: MaxDisplayLength = .highestLimit) -> String {
         guard !self.isNaN else {
             return String("NaN")
         }
 
-        let stringValue = String(self)
+        var value = String(self).removeFirstContainedSuffix([".0", "E0", "e0"])
+        
         let formatter = NumberFormatter()
         formatter.numberStyle = .scientific
-        formatter.maximumSignificantDigits = kMaxSignificantDigits
+        formatter.maximumSignificantDigits = displayLimit.rawValue
         
-        if stringValue.count > kMaxDisplayLength && shortenNotation {
-            return formatter.string(from: NSNumber(value: self)) ?? "NaN"
-        } else if self.remainder(dividingBy: 1) == 0 {
-            let endOfIntegerValue = stringValue.firstIndex(of: ".") ?? stringValue.endIndex
-            return String(stringValue[..<endOfIntegerValue])
+        if value.count > displayLimit.rawValue && (displayLimit == .buttonDisplay || self.remainder(dividingBy: 1) == 0) {
+            var formattedValue = formatter.string(from: NSNumber(value: self)) ?? "NaN"
+            
+            if formattedValue.count > displayLimit.rawValue {
+                let eLength = max(formattedValue.distance(from: (formattedValue.firstIndex(where: {["E", "e"].contains($0)}) ?? formattedValue.endIndex), to: formattedValue.endIndex), 0)
+                formatter.maximumSignificantDigits = displayLimit.rawValue - formattedValue.countCharacters(["-", "."], until: ["E", "e"]) - eLength
+                formattedValue = formatter.string(from: NSNumber(value: self)) ?? "NaN"
+            }
+            
+            value = formattedValue
         }
         
-        return String(self)
+        return value.removeFirstContainedSuffix([".0", "E0", "e0"])
     }
 }

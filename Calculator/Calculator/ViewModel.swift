@@ -131,6 +131,7 @@ class ViewModel {
         case .setter(let setter):
             switch setter {
             case .equal:
+                expressionList = Array(expressionList) // Allows for value stepping!
                 answer = currentValue
             case .set:
                 memory = currentValue

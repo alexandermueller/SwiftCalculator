@@ -22,6 +22,23 @@ indirect enum ArithmeticExpression: Equatable {
     case empty
     case error
     
+    static func from(function: Function, leftValue: ArithmeticExpression = .empty, rightValue: ArithmeticExpression = .empty) -> ArithmeticExpression {
+        switch function {
+        case .add:
+            return .addition(leftValue, rightValue)
+        case .subtract:
+            return .subtraction(leftValue, rightValue)
+        case .multiply:
+            return .multiplication(leftValue, rightValue)
+        case .divide:
+            return .division(leftValue, rightValue)
+        case .exponent:
+            return .exponentiation(leftValue, rightValue)
+        case .root:
+            return .root(leftValue, rightValue)
+        }
+    }
+    
     func evaluate() -> Double {
         switch self {
         case let .number(value):
@@ -36,12 +53,12 @@ indirect enum ArithmeticExpression: Equatable {
             return left.evaluate() * right.evaluate()
         case let .division(left, right):
             return left.evaluate() / right.evaluate()
-        case let .exponentiation(left, right):
-            let rightValue = right.evaluate()
-            return rightValue.isNaN ? rightValue : pow(left.evaluate(), rightValue)
-        case let .root(right, left):
-            let rightValue = right.evaluate()
-            return rightValue.isNaN ? rightValue : pow(left.evaluate(), 1 / rightValue)
+        case let .exponentiation(base, exponent):
+            let exponentValue = exponent.evaluate()
+            return exponentValue.isNaN ? exponentValue : pow(base.evaluate(), exponentValue)
+        case let .root(root, base):
+            let rootValue = root.evaluate()
+            return rootValue.isNaN ? rootValue : pow(base.evaluate(), 1 / rootValue)
         case .empty, .error:
             return .nan
         }
@@ -127,32 +144,42 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
             }
         }
         
-        guard let function = possibleFunction else {
+        guard let functionElement = possibleFunction else {
             return .error // The element encountered hasn't been accounted for yet, or isn't a proper Double!!
         }
         
-        var functionExpression: ArithmeticExpression {
-            switch function {
-            case .add:
-                return .addition(.empty, .empty)
-            case .subtract:
-                return .subtraction(.empty, .empty)
-            case .multiply:
-                return .multiplication(.empty, .empty)
-            case .divide:
-                return .division(.empty, .empty)
-            case .exponent:
-                return .exponentiation(.empty, .empty)
-            case .root:
-                return .root(.empty, .empty)
-            }
-        }
-            
-        expressionList += [functionExpression]
+        expressionList += [ArithmeticExpression.from(function: functionElement)]
     }
     
-    for function in Function.allCases.reversed() {
-        // TODO TOMORROW!!!
+    var expressionStack: [ArithmeticExpression] = []
+    var shouldSkip = false
+    
+    for (function, functionExpression) in Function.allCases.reversed().map({($0, ArithmeticExpression.from(function: $0))}) {
+        for (index, expression) in expressionList.enumerated() {
+            if shouldSkip {
+                shouldSkip = false
+                continue
+            }
+            
+            if expression == functionExpression {
+                guard let last = expressionStack.popLast(),
+                      index + 1 < expressionList.count else {
+                    return .error
+                }
+                
+                let next = expressionList[index + 1]
+                expressionStack += [ArithmeticExpression.from(function: function, leftValue: last, rightValue: next)]
+                
+                
+                shouldSkip = true
+                continue
+            }
+            
+            expressionStack += [expression]
+        }
+        
+        expressionList = expressionStack
+        expressionStack = []
     }
     
     return expressionList.count == 1 ? expressionList[0] : .error
