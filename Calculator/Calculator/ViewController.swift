@@ -8,53 +8,13 @@
 
 import UIKit
 
-enum Button: String {
-    case zero = "0"
-    case one = "1"
-    case two = "2"
-    case three = "3"
-    case four = "4"
-    case five = "5"
-    case six = "6"
-    case seven = "7"
-    case eight = "8"
-    case nine = "9"
-    case decimal = "."
-    case equal = "="
-    case add = "+"
-    case subtract = "-"
-    case multiply = "x"
-    case divide = "÷"
-    case exponent = "^"
-    case open = "("
-    case close = ")"
-    case alternate = "ALT"
-    case clear = "CLR"
-    case delete = "DEL"
-    case answer = "ANS"
-    case memory = "MEM"
-    case set = "SET"
-    
-    static func functions() -> [Button] {
-        return [.add, .subtract, .multiply, .divide, .exponent]
-    }
-    static func variables() -> [Button] {
-        return [.answer, .memory]
-    }
-    static func parentheses() -> [Button] {
-        return [.open, .close]
-    }
-    static func numbers() -> [Button] {
-        return [.zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine]
-    }
-}
-
 let kInactiveButtonColor: UIColor = .brown
 let kActiveButtonColor: UIColor = .orange
 let kViewMargin: CGFloat = 2
 let kLabelFontToHeightRatio: CGFloat = 0.33
 
 class ViewController: UIViewController {
+    let viewModel = ViewModel()
     let backgroundView = UIView()
     let textDisplayLabel = UILabel()
     let valueDisplayLabel = UILabel()
@@ -64,55 +24,7 @@ class ViewController: UIViewController {
     let alternateButtonView = UIView()
     
     var variableSubviews: [String : UILabel] = [:]
-    
     var currentState: UIControl.State = .normal
-    var expressionList: [String] = ["0"] {
-        didSet {
-            if expressionList.isEmpty {
-                expressionList = ["0"]
-            }
-            
-            textDisplayLabel.text = expressionList.joined(separator: " ") + " ="
-            currentValue = parseExpression(expressionList.map({
-                switch $0 {
-                case Button.memory.rawValue:
-                    return String(memory)
-                case "-" + Button.memory.rawValue:
-                    return String(-memory)
-                case Button.answer.rawValue:
-                    return String(answer)
-                case "-" + Button.answer.rawValue:
-                    return String(-answer)
-                default:
-                    return $0
-                }
-            })).evaluate()
-        }
-    }
-    var currentValue: Double = 0 {
-        didSet {
-            valueDisplayLabel.text = currentValue.toSimpleNumericString()
-        }
-    }
-    var parenBalance: Int = 0
-    var memory: Double = 0 {
-        didSet {
-            guard let memoryValueDisplayLabel = variableSubviews[Button.memory.rawValue] else {
-                return
-            }
-
-            memoryValueDisplayLabel.text = "= " + memory.toSimpleNumericString(true) + " "
-        }
-    }
-    var answer: Double = 0 {
-        didSet {
-            guard let answerValueDisplayLabel = variableSubviews[Button.answer.rawValue] else {
-                return
-            }
-            
-            answerValueDisplayLabel.text = "= " + answer.toSimpleNumericString(true) + " "
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -124,21 +36,21 @@ class ViewController: UIViewController {
         buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
         buttonView.isOpaque = false
         
-        let normalButtonLayout: [[Button]] = [[      .zero, .decimal,  .equal,      .add ],
-                                              [       .one,     .two,  .three, .subtract ],
-                                              [      .four,    .five,    .six, .multiply ],
-                                              [     .seven,   .eight,   .nine,   .divide ],
-                                              [      .open,   .close, .answer, .exponent ],
-                                              [ .alternate,  .delete,    .set,   .memory ]]
+        let normalButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),    .setter(.equal),      .function(.add) ],
+                                              [        .digit(.one),         .digit(.two),     .digit(.three), .function(.subtract) ],
+                                              [       .digit(.four),        .digit(.five),       .digit(.six), .function(.multiply) ],
+                                              [      .digit(.seven),       .digit(.eight),      .digit(.nine),   .function(.divide) ],
+                                              [ .parenthesis(.open), .parenthesis(.close),   .function(.root), .function(.exponent) ],
+                                              [  .other(.alternate),       .other(.clear),    .other(.delete),   .variable(.answer) ]]
         
-        let alternateButtonLayout: [[Button]] = [[      .zero, .decimal,  .equal,      .add ],
-                                                 [       .one,     .two,  .three, .subtract ],
-                                                 [      .four,    .five,    .six, .multiply ],
-                                                 [     .seven,   .eight,   .nine,   .divide ],
-                                                 [      .open,   .close, .answer, .exponent ],
-                                                 [ .alternate,   .clear,    .set,   .memory ]]
+        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),      .setter(.set),      .function(.add) ],
+                                                 [        .digit(.one),         .digit(.two),     .digit(.three), .function(.subtract) ],
+                                                 [       .digit(.four),        .digit(.five),       .digit(.six), .function(.multiply) ],
+                                                 [      .digit(.seven),       .digit(.eight),      .digit(.nine),   .function(.divide) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close),   .function(.root), .function(.exponent) ],
+                                                 [  .other(.alternate),       .other(.clear),    .other(.delete),   .variable(.memory) ]]
         
-        assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0] == alternateButtonLayout[0])
+        assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0].count == alternateButtonLayout[0].count)
         
         let buttonW = buttonView.frame.width / CGFloat(normalButtonLayout[0].count)
         let buttonH = buttonView.frame.height / CGFloat(normalButtonLayout.count)
@@ -157,9 +69,9 @@ class ViewController: UIViewController {
                     
                     let button = UIButton()
                     button.frame = CGRect(x: buttonX, y: buttonY, width: buttonW, height: buttonH)
-                    button.setTitle(buttonType.rawValue, for: .normal)
+                    button.setTitle(buttonType.rawValue(), for: .normal)
                     button.backgroundColor = kInactiveButtonColor
-                    button.setTitleColor(layout == alternateButtonLayout && buttonType == .alternate ? kActiveButtonColor : .white, for: .normal)
+                    button.setTitleColor(layout == alternateButtonLayout && buttonType == .other(.alternate) ? kActiveButtonColor : .white, for: .normal)
                     button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)
                     button.addTarget(self, action: #selector(buttonTouchUpInside), for: UIControl.Event.touchUpInside)
                     button.addTarget(self, action: #selector(buttonTouchUpOutside), for: UIControl.Event.touchUpOutside)
@@ -184,6 +96,7 @@ class ViewController: UIViewController {
         textDisplayLabel.textAlignment = .right
         textDisplayLabel.adjustsFontSizeToFitWidth = true
         textDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: textDisplayLabelH * kLabelFontToHeightRatio)
+        textDisplayLabel.text = "0 ="
         
         let variableViewH = buttonH
         let valueDisplayLabelY = textDisplayLabelY + textDisplayLabelH + kViewMargin
@@ -195,13 +108,12 @@ class ViewController: UIViewController {
         valueDisplayLabel.textAlignment = .right
         valueDisplayLabel.adjustsFontSizeToFitWidth = true
         valueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: valueDisplayLabelH * kLabelFontToHeightRatio)
+        valueDisplayLabel.text = "0"
         
         buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
         buttonView.isOpaque = false
         
-        expressionList = ["0"]
-        
-        let variableCount: CGFloat = CGFloat(Button.variables().count)
+        let variableCount: CGFloat = CGFloat(Variable.allCases.count)
         let variableViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
         let variableViewW = view.frame.width
         
@@ -211,7 +123,7 @@ class ViewController: UIViewController {
         variableView.isOpaque = true
         variableView.backgroundColor = kInactiveButtonColor
         
-        for (index, variable) in Button.variables().enumerated() {
+        for (index, variable) in Variable.allCases.enumerated() {
             let variableSubviewX: CGFloat = CGFloat(index) * variableViewW / variableCount
 
             let variableSubview = UIView()
@@ -232,6 +144,8 @@ class ViewController: UIViewController {
             variableValueDisplayLabel.textColor = kActiveButtonColor
             variableValueDisplayLabel.textAlignment = .center
             variableValueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
+            variableValueDisplayLabel.adjustsFontSizeToFitWidth = true
+            variableValueDisplayLabel.text = "= 0 "
             
             variableSubviews[variable.rawValue] = variableValueDisplayLabel
             
@@ -239,9 +153,6 @@ class ViewController: UIViewController {
             variableSubview.addSubview(variableValueDisplayLabel)
             variableView.addSubview(variableSubview)
         }
-        
-        memory = 0
-        answer = 0
         
         view.addSubview(backgroundView)
         view.addSubview(textDisplayLabel)
@@ -258,124 +169,24 @@ class ViewController: UIViewController {
         sender.backgroundColor = kInactiveButtonColor
         
         guard let buttonText: String = sender.title(for: currentState),
-              let button: Button = Button(rawValue: buttonText) else {
+              let button: Button = Button.from(rawValue: buttonText) else {
             return
         }
         
-        let expressionCount = expressionList.count
-        let lastExpression: String = expressionList[expressionCount - 1]
+        viewModel.buttonPressed(button)
         
-        switch button {
-        case .alternate:
-            normalButtonView.isHidden = !normalButtonView.isHidden
-            alternateButtonView.isHidden = !alternateButtonView.isHidden
-        case .memory, .answer:
-            if lastExpression.isDouble() && !["0", "-0"].contains(lastExpression) {
-                return
-            }
-            
-            fallthrough
-        case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
-            if lastExpression.isCloseParen() || lastExpression.isVariable() {
-                return
-            }
-            
-            if lastExpression.isDouble() {
-                var newExpression: String {
-                    switch lastExpression {
-                    case "0":
-                        return expressionCount == 1 ? buttonText : lastExpression
-                    case "-0":
-                        return "-" + buttonText
-                    default:
-                        return lastExpression + buttonText
-                    }
-                }
-                
-                expressionList[expressionCount - 1] = newExpression
-            } else {
-                expressionList += [buttonText]
-            }
-            
-            return
-        case .equal:
-            answer = currentValue
-            return
-        case .decimal:
-            if lastExpression.isInt() {
-                expressionList[expressionCount - 1] = lastExpression + buttonText
-            }
-            
-            return
-        case .subtract:
-            var allowNegationList: [String] = [Button.add, Button.subtract, Button.multiply, Button.divide, Button.exponent, Button.open].map({$0.rawValue})
-            allowNegationList += ["-" + Button.open.rawValue]
-            
-            if expressionList == ["0"] {
-                expressionList = ["-0"]
-            } else if allowNegationList.contains(lastExpression) {
-                expressionList += ["-0"]
-            } else if lastExpression.isCloseParen() || lastExpression.isProperDouble() {
-                expressionList += [buttonText]
-            }
-            
-            return
-        case .add, .multiply, .divide, .exponent:
-            if lastExpression.isOpenParen() || !lastExpression.isProperDouble() && !lastExpression.isCloseParen() {
-                return
-            }
-            
-            expressionList += [buttonText]
-            
-            return
-        case .open:
-            if lastExpression == "-0" {
-                expressionList[expressionCount - 1] = "-" + buttonText
-                parenBalance += 1
-                return
-            } else if expressionList == ["0"] {
-                expressionList = lastExpression == "0" ? [buttonText] : ["-" + buttonText]
-                parenBalance += 1
-                return
-            }
-            
-            if lastExpression.isCloseParen() || lastExpression.isDouble() {
-                return
-            }
-            
-            parenBalance += 1
-            expressionList += [buttonText]
-            
-            return
-        case .close:
-            if !lastExpression.isProperDouble() && !lastExpression.isCloseParen() || parenBalance == 0 {
-                return
-            }
-            
-            expressionList += [buttonText]
-            parenBalance -= 1
-            
-            return
-        case .clear:
-            expressionList = []
-            parenBalance = 0
-            return
-        case .delete:
-            parenBalance += lastExpression.isCloseParen() ? 1 : lastExpression.isOpenParen() ? -1 : 0
-            
-            if lastExpression.isProperDouble() {
-                expressionList[expressionCount - 1] = String(lastExpression.dropLast())
-            }
-            
-            // Also catches pesky "" expressions that persist after deleting doubles
-            if !expressionList[expressionCount - 1].isProperDouble() {
-                expressionList = expressionList.dropLast()
-            }
-            
-            return
-        case .set:
-            memory = currentValue
-            return
+        textDisplayLabel.text = viewModel.expressionList.joined(separator: " ") + " ="
+        valueDisplayLabel.text = viewModel.currentValue.toSimpleNumericString(for: .fullDisplay) // TODO: This might need some fine-tuning (was false before)
+        
+        normalButtonView.isHidden = viewModel.buttonViewMode != .normal
+        alternateButtonView.isHidden = viewModel.buttonViewMode != .alternate
+        
+        if let memoryValueDisplayLabel = variableSubviews[Variable.memory.rawValue] {
+            memoryValueDisplayLabel.text = "= " + viewModel.memory.toSimpleNumericString(for: .buttonDisplay) + " "
+        }
+        
+        if let answerValueDisplayLabel = variableSubviews[Variable.answer.rawValue] {
+            answerValueDisplayLabel.text = "= " + viewModel.answer.toSimpleNumericString(for: .buttonDisplay) + " "
         }
     }
     
