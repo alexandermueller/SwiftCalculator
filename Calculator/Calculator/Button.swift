@@ -30,14 +30,65 @@ enum Parenthesis: String, CaseIterable {
     case close = ")"
 }
 
-// NOTE: This has been sorted by increasing order of precedence.
-enum Function: String, CaseIterable {
+enum Left: String, CaseIterable {
+    case negate = "-"
+    case sqrt = "√"
+}
+
+enum Middle: String, CaseIterable {
     case add = "+"
-    case subtract = "-"
+    case subtract = "–"
     case multiply = "x"
     case divide = "÷"
     case exponent = "^"
-    case root = "√"
+    case root = "x√y"
+}
+
+enum Right: String, CaseIterable {
+    case factorial = "!"
+}
+
+// NOTE: This has been sorted by increasing order of precedence.
+enum Function: Equatable {
+    case left(Left)
+    case middle(Middle)
+    case right(Right)
+    
+    static func from(rawValue: String) -> Function? {
+        if let left = Left(rawValue: rawValue) {
+            return .left(left)
+        } else if let middle = Middle(rawValue: rawValue) {
+            return .middle(middle)
+        } else if let right = Right(rawValue: rawValue) {
+            return .right(right)
+        }
+        
+        return nil
+    }
+    
+    // Highest to lowest precedence
+    static func allCasesOrdered() -> [Function] {
+        return [.right(.factorial),
+                .middle(.root),
+                .left(.sqrt),
+                .middle(.exponent),
+                .left(.negate),
+                .middle(.divide),
+                .middle(.multiply),
+                .middle(.subtract),
+                .middle(.add)]
+    }
+    
+    func rawValue() -> String {
+        switch self {
+        case .left(let function):
+            return function.rawValue
+        case .middle(let function):
+            return function.rawValue
+        case .right(let function):
+            return function.rawValue
+        }
+    }
 }
 
 enum Variable: String, CaseIterable {
@@ -45,12 +96,9 @@ enum Variable: String, CaseIterable {
     case memory = "MEM"
 }
 
-enum Setter: String, CaseIterable {
+enum Other: String, CaseIterable {
     case equal = "="
     case set = "SET"
-}
-
-enum Other: String, CaseIterable {
     case alternate = "ALT"
     case delete = "DEL"
     case clear = "CLR"
@@ -62,7 +110,6 @@ enum Button: Equatable {
     case parenthesis(Parenthesis)
     case function(Function)
     case variable(Variable)
-    case setter(Setter)
     case other(Other)
     
     
@@ -74,12 +121,10 @@ enum Button: Equatable {
             return .modifier(modifier)
         } else if let parenthesis = Parenthesis(rawValue: rawValue) {
             return .parenthesis(parenthesis)
-        } else if let function = Function(rawValue: rawValue) {
+        } else if let function = Function.from(rawValue: rawValue) {
             return .function(function)
         } else if let variable = Variable(rawValue: rawValue) {
             return .variable(variable)
-        } else if let setter = Setter(rawValue: rawValue) {
-            return .setter(setter)
         } else if let other = Other(rawValue: rawValue) {
             return .other(other)
         }
@@ -96,10 +141,8 @@ enum Button: Equatable {
         case .parenthesis(let button):
             return button.rawValue
         case .function(let button):
-            return button.rawValue
+            return button.rawValue()
         case .variable(let button):
-            return button.rawValue
-        case .setter(let button):
             return button.rawValue
         case .other(let button):
             return button.rawValue

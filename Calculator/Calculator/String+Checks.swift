@@ -14,11 +14,11 @@ extension String {
             return false
         }
         
-        return self.isVariable() || self.isDouble() && lastCharacter != Character(".")
+        return self.isVariable() || self.isDouble() && lastCharacter != Character(Modifier.decimal.rawValue)
     }
     
     func isVariable() -> Bool {
-        return Variable.allCases.map({$0.rawValue}).contains(where: {$0 == self || "-" + $0 == self})
+        return Variable.allCases.map({$0.rawValue}).contains(self)
     }
     
     func isDouble() -> Bool {
@@ -35,6 +35,10 @@ extension String {
     
     func isCloseParen() -> Bool {
         return self == Parenthesis.close.rawValue
+    }
+    
+    func isFactorial() -> Bool {
+        return self == Right.factorial.rawValue
     }
 }
 

@@ -7,6 +7,13 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
+
+enum ButtonViewMode {
+    case normal
+    case alternate
+}
 
 let kInactiveButtonColor: UIColor = .brown
 let kActiveButtonColor: UIColor = .orange
@@ -14,17 +21,39 @@ let kViewMargin: CGFloat = 2
 let kLabelFontToHeightRatio: CGFloat = 0.33
 
 class ViewController: UIViewController {
-    let viewModel = ViewModel()
-    let backgroundView = UIView()
-    let textDisplayLabel = UILabel()
-    let valueDisplayLabel = UILabel()
-    let variableView = UIView()
-    let buttonView = UIView()
-    let normalButtonView = UIView()
-    let alternateButtonView = UIView()
+    private let viewModel: ViewModel
+    private let buttonViewModeSubject = BehaviorSubject<ButtonViewMode>(value: .normal)
+    private let memorySubject = BehaviorSubject<Double>(value: 0)
+    private let answerSubject = BehaviorSubject<Double>(value: 0)
+    private let expressionTextSubject = BehaviorSubject<String>(value: "0")
+    private let currentValueSubject = BehaviorSubject<Double>(value: 0)
+    private let buttonPressSubject = PublishSubject<Button>()
     
-    var variableSubviews: [String : UILabel] = [:]
-    var currentState: UIControl.State = .normal
+    private let bag = DisposeBag()
+    private let backgroundView = UIView()
+    private let textDisplayLabel = UILabel()
+    private let valueDisplayLabel = UILabel()
+    private let variableView = UIView()
+    private let buttonView = UIView()
+    private let normalButtonView = UIView()
+    private let alternateButtonView = UIView()
+
+    private var variableSubviews: [String : UILabel] = [:]
+    private var currentState: UIControl.State = .normal
+    
+     required init?(coder aDecoder: NSCoder) {
+        viewModel = ViewModel(expressionTextSubject: expressionTextSubject,
+                              currentValueSubject: currentValueSubject,
+                              memorySubject: memorySubject,
+                              answerSubject: answerSubject,
+                              buttonViewModeSubject: buttonViewModeSubject,
+                              buttonPressSubject: buttonPressSubject,
+                              bag: bag)
+        
+        viewModel.startStateMachine()
+        
+        super.init(coder: aDecoder)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,19 +65,19 @@ class ViewController: UIViewController {
         buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
         buttonView.isOpaque = false
         
-        let normalButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),    .setter(.equal),      .function(.add) ],
-                                              [        .digit(.one),         .digit(.two),     .digit(.three), .function(.subtract) ],
-                                              [       .digit(.four),        .digit(.five),       .digit(.six), .function(.multiply) ],
-                                              [      .digit(.seven),       .digit(.eight),      .digit(.nine),   .function(.divide) ],
-                                              [ .parenthesis(.open), .parenthesis(.close),   .function(.root), .function(.exponent) ],
-                                              [  .other(.alternate),       .other(.clear),    .other(.delete),   .variable(.answer) ]]
+        let normalButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)) ],
+                                              [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)) ],
+                                              [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)) ],
+                                              [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)) ],
+                                              [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
+                                              [  .other(.alternate),       .other(.clear),         .other(.delete),            .variable(.answer) ]]
         
-        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),      .setter(.set),      .function(.add) ],
-                                                 [        .digit(.one),         .digit(.two),     .digit(.three), .function(.subtract) ],
-                                                 [       .digit(.four),        .digit(.five),       .digit(.six), .function(.multiply) ],
-                                                 [      .digit(.seven),       .digit(.eight),      .digit(.nine),   .function(.divide) ],
-                                                 [ .parenthesis(.open), .parenthesis(.close),   .function(.root), .function(.exponent) ],
-                                                 [  .other(.alternate),       .other(.clear),    .other(.delete),   .variable(.memory) ]]
+        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),              .other(.set),       .function(.middle(.add)) ],
+                                                 [        .digit(.one),         .digit(.two),            .digit(.three),  .function(.middle(.subtract)) ],
+                                                 [       .digit(.four),        .digit(.five),              .digit(.six),  .function(.middle(.multiply)) ],
+                                                 [      .digit(.seven),       .digit(.eight),             .digit(.nine),    .function(.middle(.divide)) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.middle(.root)),  .function(.right(.factorial)) ],
+                                                 [  .other(.alternate),       .other(.clear),           .other(.delete),             .variable(.memory) ]]
         
         assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0].count == alternateButtonLayout[0].count)
         
@@ -159,6 +188,31 @@ class ViewController: UIViewController {
         view.addSubview(valueDisplayLabel)
         view.addSubview(variableView)
         view.addSubview(buttonView)
+        
+        expressionTextSubject.subscribe(onNext: { [unowned self] expression in
+            self.textDisplayLabel.text = expression + " ="
+        }).disposed(by: bag)
+        
+        currentValueSubject.subscribe(onNext: { [unowned self] currentValue in
+            self.valueDisplayLabel.text = currentValue.toSimpleNumericString(for: .fullDisplay)
+        }).disposed(by: bag)
+        
+        buttonViewModeSubject.subscribe(onNext: { [unowned self] buttonViewMode in
+            self.normalButtonView.isHidden = buttonViewMode != .normal
+            self.alternateButtonView.isHidden = buttonViewMode != .alternate
+        }).disposed(by: bag)
+        
+        memorySubject.subscribe(onNext: { [unowned self] memory in
+            if let memoryValueDisplayLabel = self.variableSubviews[Variable.memory.rawValue] {
+                memoryValueDisplayLabel.text = "= " + memory.toSimpleNumericString(for: .buttonDisplay) + " "
+            }
+        }).disposed(by: bag)
+        
+        answerSubject.subscribe(onNext: { [unowned self] answer in
+            if let answerValueDisplayLabel = self.variableSubviews[Variable.answer.rawValue] {
+                answerValueDisplayLabel.text = "= " + answer.toSimpleNumericString(for: .buttonDisplay) + " "
+            }
+        }).disposed(by: bag)
     }
     
     @objc func buttonTouchDown(sender: UIButton!) {
@@ -173,21 +227,7 @@ class ViewController: UIViewController {
             return
         }
         
-        viewModel.buttonPressed(button)
-        
-        textDisplayLabel.text = viewModel.expressionList.joined(separator: " ") + " ="
-        valueDisplayLabel.text = viewModel.currentValue.toSimpleNumericString(for: .fullDisplay) // TODO: This might need some fine-tuning (was false before)
-        
-        normalButtonView.isHidden = viewModel.buttonViewMode != .normal
-        alternateButtonView.isHidden = viewModel.buttonViewMode != .alternate
-        
-        if let memoryValueDisplayLabel = variableSubviews[Variable.memory.rawValue] {
-            memoryValueDisplayLabel.text = "= " + viewModel.memory.toSimpleNumericString(for: .buttonDisplay) + " "
-        }
-        
-        if let answerValueDisplayLabel = variableSubviews[Variable.answer.rawValue] {
-            answerValueDisplayLabel.text = "= " + viewModel.answer.toSimpleNumericString(for: .buttonDisplay) + " "
-        }
+        buttonPressSubject.onNext(button)
     }
     
     @objc func buttonTouchUpOutside(sender: UIButton!) {

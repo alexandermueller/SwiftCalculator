@@ -1,5 +1,5 @@
 //
-//  String+CountElements.swift
+//  String+Helpers.swift
 //  Calculator
 //
 //  Created by Alex Mueller on 2019-10-04.
@@ -34,3 +34,14 @@ extension String {
     }
 }
 
+extension Array where Element: StringProtocol {
+    func toExpressionString() -> String {
+        var expressionString = ""
+        
+        for element in self {
+            expressionString += element
+        }
+        
+        return expressionString
+    }
+}

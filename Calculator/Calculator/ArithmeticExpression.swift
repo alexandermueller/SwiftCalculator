@@ -13,6 +13,8 @@ typealias ParenthesesMappingResult = (processedElementList: [String], mapping: [
 indirect enum ArithmeticExpression: Equatable {
     case number(Double)
     case negation(ArithmeticExpression)
+    case squareRoot(ArithmeticExpression)
+    case factorial(ArithmeticExpression)
     case addition(ArithmeticExpression, ArithmeticExpression)
     case subtraction(ArithmeticExpression, ArithmeticExpression)
     case multiplication(ArithmeticExpression, ArithmeticExpression)
@@ -24,39 +26,71 @@ indirect enum ArithmeticExpression: Equatable {
     
     static func from(function: Function, leftValue: ArithmeticExpression = .empty, rightValue: ArithmeticExpression = .empty) -> ArithmeticExpression {
         switch function {
-        case .add:
-            return .addition(leftValue, rightValue)
-        case .subtract:
-            return .subtraction(leftValue, rightValue)
-        case .multiply:
-            return .multiplication(leftValue, rightValue)
-        case .divide:
-            return .division(leftValue, rightValue)
-        case .exponent:
-            return .exponentiation(leftValue, rightValue)
-        case .root:
-            return .root(leftValue, rightValue)
+        case .left(let leftHandFunction):
+            switch leftHandFunction {
+            case .negate:
+                return .negation(leftValue)
+            case .sqrt:
+                return .squareRoot(leftValue)
+            }
+        case .middle(let middleFunction):
+            switch middleFunction {
+            case .add:
+                return .addition(leftValue, rightValue)
+            case .subtract:
+                return .subtraction(leftValue, rightValue)
+            case .multiply:
+                return .multiplication(leftValue, rightValue)
+            case .divide:
+                return .division(leftValue, rightValue)
+            case .exponent:
+                return .exponentiation(leftValue, rightValue)
+            case .root:
+                return .root(leftValue, rightValue)
+            }
+        case .right(let rightHandFunction):
+            switch rightHandFunction {
+            case .factorial:
+                return .factorial(leftValue)
+            }
         }
     }
     
     func evaluate() -> Double {
         switch self {
-        case let .number(value):
-            return value
-        case let .negation(expression):
-            return -expression.evaluate()
-        case let .addition(left, right):
+        case .number(let value):
+                return value
+        case .negation(let value):
+            return -value.evaluate()
+        case .squareRoot(let base):
+            return sqrt(base.evaluate())
+        case .factorial(let end):
+            let endValue = end.evaluate()
+            
+            if endValue.remainder(dividingBy: 1).isZero && String(endValue).isInt(){
+                let endInt = Int(endValue)
+                var result = 1
+                
+                for i in 1 ... max(endInt, 1) {
+                    result *= i
+                }
+                
+                return Double(result)
+            }
+            
+            return .nan
+        case .addition(let left, let right):
             return left.evaluate() + right.evaluate()
-        case let .subtraction(left, right):
+        case .subtraction(let left, let right):
             return left.evaluate() - right.evaluate()
-        case let .multiplication(left, right):
+        case .multiplication(let left, let right):
             return left.evaluate() * right.evaluate()
-        case let .division(left, right):
+        case .division(let left, let right):
             return left.evaluate() / right.evaluate()
-        case let .exponentiation(base, exponent):
+        case .exponentiation(let base, let exponent):
             let exponentValue = exponent.evaluate()
             return exponentValue.isNaN ? exponentValue : pow(base.evaluate(), exponentValue)
-        case let .root(root, base):
+        case .root(let root, let base):
             let rootValue = root.evaluate()
             return rootValue.isNaN ? rootValue : pow(base.evaluate(), 1 / rootValue)
         case .empty, .error:
@@ -68,28 +102,26 @@ indirect enum ArithmeticExpression: Equatable {
 func mapParentheses(_ elementList: [String], _ oldMapping: [String : [String]] = [:]) -> ParenthesesMappingResult {
     var seen = 0
     var startIndex = 0
-    var firstParen = ""
     var encapsulated: [String] = []
     var mapping: [String : [String]] = oldMapping
     var processed: [String] = []
     
     for (index, element) in elementList.enumerated() {
-        if seen == 0 && element.contains("(") {
-            firstParen = element
+        if seen == 0 && element.isOpenParen() {
             startIndex = index
         }
         
-        seen += element.contains("(") ? 1 : element == ")" ? -1 : 0
+        seen += element.isOpenParen() ? 1 : element.isCloseParen() ? -1 : 0
         
         if seen > 0 && startIndex != index {
             encapsulated += [element]
         }
         
         if seen == 0 {
-            if element == ")" {
+            if element.isCloseParen() {
                 let key = "p\(startIndex),\(index),\(mapping.count)"
                 mapping[key] = encapsulated
-                processed += [(firstParen.contains("-") ? "-" : "") + key]
+                processed += [key]
                 encapsulated = []
                 continue
             }
@@ -103,10 +135,8 @@ func mapParentheses(_ elementList: [String], _ oldMapping: [String : [String]] =
 }
 
 func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [String]] = [:]) -> ArithmeticExpression {
-    // Incomplete expression!
-    guard elementList.count % 2 == 1 else {
-        return .error
-    }
+    // Need to make a new check? Or let it parse itself to death? IE when it creates an
+    // ArithmeticExpression, it defaults to empty, so I'm guessing this will work out to .nan either way?
     
     let (processedElementList, currentMapping) = mapParentheses(elementList, parenthesesMapping)
     
@@ -118,25 +148,17 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
     var expressionList : [ArithmeticExpression] = []
     
     for element in processedElementList {
-        let possibleFunction = Function(rawValue: element)
+        let possibleFunction = Function.from(rawValue: element)
         
         if possibleFunction == nil {
-            var key = element
-            let hasNegation: Bool = key.contains("-")
-            
-            if hasNegation {
-                key.removeFirst(1)
-            }
-            
-            if let value: [String] = currentMapping[key] {
+            if let value: [String] = currentMapping[element] {
                 let parsedExpression = parseExpression(value, parenthesesMapping)
                 
                 if parsedExpression == .error {
                     return .error
                 }
                 
-                expressionList += [hasNegation ? .negation(parsedExpression) : parsedExpression]
-                
+                expressionList += [parsedExpression]
                 continue
             } else if element.isProperDouble(), let value: Double = Double(element) {
                 expressionList += [.number(value)]
@@ -154,7 +176,7 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
     var expressionStack: [ArithmeticExpression] = []
     var shouldSkip = false
     
-    for (function, functionExpression) in Function.allCases.reversed().map({($0, ArithmeticExpression.from(function: $0))}) {
+    for (function, functionExpression) in Function.allCasesOrdered().map({($0, ArithmeticExpression.from(function: $0))}) {
         for (index, expression) in expressionList.enumerated() {
             if shouldSkip {
                 shouldSkip = false
@@ -162,17 +184,35 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
             }
             
             if expression == functionExpression {
-                guard let last = expressionStack.popLast(),
-                      index + 1 < expressionList.count else {
+                guard let last = expressionStack.popLast() else {
                     return .error
                 }
                 
-                let next = expressionList[index + 1]
-                expressionStack += [ArithmeticExpression.from(function: function, leftValue: last, rightValue: next)]
-                
-                
-                shouldSkip = true
-                continue
+                switch functionExpression {
+                case .number(_):
+                    return .error
+                case .negation(_), .squareRoot(_):
+                    guard index + 1 < expressionList.count else {
+                        return .error
+                    }
+                    
+                    expressionStack += [last, expressionList[index + 1]]
+                    shouldSkip = true
+                case .addition(_, _), .subtraction(_, _), .multiplication(_, _), .division(_, _), .exponentiation(_, _), .root(_, _):
+                    guard index + 1 < expressionList.count else {
+                        return .error
+                    }
+                    
+                    let next = expressionList[index + 1]
+                    expressionStack += [ArithmeticExpression.from(function: function, leftValue: last, rightValue: next)]
+                    
+                    
+                    shouldSkip = true
+                case .factorial(_):
+                    expressionStack += [ArithmeticExpression.from(function: function, leftValue: last)]
+                case .empty, .error:
+                    return .error
+                }
             }
             
             expressionStack += [expression]
