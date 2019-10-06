@@ -126,6 +126,13 @@ class ViewModel {
                 default:
                     self.modifiedButtonPressSubject.onNext(buttonPressed)
                 }
+            case .function(.left(.sqrt)):
+                switch self.currentExpressionState {
+                case .properDouble, .variable, .closeParenthesis, .rightFunction:
+                    self.modifiedButtonPressSubject.onNext(.function(.middle(.root)))
+                default:
+                    self.modifiedButtonPressSubject.onNext(buttonPressed)
+                }
             case .other(let other):
                 switch other {
                 case .alternate:
@@ -301,20 +308,10 @@ class ViewModel {
             switch buttonPressed {
             case .digit(_):
                 self.goToProperDouble(with: buttonPressed)
-            case .modifier(_):
-                self.goToModifiedDouble(with: buttonPressed)
-            case .parenthesis(.close):
-                if self.parenBalance > 0 {
-                    self.goToCloseParenthesis(with: buttonPressed)
-                }
             case .parenthesis(.open):
                 self.goToOpenParenthesis(with: buttonPressed)
             case .function(.left(.sqrt)):
                 self.goToLeftFunction(with: buttonPressed)
-            case .function(.middle(_)):
-                self.goToMiddleFunction(with: buttonPressed)
-            case .function(.right(_)):
-                self.goToRightFunction(with: buttonPressed)
             case .variable(_):
                 self.goToVariable(with: buttonPressed)
             default:
