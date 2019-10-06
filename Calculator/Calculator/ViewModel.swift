@@ -124,7 +124,7 @@ class ViewModel {
                 case .zero, .openParenthesis, .leftFunction, .middleFunction:
                     self.modifiedButtonPressSubject.onNext(.function(.left(.negate)))
                 default:
-                    return
+                    self.modifiedButtonPressSubject.onNext(buttonPressed)
                 }
             case .other(let other):
                 switch other {
@@ -185,7 +185,9 @@ class ViewModel {
             case .digit(_):
                 self.goToProperDouble(with: buttonPressed)
             case .modifier(_):
-                self.goToModifiedDouble(with: buttonPressed)
+                if let lastElement = self.expressionElements.last, lastElement.isInt() {
+                    self.goToModifiedDouble(with: buttonPressed)
+                }
             case .parenthesis(.close):
                 if self.parenBalance > 0 {
                     self.goToCloseParenthesis(with: buttonPressed)
