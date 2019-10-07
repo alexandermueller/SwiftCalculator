@@ -74,9 +74,9 @@ class ViewController: UIViewController {
         
         let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),            .other(.set),       .function(.middle(.add)) ],
                                                  [        .digit(.one),         .digit(.two),          .digit(.three),  .function(.middle(.subtract)) ],
-                                                 [       .digit(.four),        .digit(.five),            .digit(.six),  .function(.middle(.multiply)) ],
+                                                 [       .digit(.four),        .digit(.five),            .digit(.six),  .function(.right(.factorial)) ],
                                                  [      .digit(.seven),       .digit(.eight),           .digit(.nine),    .function(.middle(.divide)) ],
-                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)),  .function(.right(.factorial)) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)),  .function(.middle(.exponent)) ],
                                                  [  .other(.alternate),       .other(.clear),         .other(.delete),             .variable(.memory) ]]
         
         assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0].count == alternateButtonLayout[0].count)

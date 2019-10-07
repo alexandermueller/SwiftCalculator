@@ -41,7 +41,7 @@ enum Middle: String, CaseIterable {
     case multiply = "x"
     case divide = "÷"
     case exponent = "^"
-    case root = "x√y"
+    case root = "*√"
 }
 
 enum Right: String, CaseIterable {

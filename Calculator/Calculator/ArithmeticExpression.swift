@@ -64,21 +64,6 @@ indirect enum ArithmeticExpression: Equatable {
             return -value.evaluate()
         case .squareRoot(let base):
             return sqrt(base.evaluate())
-        case .factorial(let end):
-            let endValue = end.evaluate()
-            
-            if endValue.remainder(dividingBy: 1).isZero && String(endValue).isInt(){
-                let endInt = Int(endValue)
-                var result = 1
-                
-                for i in 1 ... max(endInt, 1) {
-                    result *= i
-                }
-                
-                return Double(result)
-            }
-            
-            return .nan
         case .addition(let left, let right):
             return left.evaluate() + right.evaluate()
         case .subtraction(let left, let right):
@@ -93,6 +78,22 @@ indirect enum ArithmeticExpression: Equatable {
         case .root(let root, let base):
             let rootValue = root.evaluate()
             return rootValue.isNaN ? rootValue : pow(base.evaluate(), 1 / rootValue)
+        case .factorial(let end):
+            let endValue = end.evaluate()
+            
+            if endValue.remainder(dividingBy: 1) == 0 {
+                let endInt = Int(endValue)
+                var result: Double = 1
+                
+                for i in 1 ... max(endInt, 1) {
+                    result *= Double(i)
+                }
+                
+                return result
+            }
+            
+            return .nan
+            
         case .empty, .error:
             return .nan
         }
@@ -134,10 +135,9 @@ func mapParentheses(_ elementList: [String], _ oldMapping: [String : [String]] =
                        ParenthesesMappingResult(processedElementList: [], mapping: [:])
 }
 
+// TODO: Overhaul ParseExpression To Make √-"value" possible. Look into ANS and MEM not working either!
+
 func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [String]] = [:]) -> ArithmeticExpression {
-    // Need to make a new check? Or let it parse itself to death? IE when it creates an
-    // ArithmeticExpression, it defaults to empty, so I'm guessing this will work out to .nan either way?
-    
     let (processedElementList, currentMapping) = mapParentheses(elementList, parenthesesMapping)
     
     // Unbalanced parentheses!
@@ -189,8 +189,6 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
                 }
                 
                 switch functionExpression {
-                case .number(_):
-                    return .error
                 case .negation(_), .squareRoot(_):
                     guard index + 1 < expressionList.count else {
                         return .error
@@ -210,9 +208,11 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
                     shouldSkip = true
                 case .factorial(_):
                     expressionStack += [ArithmeticExpression.from(function: function, leftValue: last)]
-                case .empty, .error:
+                case .number(_), .empty, .error:
                     return .error
                 }
+                
+                continue
             }
             
             expressionStack += [expression]

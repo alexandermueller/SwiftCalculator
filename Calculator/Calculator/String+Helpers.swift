@@ -39,6 +39,17 @@ extension Array where Element: StringProtocol {
         var expressionString = ""
         
         for element in self {
+            if let function = Function.from(rawValue: String(element)) {
+                switch function {
+                case .middle(.add), .middle(.subtract):
+                    expressionString += " " + element + " "
+                default:
+                    expressionString += element
+                }
+                
+                continue
+            }
+            
             expressionString += element
         }
         
