@@ -9,6 +9,7 @@
 import Foundation
 
 typealias ParenthesesMappingResult = (processedElementList: [String], mapping: [String : [String]])
+fileprivate typealias ParseUntilResult = (parsed: ArithmeticExpression, expressionList: [String])
 
 indirect enum ArithmeticExpression: Equatable {
     case number(Double)
@@ -135,6 +136,12 @@ func mapParentheses(_ elementList: [String], _ oldMapping: [String : [String]] =
                        ParenthesesMappingResult(processedElementList: [], mapping: [:])
 }
 
+// SEE NOTES... Basically approach like a stack (flip the stack first though) and move from rs to ls.
+
+fileprivate func parseExpressionUntil(_ elementList: [String], untilLessSignificantThan function: Function? = nil, _ parenthesisMapping: [String : [String]]) -> ParseUntilResult {
+    return ParseUntilResult(parsed: .empty, expressionList: [])
+}
+
 // TODO: Overhaul ParseExpression To Make √-"value" possible. Look into ANS and MEM not working either!
 
 func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [String]] = [:]) -> ArithmeticExpression {
@@ -174,53 +181,55 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
     }
     
     var expressionStack: [ArithmeticExpression] = []
-    var shouldSkip = false
     
-    for (function, functionExpression) in Function.allCasesOrdered().map({($0, ArithmeticExpression.from(function: $0))}) {
-        for (index, expression) in expressionList.enumerated() {
-            if shouldSkip {
-                shouldSkip = false
-                continue
-            }
-            
-            if expression == functionExpression {
-                guard let last = expressionStack.popLast() else {
-                    return .error
-                }
-                
-                switch functionExpression {
-                case .negation(_), .squareRoot(_):
-                    guard index + 1 < expressionList.count else {
-                        return .error
-                    }
-                    
-                    expressionStack += [last, expressionList[index + 1]]
-                    shouldSkip = true
-                case .addition(_, _), .subtraction(_, _), .multiplication(_, _), .division(_, _), .exponentiation(_, _), .root(_, _):
-                    guard index + 1 < expressionList.count else {
-                        return .error
-                    }
-                    
-                    let next = expressionList[index + 1]
-                    expressionStack += [ArithmeticExpression.from(function: function, leftValue: last, rightValue: next)]
-                    
-                    
-                    shouldSkip = true
-                case .factorial(_):
-                    expressionStack += [ArithmeticExpression.from(function: function, leftValue: last)]
-                case .number(_), .empty, .error:
-                    return .error
-                }
-                
-                continue
-            }
-            
-            expressionStack += [expression]
-        }
-        
-        expressionList = expressionStack
-        expressionStack = []
-    }
+    let a = parseExpressionUntil([], <#T##parenthesisMapping: [String : [String]]##[String : [String]]#>)
+//    var shouldSkip = false
+//
+//    for (function, functionExpression) in Function.allCasesOrdered().map({($0, ArithmeticExpression.from(function: $0))}) {
+//        for (index, expression) in expressionList.enumerated() {
+//            if shouldSkip {
+//                shouldSkip = false
+//                continue
+//            }
+//
+//            if expression == functionExpression {
+//                guard let last = expressionStack.popLast() else {
+//                    return .error
+//                }
+//
+//                switch functionExpression {
+//                case .negation(_), .squareRoot(_):
+//                    guard index + 1 < expressionList.count else {
+//                        return .error
+//                    }
+//
+//                    expressionStack += [last, expressionList[index + 1]]
+//                    shouldSkip = true
+//                case .addition(_, _), .subtraction(_, _), .multiplication(_, _), .division(_, _), .exponentiation(_, _), .root(_, _):
+//                    guard index + 1 < expressionList.count else {
+//                        return .error
+//                    }
+//
+//                    let next = expressionList[index + 1]
+//                    expressionStack += [ArithmeticExpression.from(function: function, leftValue: last, rightValue: next)]
+//                    shouldSkip = true
+//                case .factorial(_):
+//                    expressionStack += [ArithmeticExpression.from(function: function, leftValue: last)]
+//                case .number(_), .empty, .error:
+//                    return .error
+//                }
+//
+//                continue
+//            }
+//
+//            expressionStack += [expression]
+//        }
+//
+//        expressionList = expressionStack
+//        expressionStack = []
+//    }
+    
+    print(expressionList)
     
     return expressionList.count == 1 ? expressionList[0] : .error
 }
