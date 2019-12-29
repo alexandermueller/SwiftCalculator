@@ -190,7 +190,7 @@ class ViewController: UIViewController {
         view.addSubview(buttonView)
         
         expressionTextSubject.subscribe(onNext: { [unowned self] expression in
-            self.textDisplayLabel.text = expression + " ="
+            self.textDisplayLabel.text = expression + "="
         }).disposed(by: bag)
         
         currentValueSubject.subscribe(onNext: { [unowned self] currentValue in

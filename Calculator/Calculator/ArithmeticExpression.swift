@@ -143,7 +143,7 @@ func parseExpression(_ elementList: [String], _ parenthesesMapping: [String : [S
     // Unbalanced parentheses!
     if processedElementList.count == 0 {
         return .error
-    } 
+    }
     
     var expressionList : [ArithmeticExpression] = []
     
