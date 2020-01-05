@@ -77,7 +77,7 @@ class ViewModel {
                 default:
                     return $0
                 }
-            })).evaluate()
+            }).reversed(), untilLessSignificantThan: nil).parsedExpression.evaluate()
         }
     }
     

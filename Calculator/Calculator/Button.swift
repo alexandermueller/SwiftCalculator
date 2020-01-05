@@ -66,17 +66,30 @@ enum Function: Equatable {
         return nil
     }
     
-    // Highest to lowest precedence
-    static func allCasesOrdered() -> [Function] {
-        return [.right(.factorial),
-                .middle(.root),
-                .left(.sqrt),
-                .middle(.exponent),
-                .left(.negate),
-                .middle(.divide),
-                .middle(.multiply),
-                .middle(.subtract),
-                .middle(.add)]
+    func rank() -> Double {
+        switch self {
+        case .left(let function):
+            switch function {
+            case .negate, .sqrt:
+                return 3
+            }
+        case .middle(let function):
+            switch function {
+            case .add, .subtract:
+                return 1
+            case .multiply, .divide:
+                return 2
+            case .exponent:
+                return 3
+            case .root:
+                return 4
+            }
+        case .right(let function):
+            switch function {
+            case .factorial:
+                return 5
+            }
+        }
     }
     
     func rawValue() -> String {
