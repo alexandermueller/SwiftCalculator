@@ -33,11 +33,15 @@ enum Parenthesis: String, CaseIterable {
 enum Left: String, CaseIterable {
     case negate = "-"
     case sqrt = "√"
+    case inv = "1/"
+    case abs = "~"
+    case sum = "∑"
 }
 
 enum Middle: String, CaseIterable {
     case add = "+"
     case subtract = "–"
+    case modulo = "%"
     case multiply = "x"
     case divide = "÷"
     case exponent = "^"
@@ -45,6 +49,7 @@ enum Middle: String, CaseIterable {
 }
 
 enum Right: String, CaseIterable {
+    case square = "^2"
     case factorial = "!"
 }
 
@@ -70,12 +75,16 @@ enum Function: Equatable {
         switch self {
         case .left(let function):
             switch function {
-            case .negate, .sqrt:
+            case .negate, .sqrt, .inv:
                 return 3
+            case .abs, .sum:
+                return 6
             }
         case .middle(let function):
             switch function {
             case .add, .subtract:
+                return 0
+            case .modulo:
                 return 1
             case .multiply, .divide:
                 return 2
@@ -86,6 +95,8 @@ enum Function: Equatable {
             }
         case .right(let function):
             switch function {
+            case .square:
+                return 3
             case .factorial:
                 return 5
             }

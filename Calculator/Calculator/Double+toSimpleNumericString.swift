@@ -41,4 +41,8 @@ extension Double {
         
         return value.removeFirstContainedSuffix([".0", "E0", "e0"])
     }
+    
+    func isInt() -> Bool {
+        return self.remainder(dividingBy: 1) == 0
+    }
 }

@@ -32,6 +32,7 @@ class ViewController: UIViewController {
     private let bag = DisposeBag()
     private let backgroundView = UIView()
     private let textDisplayLabel = UILabel()
+    private let textDisplayColourSubject = BehaviorSubject<UIColor>(value: .gray)
     private let valueDisplayLabel = UILabel()
     private let variableView = UIView()
     private let buttonView = UIView()
@@ -48,6 +49,7 @@ class ViewController: UIViewController {
                               answerSubject: answerSubject,
                               buttonViewModeSubject: buttonViewModeSubject,
                               buttonPressSubject: buttonPressSubject,
+                              textDisplayColourSubject: textDisplayColourSubject,
                               bag: bag)
         
         viewModel.startStateMachine()
@@ -72,12 +74,12 @@ class ViewController: UIViewController {
                                               [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
                                               [  .other(.alternate),       .other(.clear),         .other(.delete),            .variable(.answer) ]]
         
-        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),            .other(.set),       .function(.middle(.add)) ],
-                                                 [        .digit(.one),         .digit(.two),          .digit(.three),  .function(.middle(.subtract)) ],
-                                                 [       .digit(.four),        .digit(.five),            .digit(.six),  .function(.right(.factorial)) ],
-                                                 [      .digit(.seven),       .digit(.eight),           .digit(.nine),    .function(.middle(.divide)) ],
-                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)),  .function(.middle(.exponent)) ],
-                                                 [  .other(.alternate),       .other(.clear),         .other(.delete),             .variable(.memory) ]]
+        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),               .other(.set),        .function(.left(.sum)) ],
+                                                 [        .digit(.one),         .digit(.two),             .digit(.three),        .function(.left(.abs)) ],
+                                                 [       .digit(.four),        .digit(.five),               .digit(.six), .function(.right(.factorial)) ],
+                                                 [      .digit(.seven),       .digit(.eight),              .digit(.nine),        .function(.left(.inv)) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.right(.square)),   .function(.middle(.modulo)) ],
+                                                 [  .other(.alternate),       .other(.clear),            .other(.delete),            .variable(.memory) ]]
         
         assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0].count == alternateButtonLayout[0].count)
         
@@ -188,6 +190,10 @@ class ViewController: UIViewController {
         view.addSubview(valueDisplayLabel)
         view.addSubview(variableView)
         view.addSubview(buttonView)
+        
+        textDisplayColourSubject.subscribe(onNext: { [unowned self] colour in
+            self.textDisplayLabel.textColor = colour
+        }).disposed(by: bag)
         
         expressionTextSubject.subscribe(onNext: { [unowned self] expression in
             self.textDisplayLabel.text = expression + "="

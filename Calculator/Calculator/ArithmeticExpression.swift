@@ -8,19 +8,24 @@
 
 import Foundation
 
-typealias ParseUntilResult = (parsedExpression: ArithmeticExpression, expressionStack: [String])
+typealias ParseUntilResultType = (parsedExpression: ArithmeticExpression, expressionStack: [String])
 
 indirect enum ArithmeticExpression: Equatable {
     case number(Double)
     case negation(ArithmeticExpression)
     case squareRoot(ArithmeticExpression)
-    case factorial(ArithmeticExpression)
+    case inverse(ArithmeticExpression)
+    case absoluteValue(ArithmeticExpression)
+    case summation(ArithmeticExpression)
     case addition(ArithmeticExpression, ArithmeticExpression)
     case subtraction(ArithmeticExpression, ArithmeticExpression)
+    case modulo(ArithmeticExpression, ArithmeticExpression)
     case multiplication(ArithmeticExpression, ArithmeticExpression)
     case division(ArithmeticExpression, ArithmeticExpression)
     case exponentiation(ArithmeticExpression, ArithmeticExpression)
     case root(ArithmeticExpression, ArithmeticExpression)
+    case square(ArithmeticExpression)
+    case factorial(ArithmeticExpression)
     case empty
     case error
     
@@ -32,6 +37,12 @@ indirect enum ArithmeticExpression: Equatable {
                 return .negation(leftValue)
             case .sqrt:
                 return .squareRoot(leftValue)
+            case .inv:
+                return .inverse(leftValue)
+            case .abs:
+                return .absoluteValue(leftValue)
+            case .sum:
+                return .summation(leftValue)
             }
         case .middle(let middleFunction):
             switch middleFunction {
@@ -39,6 +50,8 @@ indirect enum ArithmeticExpression: Equatable {
                 return .addition(leftValue, rightValue)
             case .subtract:
                 return .subtraction(leftValue, rightValue)
+            case .modulo:
+                return .modulo(leftValue, rightValue)
             case .multiply:
                 return .multiplication(leftValue, rightValue)
             case .divide:
@@ -50,24 +63,38 @@ indirect enum ArithmeticExpression: Equatable {
             }
         case .right(let rightHandFunction):
             switch rightHandFunction {
+            case .square:
+                return .square(leftValue)
             case .factorial:
                 return .factorial(leftValue)
             }
         }
     }
     
+    // Note: The switch statement in here is buggy and does not catch new enum values!!!!!
     func evaluate() -> Double {
         switch self {
         case .number(let value):
-                return value
+            return value
         case .negation(let value):
             return -value.evaluate()
         case .squareRoot(let base):
             return sqrt(base.evaluate())
+        case .inverse(let expression):
+            return ArithmeticExpression.division(ArithmeticExpression.number(1), expression).evaluate()
+        case .absoluteValue(let expression):
+            return abs(expression.evaluate())
+        case .summation(let expression):
+            let value = expression.evaluate()
+            let sign = value / abs(value)
+            
+            return value.isInt() ? (sign * (value + 1) * value) / 2 : .nan
         case .addition(let left, let right):
             return left.evaluate() + right.evaluate()
         case .subtraction(let left, let right):
             return left.evaluate() - right.evaluate()
+        case .modulo(let left, let right):
+            return left.evaluate().truncatingRemainder(dividingBy: right.evaluate())
         case .multiplication(let left, let right):
             return left.evaluate() * right.evaluate()
         case .division(let left, let right):
@@ -78,14 +105,16 @@ indirect enum ArithmeticExpression: Equatable {
         case .root(let root, let base):
             let rootValue = root.evaluate()
             return rootValue.isNaN ? rootValue : pow(base.evaluate(), 1 / rootValue)
-        case .factorial(let end):
-            let endValue = end.evaluate()
+        case .square(let base):
+            return ArithmeticExpression.exponentiation(base, .number(2)).evaluate()
+        case .factorial(let expression):
+            let value = expression.evaluate()
             
-            if endValue.remainder(dividingBy: 1) == 0 {
-                let endInt = Int(endValue)
+            if value.isInt() {
+                let int = Int(value)
                 var result: Double = 1
                 
-                for i in 1 ... max(endInt, 1) {
+                for i in 1 ... max(int, 1) {
                     result *= Double(i)
                 }
                 
@@ -93,46 +122,26 @@ indirect enum ArithmeticExpression: Equatable {
             }
             
             return .nan
-            
         case .empty, .error:
             return .nan
         }
     }
 }
 
-// SEE NOTES... Basically approach like a stack (flip the stack first though) and move from rs to ls.
+class ArithmeticExpressionGenerator {
+    enum GeneratorState {
+        case idle
+        case rightValue
+        case rightFunction
+        case middleFunction
+    }
+}
 
-func parseExpression(_ elementStack: [String], untilLessSignificantThan function: Function? = nil) -> ParseUntilResult {
-    guard elementStack.count > 0 else {
-        return ParseUntilResult(parsedExpression: .empty, expressionStack: [])
-    }
-    
-    var fnc: ArithmeticExpression = .empty
-    
-    var lval: ArithmeticExpression = .empty
-    var rval: ArithmeticExpression = .empty
-    var remainingElemetStack: [String] = elementStack
-    
-    while remainingElemetStack.count > 0 {
-        let element: String = remainingElemetStack.removeFirst()
-        let potentialFunction = Function.from(rawValue: element)
-        
-        // This is a function
-        if potentialFunction != nil {
-            if fnc == .empty {
-                fnc = ArithmeticExpression.from(function: potentialFunction!)
-                continue
-            }
-            
-            
-        }
-        
-        
-    }
-    
-    if rval == .empty || rval == .error {
-        return ParseUntilResult(parsedExpression: rval, expressionStack: [])
-    }
-    
-    return ParseUntilResult(parsedExpression: .empty, expressionStack: [])
+func parseExpression(_ elementStack: [String]) -> ArithmeticExpression {
+    return .empty
+}
+
+func parseExpression(_ elementStack: [String], untilLessSignificantThan function: Function? = nil) -> ParseUntilResultType {
+    var remainingElementStack = elementStack
+    return ParseUntilResultType(parsedExpression: .empty, expressionStack: remainingElementStack)
 }

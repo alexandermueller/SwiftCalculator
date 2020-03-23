@@ -41,6 +41,7 @@ class ViewModel {
     private let currentValueSubject: BehaviorSubject<Double>
     private let buttonPressSubject: PublishSubject<Button>
     private let modifiedButtonPressSubject = PublishSubject<Button>()
+    private let textDisplayColourSubject: BehaviorSubject<UIColor>
     private let bag: DisposeBag
     
     private var buttonViewMode: ButtonViewMode = .normal {
@@ -77,7 +78,7 @@ class ViewModel {
                 default:
                     return $0
                 }
-            }).reversed(), untilLessSignificantThan: nil).parsedExpression.evaluate()
+            }).reversed()).evaluate()
         }
     }
     
@@ -95,6 +96,7 @@ class ViewModel {
          answerSubject: BehaviorSubject<Double>,
          buttonViewModeSubject: BehaviorSubject<ButtonViewMode>,
          buttonPressSubject: PublishSubject<Button>,
+         textDisplayColourSubject: BehaviorSubject<UIColor>,
          bag: DisposeBag) {
         self.buttonViewModeSubject = buttonViewModeSubject
         self.memorySubject = memorySubject
@@ -102,6 +104,7 @@ class ViewModel {
         self.currentValueSubject = currentValueSubject
         self.expressionTextSubject = expressionTextSubject
         self.buttonPressSubject = buttonPressSubject
+        self.textDisplayColourSubject = textDisplayColourSubject
         self.bag = bag
     }
     
@@ -198,6 +201,7 @@ class ViewModel {
         
         parenBalance = 0
         expressionElements = ["0"]
+        textDisplayColourSubject.onNext(.gray)
         transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
             switch buttonPressed {
             case .digit(_):
@@ -208,6 +212,8 @@ class ViewModel {
                 self.goToOpenParenthesis(with: buttonPressed)
             case .function(.left(_)):
                 self.goToLeftFunction(with: buttonPressed)
+            case .function(.middle(_)):
+                self.goToMiddleFunction(with: buttonPressed)
             case .function(.right(_)):
                 self.goToRightFunction(with: buttonPressed)
             case .variable(_):
@@ -215,6 +221,8 @@ class ViewModel {
             default:
                 return
             }
+            
+            self.textDisplayColourSubject.onNext(.black)
         })
     }
     
@@ -444,7 +452,7 @@ class ViewModel {
                 case .negate:
                     goToDelete()
                     return
-                case .sqrt:
+                default:
                     goToLeftFunction()
                 }
             case .middle(_):
