@@ -34,6 +34,7 @@ class ViewModel {
         }
     }
     
+    private let generator = Generator()
     private let buttonViewModeSubject: BehaviorSubject<ButtonViewMode>
     private let memorySubject: BehaviorSubject<Double>
     private let answerSubject: BehaviorSubject<Double>
@@ -69,16 +70,22 @@ class ViewModel {
             }
             
             expressionTextSubject.onNext(expressionElements.toExpressionString())
-            currentValue = parenBalance > 0 ? .nan : parseExpression(expressionElements.map({
-                switch $0 {
-                case Variable.memory.rawValue:
-                    return String(memory)
-                case Variable.answer.rawValue:
-                    return String(answer)
-                default:
-                    return $0
-                }
-            }).reversed()).evaluate()
+            
+            if parenBalance > 0 {
+                currentValue = generator.parse(expressionElements.map({
+                    switch $0 {
+                    case Variable.memory.rawValue:
+                        return String(memory)
+                    case Variable.answer.rawValue:
+                        return String(answer)
+                    default:
+                        return $0
+                    }
+                })).evaluate()
+                return
+            }
+            
+            currentValue = .nan
         }
     }
     
@@ -88,7 +95,7 @@ class ViewModel {
         }
     }
     
-    private var transferFunction: SerialDisposable = SerialDisposable()
+    private var transferFunction = SerialDisposable()
     
     init(expressionTextSubject: BehaviorSubject<String>,
          currentValueSubject: BehaviorSubject<Double>,

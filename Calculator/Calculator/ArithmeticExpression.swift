@@ -7,8 +7,7 @@
 //
 
 import Foundation
-
-typealias ParseUntilResultType = (parsedExpression: ArithmeticExpression, expressionStack: [String])
+import RxSwift
 
 indirect enum ArithmeticExpression: Equatable {
     case number(Double)
@@ -128,20 +127,67 @@ indirect enum ArithmeticExpression: Equatable {
     }
 }
 
-class ArithmeticExpressionGenerator {
-    enum GeneratorState {
-        case idle
-        case rightValue
-        case rightFunction
-        case middleFunction
+
+class Generator {
+    private var currentState: GeneratorState = .start
+    private var rightValue: ArithmeticExpression = .empty
+    private var function: ArithmeticExpression = .empty
+    private var leftValue: ArithmeticExpression = .empty
+    
+    private let elementSubject = PublishSubject<String>()
+    private let expressionSubject = PublishSubject<ArithmeticExpression>()
+    private var transferFunction = SerialDisposable()
+    private let bag = DisposeBag()
+    
+    enum GeneratorState: Equatable {
+        case start
+        case rightValue(ArithmeticExpression)
+        case parseLeftValue
+        case error
     }
-}
-
-func parseExpression(_ elementStack: [String]) -> ArithmeticExpression {
-    return .empty
-}
-
-func parseExpression(_ elementStack: [String], untilLessSignificantThan function: Function? = nil) -> ParseUntilResultType {
-    var remainingElementStack = elementStack
-    return ParseUntilResultType(parsedExpression: .empty, expressionStack: remainingElementStack)
+    
+    // Parse parses from back to front, as this kind of expression generation relies on stack-like traversal.
+    func parse(_ elementStack: [String]) -> ArithmeticExpression {
+        self.goToStart()
+        
+        // TODO: This neads to take into account that the state machine is decoupled from the parse function,
+        // otherwise the resulting state will not be what we expect and it will return an error
+        
+//        for element in elementStack {
+//            elementSubject.onNext(element)
+//
+//            if currentState == .error {
+//                return .error
+//            }
+//        }
+//
+//        switch currentState {
+//        case .rightValue(let expression):
+//            return expression
+//        default:
+//            return .error
+//        }
+        return .error
+    }
+    
+    // MARK: State Machine Functions
+    
+    private func goToStart() {
+        currentState = .start
+    }
+    
+    private func goToRightValue() {
+        currentState = .rightValue(rightValue)
+    }
+    
+    private func goToParseLeftValue() {
+        currentState = .parseLeftValue
+        
+        // Accept input until the function significance found is either less than the current/last one, or there are no values left
+        let generator = Generator()
+    }
+    
+    private func goToError() {
+        currentState = .error
+    }
 }
