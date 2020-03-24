@@ -53,7 +53,6 @@ enum Right: String, CaseIterable {
     case factorial = "!"
 }
 
-// NOTE: This has been sorted by increasing order of precedence.
 enum Function: Equatable {
     case left(Left)
     case middle(Middle)
@@ -71,34 +70,34 @@ enum Function: Equatable {
         return nil
     }
     
-    func rank() -> Double {
+    func rank() -> Int {
         switch self {
         case .left(let function):
             switch function {
             case .negate, .sqrt, .inv:
                 return 3
             case .abs, .sum:
-                return 6
+                return 0
             }
         case .middle(let function):
             switch function {
             case .add, .subtract:
-                return 0
+                return 6
             case .modulo:
-                return 1
+                return 5
             case .multiply, .divide:
-                return 2
+                return 4
             case .exponent:
                 return 3
             case .root:
-                return 4
+                return 2
             }
         case .right(let function):
             switch function {
             case .square:
                 return 3
             case .factorial:
-                return 5
+                return 1
             }
         }
     }

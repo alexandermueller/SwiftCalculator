@@ -34,7 +34,7 @@ class ViewModel {
         }
     }
     
-    private let generator = Generator()
+    private var generator: Generator? = nil
     private let buttonViewModeSubject: BehaviorSubject<ButtonViewMode>
     private let memorySubject: BehaviorSubject<Double>
     private let answerSubject: BehaviorSubject<Double>
@@ -72,7 +72,11 @@ class ViewModel {
             expressionTextSubject.onNext(expressionElements.toExpressionString())
             
             if parenBalance > 0 {
-                currentValue = generator.parse(expressionElements.map({
+                // TODO: MIGHT NEED TO MAKE THIS A BEHAVIOUR SUBJECT???????
+                let expressionElementsSubject = PublishSubject<String>()
+                generator = Generator(elementSubject: expressionElementsSubject)
+                
+                let elements = expressionElements.map({
                     switch $0 {
                     case Variable.memory.rawValue:
                         return String(memory)
@@ -81,7 +85,12 @@ class ViewModel {
                     default:
                         return $0
                     }
-                })).evaluate()
+                })
+                
+                for element in elements.reverse() {
+                    
+                }
+                
                 return
             }
             
