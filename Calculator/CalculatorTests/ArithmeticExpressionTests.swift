@@ -48,7 +48,7 @@ class ArithmeticExpressionTests: XCTestCase {
             UnitTest(.exponentiation(.number(3), .number(0)), 1),
             UnitTest(.exponentiation(.number(.infinity), .number(0)), 1),
             UnitTest(.exponentiation(.number(0), .number(.infinity)), 0)
-            // TODO: Make root unit tests
+            // TODO: Complete function unit tests
         ]
         
         for (index, testCase) in testCases.enumerated() {
@@ -57,29 +57,29 @@ class ArithmeticExpressionTests: XCTestCase {
         }
     }
     
-    func testMapParentheses() {
-        typealias UnitTest = TemplateTest<[String], ParenthesesMappingResult>
-        
-        let testCases: [UnitTest] = [
-            UnitTest([], ParenthesesMappingResult([], [:])),
-            UnitTest([""], ParenthesesMappingResult([""], [:])),
-            UnitTest(["(", "5234", "–"], ParenthesesMappingResult([], [:])), // The input contained imbalanced parentheses, so it returned an empty processedExpresisonList
-            UnitTest(["(", "234", ")"], ParenthesesMappingResult(["p0,2,0"], ["p0,2,0" : ["234"]])),
-            UnitTest(["(", "12", "–", "23", "^", "(", "23", "–", "32", ")", ")"], ParenthesesMappingResult(["p0,10,0"], ["p0,10,0" : ["12", "–", "23", "^", "(", "23", "–", "32", ")"]])),
-            UnitTest(["(", "234", ")", "+", "(", "234", ")", "–", "(", "234", ")", "^", "(", "234", ")"], ParenthesesMappingResult(["p0,2,0", "+", "p4,6,1", "–", "p8,10,2", "^", "p12,14,3"], ["p0,2,0" : ["234"], "p4,6,1" : ["234"], "p8,10,2" : ["234"], "p12,14,3" : ["234"]]))
-        ]
-        
-        for (index, testCase) in testCases.enumerated() {
-            let output = mapParentheses(testCase.input)
-            XCTAssert(output == testCase.output, String(format: "Test Case \(index + 1) Failed.\nExpected: \(testCase.output),\n\tSaw: \(output)"))
-        }
-    }
+//    func testMapParentheses() {
+//        typealias UnitTest = TemplateTest<[String], ParenthesesMappingResult>
+//
+//        let testCases: [UnitTest] = [
+//            UnitTest([], ParenthesesMappingResult([], [:])),
+//            UnitTest([""], ParenthesesMappingResult([""], [:])),
+//            UnitTest(["(", "5234", "–"], ParenthesesMappingResult([], [:])), // The input contained imbalanced parentheses, so it returned an empty processedExpresisonList
+//            UnitTest(["(", "234", ")"], ParenthesesMappingResult(["p0,2,0"], ["p0,2,0" : ["234"]])),
+//            UnitTest(["(", "12", "–", "23", "^", "(", "23", "–", "32", ")", ")"], ParenthesesMappingResult(["p0,10,0"], ["p0,10,0" : ["12", "–", "23", "^", "(", "23", "–", "32", ")"]])),
+//            UnitTest(["(", "234", ")", "+", "(", "234", ")", "–", "(", "234", ")", "^", "(", "234", ")"], ParenthesesMappingResult(["p0,2,0", "+", "p4,6,1", "–", "p8,10,2", "^", "p12,14,3"], ["p0,2,0" : ["234"], "p4,6,1" : ["234"], "p8,10,2" : ["234"], "p12,14,3" : ["234"]]))
+//        ]
+//
+//        for (index, testCase) in testCases.enumerated() {
+//            let output = mapParentheses(testCase.input)
+//            XCTAssert(output == testCase.output, String(format: "Test Case \(index + 1) Failed.\nExpected: \(testCase.output),\n\tSaw: \(output)"))
+//        }
+//    }
     
     func testParseExpression() {
         typealias UnitTest = TemplateTest<[String], ArithmeticExpression>
         
         let testCases: [UnitTest] = [
-            UnitTest([], .error),
+            UnitTest([], .empty),
             UnitTest(["1"], .number(1)),
             UnitTest(["1", "+", "2"], .addition(.number(1), .number(2))),
             UnitTest(["(", "1", ")"], .number(1)),
@@ -91,11 +91,11 @@ class ArithmeticExpressionTests: XCTestCase {
             UnitTest(["(", "-3", "^", "2", ")", "^", "0.5"], .exponentiation(.exponentiation(.number(-3), .number(2)), .number(0.5))),
             UnitTest(["1", "+", "2", "^", "3", "–", "5", "^", "2", "÷", "3", "÷", "3"], .addition(.number(1.0), .subtraction(.exponentiation(.number(2.0), .number(3.0)), .division(.division(.exponentiation(.number(5.0), .number(2.0)), .number(3.0)), .number(3.0))))),
             UnitTest(["1", "*√", "2"], .root(.number(1), .number(2))),
-            // Add more unit tests
+            // TODO: Add more unit tests
         ]
         
         for (index, testCase) in testCases.enumerated() {
-            let output = parseExpression(testCase.input)
+            let output = Generator().startGenerator(with: testCase.input).rightValue
             XCTAssert(output == testCase.output, String(format: "Test Case \(index + 1) Failed.\nExpected: \(testCase.output)\n\tSaw: \(output)"))
         }
     }

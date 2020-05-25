@@ -34,7 +34,7 @@ class ViewModel {
         }
     }
     
-    private var generator: Generator? = nil
+    private let generator: Generator
     private let buttonViewModeSubject: BehaviorSubject<ButtonViewMode>
     private let memorySubject: BehaviorSubject<Double>
     private let answerSubject: BehaviorSubject<Double>
@@ -71,26 +71,19 @@ class ViewModel {
             
             expressionTextSubject.onNext(expressionElements.toExpressionString())
             
-            if parenBalance > 0 {
-                // TODO: MIGHT NEED TO MAKE THIS A BEHAVIOUR SUBJECT???????
-                let expressionElementsSubject = PublishSubject<String>()
-                generator = Generator(elementSubject: expressionElementsSubject)
-                
-                let elements = expressionElements.map({
-                    switch $0 {
+            if parenBalance == 0 {
+                let elements: [String] = expressionElements.map({ element in
+                    switch element {
                     case Variable.memory.rawValue:
                         return String(memory)
                     case Variable.answer.rawValue:
                         return String(answer)
                     default:
-                        return $0
+                        return element
                     }
                 })
-                
-                for element in elements.reverse() {
-                    
-                }
-                
+
+                currentValue = generator.startGenerator(with: elements).rightValue.evaluate()
                 return
             }
             
@@ -114,6 +107,7 @@ class ViewModel {
          buttonPressSubject: PublishSubject<Button>,
          textDisplayColourSubject: BehaviorSubject<UIColor>,
          bag: DisposeBag) {
+        generator = Generator()
         self.buttonViewModeSubject = buttonViewModeSubject
         self.memorySubject = memorySubject
         self.answerSubject = answerSubject
@@ -200,8 +194,10 @@ class ViewModel {
                 case .delete:
                     self.goToDelete()
                 case .equal:
+                    self.expressionElements = self.expressionElements + []
                     self.answer = self.currentValue
                 case .set:
+                    self.expressionElements = self.expressionElements + []
                     self.memory = self.currentValue
                 }
             default:
@@ -404,6 +400,8 @@ class ViewModel {
                 self.goToOpenParenthesis(with: buttonPressed)
             case .function(.left(_)):
                 self.goToLeftFunction(with: buttonPressed)
+            case .variable(_):
+                self.goToVariable(with: buttonPressed)
             default:
                 return
             }
@@ -432,7 +430,6 @@ class ViewModel {
             }
         })
     }
-    
     
     func goToDelete() {
         if let lastElement = expressionElements.popLast() {

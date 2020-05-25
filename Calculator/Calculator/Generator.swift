@@ -9,62 +9,40 @@
 import Foundation
 import RxSwift
 
-// TODO: This CANNOT be global, should be on an object level,
-// that way, when the next levels see a lower rank, it won't return once, but all the way down to the bottom.
-//fileprivate var globalRank: Int = .max
-
-struct GeneratorReturnType {
-    let rightValue: ArithmeticExpression
-    let missedFunction: Function?
-}
+typealias GeneratorReturnType = (rightValue: ArithmeticExpression, newElementStack: [String])
 
 class Generator {
+    private var rank: Int = .max
     private var rightValue: ArithmeticExpression = .empty
-    private var function: Function? = nil
-    private var leftValue: ArithmeticExpression = .empty
-    private var parenthesisCount: Int
-    
-    private let elementSubject: PublishSubject<String>
-    private var transferFunction = SerialDisposable()
-    private let returnSubject = PublishSubject<GeneratorReturnType>()
+    private var elementStack: [String] = []
     private let bag = DisposeBag()
-    
-    private var nextLevel: Generator? = nil
-    
-    init(elementSubject: PublishSubject<String> = PublishSubject<String>(), parenthesisCount: Int = -1) {
-        self.parenthesisCount = parenthesisCount
-        self.elementSubject = elementSubject
-    }
     
     // MARK: State Machine Functions
     
-    func startGenerator() -> PublishSubject<GeneratorReturnType> {
-        goToStart()
-        return returnSubject
+    func startGenerator(with elementStack: [String], rank: Int = .max) -> GeneratorReturnType {
+        self.rank = rank
+        self.elementStack = elementStack
+        return goToStart()
     }
     
-    private func goToStart() {
-        leftValue = .empty
+    private func goToStart() -> GeneratorReturnType {
         rightValue = .empty
         
-        transferFunction.disposable = elementSubject.subscribe(onNext: { [unowned self] element in
+        if let element = elementStack.popLast() {
             if element.isProperDouble() {
-                self.goToRightValue(with: .number(element.toDouble()))
-                return
+                return goToRightValue(with: .number(element.toDouble()))
             }
             
             if let button = Button.from(rawValue: element) {
                 switch button {
                 case .parenthesis(let parenthesis):
                     if parenthesis == .close {
-                        self.goToParseLeftValue(with: self.parenthesisCount)
-                        return
+                        return goToParseParenthesisLeftValue()
                     }
                 case .function(let function):
                     switch function {
                     case .right(_):
-                        self.goToParseLeftValue(with: function)
-                        return
+                        return goToParseLeftValue(with: function)
                     default:
                         break
                     }
@@ -72,73 +50,51 @@ class Generator {
                     break
                 }
             }
-            
-            self.goToError()
-        })
-    }
-    
-    private func transferFromRightValue(input function: Function) {
-        switch function {
-        case .left(_):
-            goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: .empty, rightValue: rightValue))
-            return
-        case .middle(_):
-            if function.rank() > globalRank { // > needs to be this way so that anything on the same level or higher will take priority
-                globalRank = .max
-                returnSubject.onNext(GeneratorReturnType(rightValue: rightValue, missedFunction: function))
-                return
-            }
-            
-            goToParseLeftValue(with: function)
-            return
-        default:
-            goToError()
         }
+        
+        return goToError()
     }
     
-    private func goToRightValue(with expression: ArithmeticExpression, missedFunction: Function? = nil) {
-        leftValue = .empty
-        function = nil
+    private func goToRightValue(with expression: ArithmeticExpression) -> GeneratorReturnType {
         rightValue = expression
-        nextLevel = nil
         
         // If the next level returned after seeing a function whose rank was less significant, short circuit the
         // state transfer function so that it doesn't consume the next element yet, but still processes the missed
         // function and transfers to the next appropriate state.
-        if let function = missedFunction {
-            globalRank = function.rank()
-            transferFromRightValue(input: function)
-            return
+        if let element = elementStack.popLast() {
+            if let function = Function.from(rawValue: element) {
+                switch function {
+                case .left(_):
+                    return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: .empty, rightValue: rightValue))
+                case .middle(_):
+                    if function.rank() > rank { // > needs to be this way so that anything on the same level or higher will take priority
+                        return GeneratorReturnType(rightValue: rightValue, newElementStack: elementStack + [function.rawValue()]) // need to replace the function onto the stack, as should not be consumed
+                    }
+                    
+                    return goToParseLeftValue(with: function)
+                default:
+                    return goToError()
+                }
+            }
         }
         
-        transferFunction.disposable = elementSubject.subscribe(onNext: { [unowned self] element in
-            if let function = Function.from(rawValue: element) {
-                self.transferFromRightValue(input: function)
-                return
-            }
-            
-            self.goToError()
-        })
+        return GeneratorReturnType(rightValue: rightValue, newElementStack: elementStack)
     }
     
-    // TODO: Finish Parenthesis Parsing
     
-    private func goToParseLeftValue(with parenthesisCount: Int) {
+    // TODO: Write this out!
+    private func goToParseParenthesisLeftValue() -> GeneratorReturnType {
+        return goToError()
     }
     
-    private func goToParseLeftValue(with function: Function) {
-        self.function = function
-        globalRank = function.rank()
-        transferFunction = SerialDisposable() // Need to decouple the elementSubject and pass it to the next level (otherwise this level will interfere)
+    private func goToParseLeftValue(with function: Function) -> GeneratorReturnType {
+        let (leftValue, newElementStack) = Generator().startGenerator(with: elementStack, rank: function.rank())
+        elementStack = newElementStack
         
-        nextLevel = Generator(elementSubject: elementSubject)
-        nextLevel?.startGenerator().subscribe(onNext: { [unowned self] output in
-            self.goToRightValue(with: output.rightValue, missedFunction: output.missedFunction)
-        }).disposed(by: bag)
+        return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue, rightValue: rightValue))
     }
     
-    private func goToError() {
-        rightValue = .error
-        transferFunction = SerialDisposable()
+    private func goToError() -> GeneratorReturnType {
+        return GeneratorReturnType(rightValue: rightValue, newElementStack: [])
     }
 }
