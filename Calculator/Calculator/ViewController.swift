@@ -74,12 +74,12 @@ class ViewController: UIViewController {
                                               [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
                                               [  .other(.alternate),       .other(.clear),         .other(.delete),            .variable(.answer) ]]
         
-        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),               .other(.set),        .function(.left(.sum)) ],
-                                                 [        .digit(.one),         .digit(.two),             .digit(.three),        .function(.left(.abs)) ],
-                                                 [       .digit(.four),        .digit(.five),               .digit(.six), .function(.right(.factorial)) ],
-                                                 [      .digit(.seven),       .digit(.eight),              .digit(.nine),        .function(.left(.inv)) ],
-                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.right(.square)),   .function(.middle(.modulo)) ],
-                                                 [  .other(.alternate),       .other(.clear),            .other(.delete),            .variable(.memory) ]]
+        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),           .other(.set),        .function(.left(.sum)) ],
+                                                 [        .digit(.one),         .digit(.two),         .digit(.three),        .function(.left(.abs)) ],
+                                                 [       .digit(.four),        .digit(.five),           .digit(.six), .function(.right(.factorial)) ],
+                                                 [      .digit(.seven),       .digit(.eight),          .digit(.nine),   .function(.middle(.modulo)) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.inv)),    .function(.right(.square)) ],
+                                                 [  .other(.alternate),       .other(.clear),        .other(.delete),            .variable(.memory) ]]
         
         assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0].count == alternateButtonLayout[0].count)
         
