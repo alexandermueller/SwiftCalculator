@@ -83,7 +83,7 @@ class ViewModel {
                     }
                 })
 
-                currentValue = generator.startGenerator(with: elements).rightValue.evaluate()
+                currentValue = generator.startGenerator(with: elements).value.evaluate()
                 return
             }
             
@@ -368,14 +368,14 @@ class ViewModel {
                 self.goToProperDouble(with: buttonPressed)
             case .parenthesis(.open):
                 self.goToOpenParenthesis(with: buttonPressed)
-            case .function(.left(.sqrt)):
-                self.goToLeftFunction(with: buttonPressed)
             case .function(.left(.negate)):
                 guard let lastElement = self.expressionElements.last,
-                      let button = Button.from(rawValue: lastElement), button != buttonPressed else {
-                    return
+                    let button = Button.from(rawValue: lastElement), button != buttonPressed else {
+                        return
                 }
-                
+            
+                self.goToLeftFunction(with: buttonPressed)
+            case .function(.left(_)):
                 self.goToLeftFunction(with: buttonPressed)
             case .variable(_):
                 self.goToVariable(with: buttonPressed)

@@ -9,25 +9,31 @@
 import Foundation
 import RxSwift
 
-typealias GeneratorReturnType = (rightValue: ArithmeticExpression, newElementStack: [String])
+typealias GeneratorReturnType = (value: ArithmeticExpression, newElementStack: [String])
 
 class Generator {
+    private var previousFunction: Function? = nil {
+        didSet {
+            guard let function = previousFunction else {
+                return
+            }
+            
+            rank = function.rank()
+        }
+    }
     private var rank: Int = .max
-    private var rightValue: ArithmeticExpression = .empty
     private var elementStack: [String] = []
     private let bag = DisposeBag()
     
     // MARK: State Machine Functions
     
-    func startGenerator(with elementStack: [String], rank: Int = .max) -> GeneratorReturnType {
-        self.rank = rank
+    func startGenerator(with elementStack: [String], function: Function? = nil) -> GeneratorReturnType {
+        previousFunction = function
         self.elementStack = elementStack
         return goToStart()
     }
     
     private func goToStart() -> GeneratorReturnType {
-        rightValue = .empty
-        
         if let element = elementStack.popLast() {
             if element.isProperDouble() {
                 return goToRightValue(with: .number(element.toDouble()))
@@ -37,12 +43,16 @@ class Generator {
                 switch button {
                 case .parenthesis(let parenthesis):
                     if parenthesis == .close {
-                        return goToParseParenthesisLeftValue()
+                        let (rightValue, newElementStack) = goToParseParenthesisLeftValue()
+                        elementStack = newElementStack
+                        return goToRightValue(with: rightValue)
                     }
                 case .function(let function):
                     switch function {
                     case .right(_):
-                        return goToParseLeftValue(with: function)
+                        let (leftValue, newElementStack) = Generator().startGenerator(with: elementStack, function: function)
+                        elementStack = newElementStack
+                        return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue))
                     default:
                         break
                     }
@@ -56,29 +66,34 @@ class Generator {
     }
     
     private func goToRightValue(with expression: ArithmeticExpression) -> GeneratorReturnType {
-        rightValue = expression
+        let rightValue = expression
         
-        // If the next level returned after seeing a function whose rank was less significant, short circuit the
-        // state transfer function so that it doesn't consume the next element yet, but still processes the missed
-        // function and transfers to the next appropriate state.
         if let element = elementStack.popLast() {
             if let function = Function.from(rawValue: element) {
                 switch function {
                 case .left(_):
-                    return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: .empty, rightValue: rightValue))
-                case .middle(_):
-                    if function.rank() > rank { // > needs to be this way so that anything on the same level or higher will take priority
-                        return GeneratorReturnType(rightValue: rightValue, newElementStack: elementStack + [function.rawValue()]) // need to replace the function onto the stack, as should not be consumed
+                    if rank < function.rank() {
+                        elementStack += [element]
+                        break
                     }
                     
-                    return goToParseLeftValue(with: function)
+                    return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: .empty, rightValue: rightValue))
+                case .middle(_):
+                    if let previous = previousFunction, rank < function.rank() || previous == function && previous.isGreedy() {
+                        elementStack += [element]
+                        break
+                    }
+                    
+                    let (leftValue, newElementStack) = rank == function.rank() ? goToStart() : Generator().startGenerator(with: elementStack, function: function)
+                    elementStack = newElementStack
+                    return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue, rightValue: rightValue))
                 default:
                     return goToError()
                 }
             }
         }
         
-        return GeneratorReturnType(rightValue: rightValue, newElementStack: elementStack)
+        return GeneratorReturnType(value: rightValue, newElementStack: elementStack)
     }
     
     
@@ -87,14 +102,7 @@ class Generator {
         return goToError()
     }
     
-    private func goToParseLeftValue(with function: Function) -> GeneratorReturnType {
-        let (leftValue, newElementStack) = Generator().startGenerator(with: elementStack, rank: function.rank())
-        elementStack = newElementStack
-        
-        return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue, rightValue: rightValue))
-    }
-    
     private func goToError() -> GeneratorReturnType {
-        return GeneratorReturnType(rightValue: rightValue, newElementStack: [])
+        return GeneratorReturnType(value: elementStack.count == 0 ? .empty : .error, newElementStack: [])
     }
 }

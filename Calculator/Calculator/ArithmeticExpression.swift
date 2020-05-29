@@ -87,7 +87,7 @@ indirect enum ArithmeticExpression: Equatable {
             let value = expression.evaluate()
             let sign = value / abs(value)
             
-            return value.isInt() ? (sign * (value + 1) * value) / 2 : .nan
+            return value.isInt() ? (sign * (abs(value) + 1) * abs(value)) / 2 : .nan
         case .addition(let left, let right):
             return left.evaluate() + right.evaluate()
         case .subtraction(let left, let right):
