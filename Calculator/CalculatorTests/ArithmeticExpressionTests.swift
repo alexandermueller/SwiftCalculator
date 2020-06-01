@@ -89,7 +89,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.error, .nan),
                 UnitTest(.number(.nan), .nan)
             ],
-            
+
             "Number, Double, Infinity" : [
                 UnitTest(.number(2), 2),
                 UnitTest(.number(-3), -3),
@@ -97,7 +97,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.number(.infinity), .infinity),
                 UnitTest(.number(-.infinity), -.infinity)
             ],
-            
+
             "Negation" : [
                 UnitTest(.negation(.number(.nan)), .nan),
                 UnitTest(.negation(.number(.infinity)), -.infinity),
@@ -106,7 +106,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.negation(.number(1)), -1),
                 UnitTest(.negation(.negation(.number(1))), 1)
             ],
-            
+
             "Error: Addition, Subtraction" : [
                 UnitTest(.addition(.number(.nan), .number(1)), .nan),
                 UnitTest(.addition(.number(1), .number(.nan)), .nan),
@@ -117,7 +117,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.subtraction(.number(.nan), .number(3)), .nan),
                 UnitTest(.subtraction(.number(3), .number(.nan)), .nan)
             ],
-            
+
             "Addition, Subtraction": [
                 UnitTest(.addition(.number(1), .number(2)), 3),
                 UnitTest(.subtraction(.number(2), .number(3)), -1),
@@ -129,7 +129,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.subtraction(.negation(.number(1)), .number(1)), -2),
                 UnitTest(.subtraction(.number(1), .negation(.number(1))), 2)
             ],
-            
+
             "Error: Modulo" : [
                 UnitTest(.modulo(.number(.nan), .number(1)), .nan),
                 UnitTest(.modulo(.number(1), .number(.nan)), .nan),
@@ -141,7 +141,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.modulo(.number(-.infinity), .number(.infinity)), -.nan),
                 UnitTest(.modulo(.number(1), .number(0)), .nan)
             ],
-            
+
             "Modulo" : [
                 UnitTest(.modulo(.number(1), .number(1)), 0),
                 UnitTest(.modulo(.number(0), .number(1)), 0),
@@ -158,7 +158,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.modulo(.number(-1), .number(-.infinity)), -1),
                 UnitTest(.modulo(.number(1), .number(-.infinity)), -.infinity)
             ],
-            
+
             "Error: Multiplication, Division" : [
                 UnitTest(.multiplication(.number(.nan), .number(.nan)), .nan),
                 UnitTest(.multiplication(.number(.nan), .number(.infinity)), .nan),
@@ -172,7 +172,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.multiplication(.number(.infinity), .number(0)), -.nan),
                 UnitTest(.multiplication(.number(-.infinity), .number(0)), -.nan)
             ],
-            
+
             "Multiplication" : [
                 UnitTest(.multiplication(.number(0), .number(0)), 0),
                 UnitTest(.multiplication(.number(1), .number(0)), 0),
@@ -184,7 +184,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.multiplication(.number(.infinity), .number(.infinity)), .infinity),
                 UnitTest(.multiplication(.number(.infinity), .number(-.infinity)), -.infinity)
             ],
-            
+
             "Division" : [
                 UnitTest(.division(.number(0), .number(1)), 0),
                 UnitTest(.division(.number(0), .negation(.number(1))), 0),
@@ -201,14 +201,14 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.division(.number(.infinity), .number(0)), .infinity),
                 UnitTest(.division(.number(-.infinity), .number(0)), -.infinity)
             ],
-            
+
             "Multiplication + Division" : [
                 UnitTest(.multiplication(.division(.number(1), .number(2)), .number(2)), 1),
                 UnitTest(.multiplication(.number(2), .division(.number(1), .number(2))), 1),
                 UnitTest(.division(.multiplication(.number(1), .number(2)), .number(2)), 1),
                 UnitTest(.division(.number(2), .multiplication(.number(1), .number(2))), 1)
             ],
-            
+
             "Error: Square Root, Inverse, Square" : [
                 UnitTest(.squareRoot(.number(.nan)), .nan),
                 UnitTest(.squareRoot(.number(-.nan)), .nan),
@@ -219,7 +219,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.inverse(.number(.nan)), .nan),
                 UnitTest(.inverse(.number(-.nan)), .nan),
             ],
-            
+
             "Square Root" : [
                 UnitTest(.squareRoot(.number(0)), 0),
                 UnitTest(.squareRoot(.number(1)), 1),
@@ -231,7 +231,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.squareRoot(.square(.number(10000000000.0000000001))), 10000000000.0000000001),
                 UnitTest(.squareRoot(.square(.number(.infinity))), .infinity)
             ],
-            
+
             "Square" : [
                 UnitTest(.square(.number(0)), 0),
                 UnitTest(.square(.number(1)), 1),
@@ -243,7 +243,7 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.square(.squareRoot(.number(10000000000.0000000001))), 10000000000.0000000001),
                 UnitTest(.square(.squareRoot(.number(.infinity))), .infinity)
             ],
-            
+
             "Inverse" : [
                 UnitTest(.inverse(.number(1)), 1),
                 UnitTest(.inverse(.number(2)), 0.5),
@@ -263,19 +263,29 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.root(.number(1), .number(.nan)), .nan),
                 UnitTest(.root(.number(-.nan), .number(0.1)), .nan),
                 UnitTest(.root(.number(0.1), .number(-.nan)), .nan),
+                UnitTest(.root(.number(2), .number(-1)), -.nan),
             ],
             
             "Root" : [
                 UnitTest(.root(.number(0), .number(0)), 0),
                 UnitTest(.root(.number(0), .number(1)), 1),
-                UnitTest(.root(.number(0) , .number(0.1)), 0),
+                UnitTest(.root(.number(0), .number(0.1)), 0),
+                UnitTest(.root(.number(1), .number(0.1)), 0.1),
+                UnitTest(.root(.number(2), .number(0.01)), 0.1),
+                UnitTest(.root(.number(2), .number(100)), 10),
+                UnitTest(.root(.number(3), .number(-1)), -1),
+                UnitTest(.root(.number(3), .number(1000)), 10),
+                UnitTest(.root(.number(4), .number(10000)), 10),
+                UnitTest(.root(.number(5), .number(100000)), 10),
+                UnitTest(.root(.number(10), .number(10000000000)), 10),
                 UnitTest(.root(.number(0), .number(.infinity)), .infinity),
                 UnitTest(.root(.number(0), .number(-.infinity)), .infinity),
                 UnitTest(.root(.number(.infinity), .number(0)), 1),
                 UnitTest(.root(.number(.infinity), .number(.infinity)), 1),
             ],
-            
+
             /** Rank (from most important to least):
+             *  -1. Parenthesis
              *  0. abs, sum
              *  1. factorial
              *  2. exponent

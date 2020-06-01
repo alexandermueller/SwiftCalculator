@@ -1,5 +1,5 @@
 //
-//  Double+toSimpleNumericString.swift
+//  Double+ToSimpleNumericString.swift
 //  Calculator
 //
 //  Created by Alexander Mueller on 2019-09-10.
@@ -40,9 +40,5 @@ extension Double {
         }
         
         return value.removeFirstContainedSuffix([".0", "E0", "e0"])
-    }
-    
-    func isInt() -> Bool {
-        return self.remainder(dividingBy: 1) == 0
     }
 }

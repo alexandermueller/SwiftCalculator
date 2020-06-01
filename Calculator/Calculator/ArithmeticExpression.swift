@@ -70,7 +70,6 @@ indirect enum ArithmeticExpression: Equatable {
         }
     }
     
-    // Note: The switch statement in here is buggy and does not catch new enum values!!!!!
     func evaluate() -> Double {
         switch self {
         case .number(let value):
@@ -80,14 +79,12 @@ indirect enum ArithmeticExpression: Equatable {
         case .squareRoot(let base):
             return sqrt(base.evaluate())
         case .inverse(let expression):
-            return ArithmeticExpression.division(ArithmeticExpression.number(1), expression).evaluate()
+            return ArithmeticExpression.division(ArithmeticExpression.number(1.0), expression).evaluate()
         case .absoluteValue(let expression):
-            return abs(expression.evaluate())
+            return fabs(expression.evaluate())
         case .summation(let expression):
             let value = expression.evaluate()
-            let sign = value / abs(value)
-            
-            return value.isInt() ? (sign * (abs(value) + 1) * abs(value)) / 2 : .nan
+            return value.isWhole() ? (value.getSign() * (abs(value) + 1.0) * abs(value)) / 2.0 : .nan
         case .addition(let left, let right):
             return left.evaluate() + right.evaluate()
         case .subtraction(let left, let right):
@@ -103,21 +100,29 @@ indirect enum ArithmeticExpression: Equatable {
         case .division(let left, let right):
             return left.evaluate() / right.evaluate()
         case .exponentiation(let base, let exponent):
+            let baseValue = base.evaluate()
             let exponentValue = exponent.evaluate()
-            return exponentValue.isNaN ? exponentValue : pow(base.evaluate(), exponentValue)
+            guard !baseValue.isNaN && !exponentValue.isNaN else {
+                return .nan
+            }
+            
+            let sign = (1 / exponentValue).isWhole() && !(1 / exponentValue).isEven() ? base.evaluate().getSign() : 1
+            return sign * pow(sign * base.evaluate(), exponentValue).roundForPrecisionGreaterThanDisplay()
         case .root(let root, let base):
-            let rootValue = root.evaluate()
-            return rootValue.isNaN ? rootValue : pow(base.evaluate(), 1 / rootValue)
+            return ArithmeticExpression.exponentiation(base, .inverse(root)).evaluate()
         case .square(let base):
-            return ArithmeticExpression.exponentiation(base, .number(2)).evaluate()
+            return ArithmeticExpression.exponentiation(base, .number(2.0)).evaluate()
         case .factorial(let expression):
             let value = expression.evaluate()
+            guard abs(value) < Double(Int.max) else {
+                return value.getSign() * .infinity
+            }
             
-            if value.isInt() {
-                let int = Int(value)
+            if value.isWhole() {
+                let intValue = Int(value)
                 var result: Double = 1
                 
-                for i in 1 ... max(int, 1) {
+                for i in 1 ... max(intValue, 1) {
                     result *= Double(i)
                 }
                 
