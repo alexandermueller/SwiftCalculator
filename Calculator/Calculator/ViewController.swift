@@ -59,7 +59,6 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
         backgroundView.frame = view.frame
         backgroundView.backgroundColor = .black

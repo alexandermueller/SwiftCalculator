@@ -34,35 +34,37 @@ class Generator {
     }
     
     private func goToStart() -> GeneratorReturnType {
-        if let element = elementStack.popLast() {
-            if element.isProperDouble() {
-                return goToRightValue(with: .number(element.toDouble()))
-            }
-            
-            if let button = Button.from(rawValue: element) {
-                switch button {
-                case .parenthesis(let parenthesis):
-                    if parenthesis == .close {
-                        let (rightValue, newElementStack) = goToParseParenthesisLeftValue()
-                        elementStack = newElementStack
-                        return goToRightValue(with: rightValue)
-                    }
-                case .function(let function):
-                    switch function {
-                    case .right(_):
-                        let (leftValue, newElementStack) = Generator().startGenerator(with: elementStack, function: function)
-                        elementStack = newElementStack
-                        return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue))
-                    default:
-                        break
-                    }
+        guard let element = elementStack.popLast() else {
+            return goToError(with: .empty)
+        }
+        
+        if element.isProperDouble() {
+            return goToRightValue(with: .number(element.toDouble()))
+        }
+        
+        if let button = Button.from(rawValue: element) {
+            switch button {
+            case .parenthesis(let parenthesis):
+                if parenthesis == .close {
+                    let (rightValue, newElementStack) = goToParseParenthesisLeftValue()
+                    elementStack = newElementStack
+                    return goToRightValue(with: rightValue)
+                }
+            case .function(let function):
+                switch function {
+                case .right(_):
+                    let (leftValue, newElementStack) = Generator().startGenerator(with: elementStack, function: function)
+                    elementStack = newElementStack
+                    return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue))
                 default:
                     break
                 }
+            default:
+                break
             }
         }
         
-        return goToError()
+        return goToError(with: .error)
     }
     
     private func goToRightValue(with expression: ArithmeticExpression) -> GeneratorReturnType {
@@ -88,7 +90,7 @@ class Generator {
                     elementStack = newElementStack
                     return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue, rightValue: rightValue))
                 default:
-                    return goToError()
+                    return goToError(with: .error)
                 }
             }
         }
@@ -99,10 +101,10 @@ class Generator {
     
     // TODO: Write this out!
     private func goToParseParenthesisLeftValue() -> GeneratorReturnType {
-        return goToError()
+        return goToError(with: .error)
     }
     
-    private func goToError() -> GeneratorReturnType {
-        return GeneratorReturnType(value: elementStack.count == 0 ? .empty : .error, newElementStack: [])
+    private func goToError(with result: ArithmeticExpression) -> GeneratorReturnType {
+        return GeneratorReturnType(value: result, newElementStack: [])
     }
 }

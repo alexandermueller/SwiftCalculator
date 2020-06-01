@@ -93,7 +93,11 @@ indirect enum ArithmeticExpression: Equatable {
         case .subtraction(let left, let right):
             return left.evaluate() - right.evaluate()
         case .modulo(let left, let right):
-            return left.evaluate().truncatingRemainder(dividingBy: right.evaluate())
+            let leftValue = left.evaluate()
+            let rightValue = right.evaluate()
+            let remainder = left.evaluate().truncatingRemainder(dividingBy: right.evaluate())
+            
+            return leftValue.sign != rightValue.sign ? rightValue + remainder : remainder
         case .multiplication(let left, let right):
             return left.evaluate() * right.evaluate()
         case .division(let left, let right):

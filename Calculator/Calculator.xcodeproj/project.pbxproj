@@ -11,6 +11,10 @@
 		E0172FD6D8E09B5835DAFA10 /* Pods_CalculatorTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FDB761F32ECE94DEAEDC292C /* Pods_CalculatorTests.framework */; };
 		FA0085B42429E04E00DCC90C /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0085B32429E04E00DCC90C /* Generator.swift */; };
 		FA3D5E3C2345E4AC00794F53 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3D5E3B2345E4AC00794F53 /* ViewModel.swift */; };
+		FA4A0B34248466EE006060D1 /* String+ImplementsIsNaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B33248466EE006060D1 /* String+ImplementsIsNaN.swift */; };
+		FA4A0B3624846721006060D1 /* ImplementsIsNaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B3524846721006060D1 /* ImplementsIsNaN.swift */; };
+		FA4A0B3824846887006060D1 /* Double+ImplementsIsNaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B3724846887006060D1 /* Double+ImplementsIsNaN.swift */; };
+		FA4A0B3A2484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B392484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift */; };
 		FAA07C6D2341D27800D9E43F /* ArithmeticExpressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA07C6C2341D27800D9E43F /* ArithmeticExpressionTests.swift */; };
 		FABEBCC22326DCED00CD024C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCC12326DCED00CD024C /* AppDelegate.swift */; };
 		FABEBCC42326DCED00CD024C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCC32326DCED00CD024C /* ViewController.swift */; };
@@ -42,6 +46,10 @@
 		E67D61F88B850911F88CF133 /* Pods-CalculatorTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CalculatorTests.release.xcconfig"; path = "Target Support Files/Pods-CalculatorTests/Pods-CalculatorTests.release.xcconfig"; sourceTree = "<group>"; };
 		FA0085B32429E04E00DCC90C /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
 		FA3D5E3B2345E4AC00794F53 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
+		FA4A0B33248466EE006060D1 /* String+ImplementsIsNaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+ImplementsIsNaN.swift"; sourceTree = "<group>"; };
+		FA4A0B3524846721006060D1 /* ImplementsIsNaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImplementsIsNaN.swift; sourceTree = "<group>"; };
+		FA4A0B3724846887006060D1 /* Double+ImplementsIsNaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Double+ImplementsIsNaN.swift"; sourceTree = "<group>"; };
+		FA4A0B392484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ArithmeticExpression+ImplementsIsNaN.swift"; sourceTree = "<group>"; };
 		FAA07C6C2341D27800D9E43F /* ArithmeticExpressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArithmeticExpressionTests.swift; sourceTree = "<group>"; };
 		FABEBCBE2326DCED00CD024C /* Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Calculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FABEBCC12326DCED00CD024C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -144,6 +152,10 @@
 			isa = PBXGroup;
 			children = (
 				FAA07C6C2341D27800D9E43F /* ArithmeticExpressionTests.swift */,
+				FA4A0B3524846721006060D1 /* ImplementsIsNaN.swift */,
+				FA4A0B33248466EE006060D1 /* String+ImplementsIsNaN.swift */,
+				FA4A0B3724846887006060D1 /* Double+ImplementsIsNaN.swift */,
+				FA4A0B392484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift */,
 				FABEBCD82326DCEE00CD024C /* Info.plist */,
 			);
 			path = CalculatorTests;
@@ -352,7 +364,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA4A0B34248466EE006060D1 /* String+ImplementsIsNaN.swift in Sources */,
+				FA4A0B3624846721006060D1 /* ImplementsIsNaN.swift in Sources */,
+				FA4A0B3824846887006060D1 /* Double+ImplementsIsNaN.swift in Sources */,
 				FAA07C6D2341D27800D9E43F /* ArithmeticExpressionTests.swift in Sources */,
+				FA4A0B3A2484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
