@@ -114,7 +114,7 @@ indirect enum ArithmeticExpression: Equatable {
             return ArithmeticExpression.exponentiation(base, .number(2.0)).evaluate()
         case .factorial(let expression):
             let value = expression.evaluate()
-            guard abs(value) < Float80(Int.max) else {
+            guard abs(value) < Float80.greatestFiniteMagnitude else {
                 return value.getSign() * .infinity
             }
             
