@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 indirect enum ArithmeticExpression: Equatable {
-    case number(Double)
+    case number(Float80)
     case negation(ArithmeticExpression)
     case squareRoot(ArithmeticExpression)
     case inverse(ArithmeticExpression)
@@ -70,7 +70,7 @@ indirect enum ArithmeticExpression: Equatable {
         }
     }
     
-    func evaluate() -> Double {
+    func evaluate() -> Float80 {
         switch self {
         case .number(let value):
             return value
@@ -81,7 +81,7 @@ indirect enum ArithmeticExpression: Equatable {
         case .inverse(let expression):
             return ArithmeticExpression.division(ArithmeticExpression.number(1.0), expression).evaluate()
         case .absoluteValue(let expression):
-            return fabs(expression.evaluate())
+            return abs(expression.evaluate())
         case .summation(let expression):
             let value = expression.evaluate()
             return value.isWhole() ? (value.getSign() * (abs(value) + 1.0) * abs(value)) / 2.0 : .nan
@@ -106,24 +106,24 @@ indirect enum ArithmeticExpression: Equatable {
                 return .nan
             }
             
-            let sign = (1 / exponentValue).isWhole() && !(1 / exponentValue).isEven() ? base.evaluate().getSign() : 1
-            return sign * pow(sign * base.evaluate(), exponentValue).roundForPrecisionGreaterThanDisplay()
+            let sign = ((1 / exponentValue).isWhole() && !(1 / exponentValue).isEven()) ? base.evaluate().getSign() : 1
+            return sign * pow(sign * base.evaluate(), exponentValue)//.roundForPrecisionGreaterThanDisplay()
         case .root(let root, let base):
             return ArithmeticExpression.exponentiation(base, .inverse(root)).evaluate()
         case .square(let base):
             return ArithmeticExpression.exponentiation(base, .number(2.0)).evaluate()
         case .factorial(let expression):
             let value = expression.evaluate()
-            guard abs(value) < Double(Int.max) else {
+            guard abs(value) < Float80(Int.max) else {
                 return value.getSign() * .infinity
             }
             
             if value.isWhole() {
                 let intValue = Int(value)
-                var result: Double = 1
+                var result: Float80 = 1
                 
                 for i in 1 ... max(intValue, 1) {
-                    result *= Double(i)
+                    result *= Float80(i)
                 }
                 
                 return result

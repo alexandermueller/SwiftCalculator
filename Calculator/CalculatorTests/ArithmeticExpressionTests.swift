@@ -81,7 +81,7 @@ class ArithmeticExpressionTests: XCTestCase {
     }
     
     func testArithmeticExpressionEvaluate() {
-        typealias UnitTest = TemplateTest<ArithmeticExpression, Double>
+        typealias UnitTest = TemplateTest<ArithmeticExpression, Float80>
         
         let testCaseSuite: [String : [UnitTest]] = [
             "Empty, Error, NaN" : [
