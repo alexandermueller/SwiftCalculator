@@ -12,7 +12,8 @@ infix operator |-|
 
 protocol UnitTestOutput : Equatable {
     func isNaN() -> Bool
+    func isPositive() -> Bool
     
     static func |-| (lhs: Self, rhs: Self) -> Self
-    static func <= (lhs: Self, rhs: Double) -> Bool
+    static func <= (lhs: Self, rhs: Float80) -> Bool
 }

@@ -13,11 +13,15 @@ extension String : UnitTestOutput {
         return false
     }
     
+    func isPositive() -> Bool {
+        return false
+    }
+    
     static func |-| (lhs: String, rhs: String) -> String {
         return ""
     }
     
-    static func <= (lhs: String, rhs: Double) -> Bool {
+    static func <= (lhs: String, rhs: Float80) -> Bool {
         return false
     }
 }

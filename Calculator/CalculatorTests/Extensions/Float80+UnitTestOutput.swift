@@ -13,11 +13,11 @@ extension Float80 : UnitTestOutput {
         return self.isNaN
     }
     
-    static func |-| (lhs: Float80, rhs: Float80) -> Float80 {
-        return abs(lhs - rhs) / lhs
+    func isPositive() -> Bool {
+        return 0 <= self
     }
     
-    static func <= (lhs: Float80, rhs: Double) -> Bool {
-        return lhs <= Float80(rhs)
+    static func |-| (lhs: Float80, rhs: Float80) -> Float80 {
+        return abs((lhs - rhs) / lhs)
     }
 }

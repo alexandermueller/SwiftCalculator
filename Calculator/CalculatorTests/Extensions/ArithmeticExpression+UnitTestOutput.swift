@@ -14,11 +14,15 @@ extension ArithmeticExpression : UnitTestOutput {
         return false
     }
     
+    func isPositive() -> Bool {
+        return false
+    }
+    
     static func |-| (lhs: ArithmeticExpression, rhs: ArithmeticExpression) -> ArithmeticExpression {
         return .error
     }
     
-    static func <= (lhs: ArithmeticExpression, rhs: Double) -> Bool {
+    static func <= (lhs: ArithmeticExpression, rhs: Float80) -> Bool {
         return false
     }
 }
