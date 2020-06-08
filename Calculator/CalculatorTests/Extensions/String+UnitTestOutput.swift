@@ -8,8 +8,16 @@
 
 import Foundation
 
-extension String: ImplementsIsNaN {
+extension String : UnitTestOutput {
     func isNaN() -> Bool {
+        return false
+    }
+    
+    static func |-| (lhs: String, rhs: String) -> String {
+        return ""
+    }
+    
+    static func <= (lhs: String, rhs: Double) -> Bool {
         return false
     }
 }

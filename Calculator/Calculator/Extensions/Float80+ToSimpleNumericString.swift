@@ -14,14 +14,13 @@ enum MaxDisplayLength: Int {
     case highestLimit = 20
 }
 
-// TODO: Fix issue where ±∞ shows up before ±inf does, should just be ±inf
 extension Float80 {
     // Forces the displayed number to be the appropriate character length depending on the display type
     func toSimpleNumericString(for displayLimit: MaxDisplayLength = .highestLimit) -> String {
         guard !self.isNaN else {
             return String("NaN")
         }
-
+        
         var value = String(self).removeFirstContainedSuffix([".0", "E0", "e0"])
         
         let formatter = NumberFormatter()
@@ -38,6 +37,12 @@ extension Float80 {
             }
             
             value = formattedValue
+        }
+        
+        if ("+∞" == value) {
+            return "inf"
+        } else if ("-∞" == value) {
+            return "-inf"
         }
         
         return value.removeFirstContainedSuffix([".0", "E0", "e0"])

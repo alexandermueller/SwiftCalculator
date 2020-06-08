@@ -9,56 +9,63 @@
 import XCTest
 @testable import Calculator
 
-typealias TemplateTest<I, O: ImplementsIsNaN> = (input: I, output: O)
+let kErrorThreshold: Double = 0.008
+
+enum SuccessCondition {
+    case equivalent
+    case approximate(within: Double) // To a certain percent of the expected value
+}
+
+typealias TemplateTest<I, O: UnitTestOutput> = (input: I, output: O)
 
 class ArithmeticExpressionTests: XCTestCase {
     func testParseExpression() {
         typealias UnitTest = TemplateTest<[String], ArithmeticExpression>
         
-        let testCaseSuite: [String : [UnitTest]] = [
-            "Empty" : [
+        let testCaseSuite: [String : (SuccessCondition, [UnitTest])] = [
+            "Empty" : (.equivalent, [
                 UnitTest([], .empty)
-            ],
+            ]),
             
-            "Number, Double" : [
+            "Number, Double" : (.equivalent, [
                 UnitTest(["0."], .error),
                 UnitTest(["1"], .number(1)),
                 UnitTest(["0.000001"], .number(0.000001))
-            ],
+            ]),
             
-            "Addition" : [
+            "Addition" : (.equivalent, [
                 UnitTest(["0", "+"], .error),
                 UnitTest(["0", "+", "0."], .error),
                 UnitTest(["1", "+", "2"], .addition(.number(1), .number(2))),
                 UnitTest(["1", "+", "2", "+", "1", "+", "2"], .addition(.addition(.addition(.number(1), .number(2)), .number(1)), .number(2)))
-            ],
+            ]),
             
-            "Subtraction" : [
+            "Subtraction" : (.equivalent, [
                 UnitTest(["0", "-"], .error),
                 UnitTest(["0", "-", "0."], .error),
                 UnitTest(["1", "–", "1"], .subtraction(.number(1), .number(1))),
                 UnitTest(["1", "+", "2", "+", "1", "+", "2"], .addition(.addition(.addition(.number(1), .number(2)), .number(1)), .number(2)))
-            ],
+            ]),
             
-            "Addition + Subtraction" : [
+            "Addition + Subtraction" : (.equivalent, [
                 UnitTest(["1", "+", "1", "–", "1"], .subtraction(.addition(.number(1), .number(1)), .number(1))),
                 UnitTest(["1", "–", "1", "+", "1"], .addition(.subtraction(.number(1), .number(1)), .number(1)))
-            ],
+            ]),
             
-            "Modulo" : [
+            "Modulo" : (.equivalent, [
                 UnitTest(["0", "%"], .error),
                 UnitTest(["0", "%", "0."], .error),
                 UnitTest(["1", "+", "1", "%", "1"], .addition(.number(1), .modulo(.number(1), .number(1)))),
                 UnitTest(["1", "%", "1", "–", "1"], .subtraction(.modulo(.number(1), .number(1)), .number(1))),
                 UnitTest(["3", "%", "4", "%", "5"], .modulo(.modulo(.number(3), .number(4)), .number(5)))
-            ],
+            ]),
             
-            "Negation" : [
+            "Negation" : (.equivalent, [
                 UnitTest(["-"], .error),
                 UnitTest(["-", "1"], .negation(.number(1))),
                 UnitTest(["-", "-", "1"], .negation(.negation(.number(1)))),
                 UnitTest(["-", "1", "–", "1"], .subtraction(.negation(.number(1)), .number(1))),
-            ],
+            ]),
             
             //            UnitTest(["(", "1", ")"], .number(1)),
             //            UnitTest(["(", "1", ")", "+", "(", "1", ")"], .addition(.number(1), .number(1))),
@@ -83,31 +90,31 @@ class ArithmeticExpressionTests: XCTestCase {
     func testArithmeticExpressionEvaluate() {
         typealias UnitTest = TemplateTest<ArithmeticExpression, Float80>
         
-        let testCaseSuite: [String : [UnitTest]] = [
-            "Empty, Error, NaN" : [
+        let testCaseSuite: [String : (SuccessCondition, [UnitTest])] = [
+            "Empty, Error, NaN" : (.equivalent, [
                 UnitTest(.empty, .nan),
                 UnitTest(.error, .nan),
                 UnitTest(.number(.nan), .nan)
-            ],
+            ]),
 
-            "Number, Double, Infinity" : [
+            "Number, Double, Infinity" : (.equivalent, [
                 UnitTest(.number(2), 2),
                 UnitTest(.number(-3), -3),
                 UnitTest(.number(-0.1), -0.1),
                 UnitTest(.number(.infinity), .infinity),
                 UnitTest(.number(-.infinity), -.infinity)
-            ],
+            ]),
 
-            "Negation" : [
+            "Negation" : (.equivalent, [
                 UnitTest(.negation(.number(.nan)), .nan),
                 UnitTest(.negation(.number(.infinity)), -.infinity),
                 UnitTest(.negation(.number(-.infinity)), .infinity),
                 UnitTest(.negation(.number(0)), 0),
                 UnitTest(.negation(.number(1)), -1),
                 UnitTest(.negation(.negation(.number(1))), 1)
-            ],
+            ]),
 
-            "Error: Addition, Subtraction" : [
+            "Error: Addition, Subtraction" : (.equivalent, [
                 UnitTest(.addition(.number(.nan), .number(1)), .nan),
                 UnitTest(.addition(.number(1), .number(.nan)), .nan),
                 UnitTest(.addition(.number(.infinity), .number(-.infinity)), -.nan),
@@ -116,9 +123,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.subtraction(.number(-.infinity), .number(-.infinity)), -.nan),
                 UnitTest(.subtraction(.number(.nan), .number(3)), .nan),
                 UnitTest(.subtraction(.number(3), .number(.nan)), .nan)
-            ],
+            ]),
 
-            "Addition, Subtraction": [
+            "Addition, Subtraction": (.equivalent, [
                 UnitTest(.addition(.number(1), .number(2)), 3),
                 UnitTest(.subtraction(.number(2), .number(3)), -1),
                 UnitTest(.addition(.subtraction(.number(1), .number(4)), .number(3)), 0),
@@ -128,9 +135,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.addition(.negation(.number(1)), .negation(.number(1))), -2),
                 UnitTest(.subtraction(.negation(.number(1)), .number(1)), -2),
                 UnitTest(.subtraction(.number(1), .negation(.number(1))), 2)
-            ],
+            ]),
 
-            "Error: Modulo" : [
+            "Error: Modulo" : (.equivalent, [
                 UnitTest(.modulo(.number(.nan), .number(1)), .nan),
                 UnitTest(.modulo(.number(1), .number(.nan)), .nan),
                 UnitTest(.modulo(.number(.infinity), .number(1)), .nan),
@@ -140,9 +147,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.modulo(.number(.infinity), .number(-.infinity)), -.nan),
                 UnitTest(.modulo(.number(-.infinity), .number(.infinity)), -.nan),
                 UnitTest(.modulo(.number(1), .number(0)), .nan)
-            ],
+            ]),
 
-            "Modulo" : [
+            "Modulo" : (.equivalent, [
                 UnitTest(.modulo(.number(1), .number(1)), 0),
                 UnitTest(.modulo(.number(0), .number(1)), 0),
                 UnitTest(.modulo(.number(2), .number(1)), 0),
@@ -157,9 +164,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.modulo(.number(-1), .number(.infinity)), .infinity),
                 UnitTest(.modulo(.number(-1), .number(-.infinity)), -1),
                 UnitTest(.modulo(.number(1), .number(-.infinity)), -.infinity)
-            ],
+            ]),
 
-            "Error: Multiplication, Division" : [
+            "Error: Multiplication, Division" : (.equivalent, [
                 UnitTest(.multiplication(.number(.nan), .number(.nan)), .nan),
                 UnitTest(.multiplication(.number(.nan), .number(.infinity)), .nan),
                 UnitTest(.multiplication(.number(.nan), .number(-.infinity)), .nan),
@@ -171,9 +178,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.division(.number(.nan), .number(-.infinity)), .nan),
                 UnitTest(.multiplication(.number(.infinity), .number(0)), -.nan),
                 UnitTest(.multiplication(.number(-.infinity), .number(0)), -.nan)
-            ],
+            ]),
 
-            "Multiplication" : [
+            "Multiplication" : (.equivalent, [
                 UnitTest(.multiplication(.number(0), .number(0)), 0),
                 UnitTest(.multiplication(.number(1), .number(0)), 0),
                 UnitTest(.multiplication(.negation(.number(1)), .number(0)), 0),
@@ -183,9 +190,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.multiplication(.negation(.number(1)), .number(2)), -2),
                 UnitTest(.multiplication(.number(.infinity), .number(.infinity)), .infinity),
                 UnitTest(.multiplication(.number(.infinity), .number(-.infinity)), -.infinity)
-            ],
+            ]),
 
-            "Division" : [
+            "Division" : (.equivalent, [
                 UnitTest(.division(.number(0), .number(1)), 0),
                 UnitTest(.division(.number(0), .negation(.number(1))), 0),
                 UnitTest(.division(.number(1), .number(1)), 1),
@@ -200,16 +207,16 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.division(.number(0), .number(-.infinity)), 0),
                 UnitTest(.division(.number(.infinity), .number(0)), .infinity),
                 UnitTest(.division(.number(-.infinity), .number(0)), -.infinity)
-            ],
+            ]),
 
-            "Multiplication + Division" : [
+            "Multiplication + Division" : (.equivalent, [
                 UnitTest(.multiplication(.division(.number(1), .number(2)), .number(2)), 1),
                 UnitTest(.multiplication(.number(2), .division(.number(1), .number(2))), 1),
                 UnitTest(.division(.multiplication(.number(1), .number(2)), .number(2)), 1),
                 UnitTest(.division(.number(2), .multiplication(.number(1), .number(2))), 1)
-            ],
+            ]),
 
-            "Error: Square Root, Inverse, Square" : [
+            "Error: Square Root, Inverse, Square" : (.equivalent, [
                 UnitTest(.squareRoot(.number(.nan)), .nan),
                 UnitTest(.squareRoot(.number(-.nan)), .nan),
                 UnitTest(.squareRoot(.negation(.number(1))), -.nan),
@@ -218,9 +225,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.square(.number(-.nan)), .nan),
                 UnitTest(.inverse(.number(.nan)), .nan),
                 UnitTest(.inverse(.number(-.nan)), .nan),
-            ],
+            ]),
 
-            "Square Root" : [
+            "Square Root" : (.equivalent, [
                 UnitTest(.squareRoot(.number(0)), 0),
                 UnitTest(.squareRoot(.number(1)), 1),
                 UnitTest(.squareRoot(.number(9)), 3),
@@ -230,9 +237,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.squareRoot(.square(.number(10000000000))), 10000000000),
                 UnitTest(.squareRoot(.square(.number(10000000000.0000000001))), 10000000000.0000000001),
                 UnitTest(.squareRoot(.square(.number(.infinity))), .infinity)
-            ],
+            ]),
 
-            "Square" : [
+            "Square" : (.equivalent, [
                 UnitTest(.square(.number(0)), 0),
                 UnitTest(.square(.number(1)), 1),
                 UnitTest(.square(.number(3)), 9),
@@ -242,9 +249,9 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.square(.squareRoot(.number(10000000000))), 10000000000),
                 UnitTest(.square(.squareRoot(.number(10000000000.0000000001))), 10000000000.0000000001),
                 UnitTest(.square(.squareRoot(.number(.infinity))), .infinity)
-            ],
+            ]),
 
-            "Inverse" : [
+            "Inverse" : (.equivalent, [
                 UnitTest(.inverse(.number(1)), 1),
                 UnitTest(.inverse(.number(2)), 0.5),
                 UnitTest(.square(.inverse(.number(2))), 0.25),
@@ -256,17 +263,17 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.inverse(.number(.infinity)), 0.0),
                 UnitTest(.inverse(.number(-.infinity)), 0.0),
                 UnitTest(.inverse(.number(0)), .infinity)
-            ],
+            ]),
             
-            "Error: Root" : [
+            "Error: Root" : (.equivalent, [
                 UnitTest(.root(.number(.nan), .number(1)), .nan),
                 UnitTest(.root(.number(1), .number(.nan)), .nan),
                 UnitTest(.root(.number(-.nan), .number(0.1)), .nan),
                 UnitTest(.root(.number(0.1), .number(-.nan)), .nan),
                 UnitTest(.root(.number(2), .number(-1)), -.nan),
-            ],
+            ]),
             
-            "Root General" : [
+            "Root General" : (.equivalent, [
                 UnitTest(.root(.number(0), .number(0)), 0),
                 UnitTest(.root(.number(0), .number(1)), 1),
                 UnitTest(.root(.number(0), .number(0.1)), 0),
@@ -280,45 +287,45 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.root(.number(-.infinity), .number(.infinity)), 1),
                 UnitTest(.root(.number(0), .number(.infinity)), .infinity),
                 UnitTest(.root(.number(0), .number(-.infinity)), .infinity),
-            ],
+            ]),
             
             // I want to make sure that the accuracy for odd roots is exactly what we expect from even roots (just to show consistency.)
-            // Double.greatestFiniteMagnitude = 1.7976931348623157e+308, so let's test up to the 2 largest exponent products of 10 for Double.
-            "Root Positive Whole" : [
-                UnitTest(.root(.number(1), .number(10)), 10),
-                UnitTest(.root(.number(2), .number(100)), 10),
-                UnitTest(.root(.number(3), .number(1000)), 10),
-                UnitTest(.root(.number(4), .number(10000)), 10),
-                UnitTest(.root(.number(5), .number(100000)), 10),
-                UnitTest(.root(.number(10), .number(10000000000)), 10),
-                UnitTest(.root(.number(11), .number(100000000000)), 10),
-                UnitTest(.root(.number(20), .number(100000000000000000000)), 10),
-                UnitTest(.root(.number(21), .number(1000000000000000000000)), 10),
-                UnitTest(.root(.number(40), .number(10000000000000000000000000000000000000000)), 10),
-                UnitTest(.root(.number(41), .number(100000000000000000000000000000000000000000)), 10),
-                UnitTest(.root(.number(80), .number(100000000000000000000000000000000000000000000000000000000000000000000000000000000)), 10),
-                UnitTest(.root(.number(81), .number(1000000000000000000000000000000000000000000000000000000000000000000000000000000000)), 10),
-                UnitTest(.root(.number(160), .number(10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)), 10),
-                UnitTest(.root(.number(161), .number(100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)), 10),
-                UnitTest(.root(.number(307), .number(10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)), 10),
-                UnitTest(.root(.number(308), .number(100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)), 10),
-            ],
-            
+            // Double.greatestFiniteMagnitude = 1.7976931348623157e+308, so let's test up to the 2 largest exponent products of 10 for Double. This should be no problem for Float80.
+            "Root Positive Whole" : (.approximate(within: kErrorThreshold), [
+                UnitTest(.root(.number(1), .number(10.0)), 10),
+                UnitTest(.root(.number(2), .number(100.0)), 10),
+                UnitTest(.root(.number(3), .number(1000.0)), 10),
+                UnitTest(.root(.number(4), .number(10000.0)), 10),
+                UnitTest(.root(.number(5), .number(100000.0)), 10),
+                UnitTest(.root(.number(10), .number(10000000000.0)), 10),
+                UnitTest(.root(.number(11), .number(100000000000.0)), 10),
+                UnitTest(.root(.number(20), .number(100000000000000000000.0)), 10),
+                UnitTest(.root(.number(21), .number(1000000000000000000000.0)), 10),
+                UnitTest(.root(.number(40), .number(10000000000000000000000000000000000000000.0)), 10),
+                UnitTest(.root(.number(41), .number(100000000000000000000000000000000000000000.0)), 10),
+                UnitTest(.root(.number(80), .number(100000000000000000000000000000000000000000000000000000000000000000000000000000000.0)), 10),
+                UnitTest(.root(.number(81), .number(1000000000000000000000000000000000000000000000000000000000000000000000000000000000.0)), 10),
+                UnitTest(.root(.number(160), .number(10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0)), 10),
+                UnitTest(.root(.number(161), .number(100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0)), 10),
+                UnitTest(.root(.number(307), .number(10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0)), 10),
+                UnitTest(.root(.number(308), .number(100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0)), 10),
+            ]),
+
             // And similarly for negative numbers.
-            "Root Negative Whole" : [
-                UnitTest(.root(.number(1), .negation(.number(10))), -10),
-                UnitTest(.root(.number(3), .negation(.number(1000))), -10),
-                UnitTest(.root(.number(5), .negation(.number(100000))), -10),
-                UnitTest(.root(.number(11), .negation(.number(100000000000))), -10),
-                UnitTest(.root(.number(21), .negation(.number(1000000000000000000000))), -10),
-                UnitTest(.root(.number(41), .negation(.number(100000000000000000000000000000000000000000))), -10),
-                UnitTest(.root(.number(81), .negation(.number(1000000000000000000000000000000000000000000000000000000000000000000000000000000000))), -10),
-                UnitTest(.root(.number(161), .negation(.number(100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000))), -10),
-                UnitTest(.root(.number(307), .negation(.number(10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000))), -10),
-            ],
+            "Root Negative Whole" : (.approximate(within: kErrorThreshold), [
+                UnitTest(.root(.number(1), .negation(.number(10.0))), -10),
+                UnitTest(.root(.number(3), .negation(.number(1000.0))), -10),
+                UnitTest(.root(.number(5), .negation(.number(100000.0))), -10),
+                UnitTest(.root(.number(11), .negation(.number(100000000000.0))), -10),
+                UnitTest(.root(.number(21), .negation(.number(1000000000000000000000.0))), -10),
+                UnitTest(.root(.number(41), .negation(.number(100000000000000000000000000000000000000000.0))), -10),
+                UnitTest(.root(.number(81), .negation(.number(1000000000000000000000000000000000000000000000000000000000000000000000000000000000.0))), -10),
+                UnitTest(.root(.number(161), .negation(.number(100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0))), -10),
+                UnitTest(.root(.number(307), .negation(.number(10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0))), -10),
+            ]),
             
-            // Let's go the other way too, Double.leastNonzeroMagnitude = 5e-324, so we should start from there.
-            "Root Positive Decimal" : [
+            // Let's go the other way too, up to Double.leastNonzeroMagnitude = 5e-324. We should hit the accuracy threshold easily with Float80.
+            "Root Positive Decimal" : (.approximate(within: kErrorThreshold), [
                 UnitTest(.root(.number(1), .number(0.1)), 0.1),
                 UnitTest(.root(.number(2), .number(0.01)), 0.1),
                 UnitTest(.root(.number(3), .number(0.001)), 0.1),
@@ -326,36 +333,20 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.root(.number(5), .number(0.00001)), 0.1),
                 UnitTest(.root(.number(10), .number(0.0000000001)), 0.1),
                 UnitTest(.root(.number(11), .number(0.00000000001)), 0.1),
-                UnitTest(.root(.number(20), .number(0.0000000000000000001)), 0.1),
-                UnitTest(.root(.number(21), .number(0.00000000000000000001)), 0.1),
-                UnitTest(.root(.number(40), .number(0.00000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(41), .number(0.000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(80), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(81), .number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(160), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(161), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
+                UnitTest(.root(.number(20), .number(0.00000000000000000001)), 0.1),
+                UnitTest(.root(.number(21), .number(0.000000000000000000001)), 0.1),
+                UnitTest(.root(.number(40), .number(0.0000000000000000000000000000000000000001)), 0.1),
+                UnitTest(.root(.number(41), .number(0.00000000000000000000000000000000000000001)), 0.1),
+                UnitTest(.root(.number(80), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
+                UnitTest(.root(.number(81), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
+                UnitTest(.root(.number(160), .number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
+                UnitTest(.root(.number(161), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
                 UnitTest(.root(.number(308), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
                 UnitTest(.root(.number(309), .number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(310), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(311), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(312), .number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(313), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(314), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(315), .number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(316), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(317), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(318), .number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(319), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(320), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(321), .number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                UnitTest(.root(.number(322), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                // All math breaks down at this point and the errors seem to be too great to handle, so it returns 0, which isn't very close to 0.1
-                // UnitTest(.root(.number(323), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                // UnitTest(.root(.number(324), .number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                // UnitTest(.root(.number(325), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-            ],
+            ]),
             
-            "Root Negative Decimal" : [
+            // And similarly for negative decimals.
+            "Root Negative Decimal" : (.approximate(within: kErrorThreshold), [
                 UnitTest(.root(.number(1), .negation(.number(0.1))), -0.1),
                 UnitTest(.root(.number(3), .negation(.number(0.001))), -0.1),
                 UnitTest(.root(.number(5), .negation(.number(0.00001))), -0.1),
@@ -365,23 +356,13 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(.root(.number(81), .negation(.number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
                 UnitTest(.root(.number(161), .negation(.number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
                 UnitTest(.root(.number(309), .negation(.number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
-                UnitTest(.root(.number(311), .negation(.number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
-                UnitTest(.root(.number(313), .negation(.number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
-                UnitTest(.root(.number(315), .negation(.number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
-                UnitTest(.root(.number(317), .negation(.number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
-                UnitTest(.root(.number(319), .negation(.number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
-                UnitTest(.root(.number(321), .negation(.number(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))), -0.1),
-                // All math breaks down at this point and the errors seem to be too great to handle, so it returns 0, which isn't very close to 0.1
-                // UnitTest(.root(.number(323), .number(0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-                // UnitTest(.root(.number(325), .number(0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)), 0.1),
-            ],
+            ]),
             
             /** Rank (from most important to least):
              *  -1. Parenthesis
              *  0. abs, sum
              *  1. factorial
              *  2. exponent
-             *  3. root
              **/
             
             // TODO: Complete function unit tests
@@ -392,11 +373,18 @@ class ArithmeticExpressionTests: XCTestCase {
         })
     }
     
-    func evaluateTestCaseSuite<I, O: ImplementsIsNaN>(_ testCaseSuite: [String : [TemplateTest<I, O>]], using outputClosure: (I) -> O) {
-        for (section, testCases) in testCaseSuite {
+    func evaluateTestCaseSuite<I, O: UnitTestOutput>(_ testCaseSuite: [String : (SuccessCondition, [TemplateTest<I, O>])], using outputClosure: (I) -> O) {
+        for (section, (condition, testCases)) in testCaseSuite {
             for (index, testCase) in testCases.enumerated() {
                 let output = outputClosure(testCase.input)
-                XCTAssert(output == testCase.output || output.isNaN() && testCase.output.isNaN(), String(format: "Test Case \(index + 1) in '\(section)' Failed.\nExpected: \(testCase.output),\n\t  Saw: \(output)"))
+                
+                switch condition {
+                case .approximate(within: let threshold):
+                    let outputError = output |-| testCase.output
+                    XCTAssert(outputError <= threshold, String(format: "Test Case \(index + 1) in '\(section)' Failed.\nExpected: \(testCase.output),\n\t  Saw: \(outputError) > \(threshold) for \(output)"))
+                case .equivalent:
+                    XCTAssert(output == testCase.output || output.isNaN() && testCase.output.isNaN(), String(format: "Test Case \(index + 1) in '\(section)' Failed.\nExpected: \(testCase.output),\n\t  Saw: \(output)"))
+                }
             }
         }
     }

@@ -11,10 +11,10 @@
 		E0172FD6D8E09B5835DAFA10 /* Pods_CalculatorTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FDB761F32ECE94DEAEDC292C /* Pods_CalculatorTests.framework */; };
 		FA0085B42429E04E00DCC90C /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0085B32429E04E00DCC90C /* Generator.swift */; };
 		FA3D5E3C2345E4AC00794F53 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3D5E3B2345E4AC00794F53 /* ViewModel.swift */; };
-		FA4A0B34248466EE006060D1 /* String+ImplementsIsNaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B33248466EE006060D1 /* String+ImplementsIsNaN.swift */; };
-		FA4A0B3624846721006060D1 /* ImplementsIsNaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B3524846721006060D1 /* ImplementsIsNaN.swift */; };
-		FA4A0B3824846887006060D1 /* Float80+ImplementsIsNaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B3724846887006060D1 /* Float80+ImplementsIsNaN.swift */; };
-		FA4A0B3A2484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B392484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift */; };
+		FA4A0B34248466EE006060D1 /* String+UnitTestOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B33248466EE006060D1 /* String+UnitTestOutput.swift */; };
+		FA4A0B3624846721006060D1 /* UnitTestOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B3524846721006060D1 /* UnitTestOutput.swift */; };
+		FA4A0B3824846887006060D1 /* Float80+UnitTestOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B3724846887006060D1 /* Float80+UnitTestOutput.swift */; };
+		FA4A0B3A2484691F006060D1 /* ArithmeticExpression+UnitTestOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4A0B392484691F006060D1 /* ArithmeticExpression+UnitTestOutput.swift */; };
 		FA9D9AE72484AC8300DBD2EE /* Float80+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9D9AE62484AC8300DBD2EE /* Float80+Helpers.swift */; };
 		FA9D9AE92484CD1D00DBD2EE /* Array+ToExpressionString.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9D9AE82484CD1D00DBD2EE /* Array+ToExpressionString.swift */; };
 		FAA07C6D2341D27800D9E43F /* ArithmeticExpressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA07C6C2341D27800D9E43F /* ArithmeticExpressionTests.swift */; };
@@ -48,10 +48,10 @@
 		E67D61F88B850911F88CF133 /* Pods-CalculatorTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CalculatorTests.release.xcconfig"; path = "Target Support Files/Pods-CalculatorTests/Pods-CalculatorTests.release.xcconfig"; sourceTree = "<group>"; };
 		FA0085B32429E04E00DCC90C /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
 		FA3D5E3B2345E4AC00794F53 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
-		FA4A0B33248466EE006060D1 /* String+ImplementsIsNaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+ImplementsIsNaN.swift"; sourceTree = "<group>"; };
-		FA4A0B3524846721006060D1 /* ImplementsIsNaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImplementsIsNaN.swift; sourceTree = "<group>"; };
-		FA4A0B3724846887006060D1 /* Float80+ImplementsIsNaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Float80+ImplementsIsNaN.swift"; sourceTree = "<group>"; };
-		FA4A0B392484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ArithmeticExpression+ImplementsIsNaN.swift"; sourceTree = "<group>"; };
+		FA4A0B33248466EE006060D1 /* String+UnitTestOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+UnitTestOutput.swift"; sourceTree = "<group>"; };
+		FA4A0B3524846721006060D1 /* UnitTestOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitTestOutput.swift; sourceTree = "<group>"; };
+		FA4A0B3724846887006060D1 /* Float80+UnitTestOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Float80+UnitTestOutput.swift"; sourceTree = "<group>"; };
+		FA4A0B392484691F006060D1 /* ArithmeticExpression+UnitTestOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ArithmeticExpression+UnitTestOutput.swift"; sourceTree = "<group>"; };
 		FA9D9AE62484AC8300DBD2EE /* Float80+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Float80+Helpers.swift"; sourceTree = "<group>"; };
 		FA9D9AE82484CD1D00DBD2EE /* Array+ToExpressionString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+ToExpressionString.swift"; sourceTree = "<group>"; };
 		FAA07C6C2341D27800D9E43F /* ArithmeticExpressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArithmeticExpressionTests.swift; sourceTree = "<group>"; };
@@ -127,10 +127,10 @@
 		FA9D9AEB2484CDBF00DBD2EE /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				FA4A0B3524846721006060D1 /* ImplementsIsNaN.swift */,
-				FA4A0B33248466EE006060D1 /* String+ImplementsIsNaN.swift */,
-				FA4A0B3724846887006060D1 /* Float80+ImplementsIsNaN.swift */,
-				FA4A0B392484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift */,
+				FA4A0B3524846721006060D1 /* UnitTestOutput.swift */,
+				FA4A0B33248466EE006060D1 /* String+UnitTestOutput.swift */,
+				FA4A0B3724846887006060D1 /* Float80+UnitTestOutput.swift */,
+				FA4A0B392484691F006060D1 /* ArithmeticExpression+UnitTestOutput.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -388,11 +388,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA4A0B3624846721006060D1 /* ImplementsIsNaN.swift in Sources */,
-				FA4A0B34248466EE006060D1 /* String+ImplementsIsNaN.swift in Sources */,
-				FA4A0B3824846887006060D1 /* Float80+ImplementsIsNaN.swift in Sources */,
+				FA4A0B3624846721006060D1 /* UnitTestOutput.swift in Sources */,
+				FA4A0B34248466EE006060D1 /* String+UnitTestOutput.swift in Sources */,
+				FA4A0B3824846887006060D1 /* Float80+UnitTestOutput.swift in Sources */,
 				FAA07C6D2341D27800D9E43F /* ArithmeticExpressionTests.swift in Sources */,
-				FA4A0B3A2484691F006060D1 /* ArithmeticExpression+ImplementsIsNaN.swift in Sources */,
+				FA4A0B3A2484691F006060D1 /* ArithmeticExpression+UnitTestOutput.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -107,7 +107,7 @@ indirect enum ArithmeticExpression: Equatable {
             }
             
             let sign = ((1 / exponentValue).isWhole() && !(1 / exponentValue).isEven()) ? base.evaluate().getSign() : 1
-            return sign * pow(sign * base.evaluate(), exponentValue)//.roundForPrecisionGreaterThanDisplay()
+            return sign * pow(sign * base.evaluate(), exponentValue)
         case .root(let root, let base):
             return ArithmeticExpression.exponentiation(base, .inverse(root)).evaluate()
         case .square(let base):
