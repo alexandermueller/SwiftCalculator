@@ -114,15 +114,18 @@ indirect enum ArithmeticExpression: Equatable {
             return ArithmeticExpression.exponentiation(base, .number(2.0)).evaluate()
         case .factorial(let expression):
             let value = expression.evaluate()
-            guard abs(value) < Float80.greatestFiniteMagnitude else {
+            guard abs(value) < Float80(Int.max) else {
                 return value.getSign() * .infinity
             }
             
             if value.isWhole() {
-                let intValue = Int(value)
                 var result: Float80 = 1
+                let intValue = Int(value)
+                let sign = intValue < 0 ? -1 : 1
+                let upper = sign * max(abs(sign < 0 ? sign : intValue), 1)
+                let lower = sign < 0 ? intValue : sign
                 
-                for i in 1 ... max(intValue, 1) {
+                for i in lower ... upper {
                     result *= Float80(i)
                 }
                 

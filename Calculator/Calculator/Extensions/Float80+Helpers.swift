@@ -10,7 +10,7 @@ import Foundation
 
 extension Float80 {
     func isWhole() -> Bool {
-        return self.remainder(dividingBy: 1) == 0
+        return self.remainder(dividingBy: 1) == 0 || self.isInfinite
     }
     
     func isEven() -> Bool {
