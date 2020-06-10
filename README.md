@@ -15,7 +15,7 @@ Like any language, a mathematical equation follows a specific grammar and semant
 ```
 ["2", "!", "+", "2", "x", "3"] -> addition(factorial(number(2)), multiplication(number(2), number(3)))
 ```
-The expression is created via the following steps:
+The expression is created via the following steps in Generator.swift:
 ```
       expression | rank |      leftValue       | function | rightValue 
 -----------------+------+----------------------+----------+------------ rank = ∞
