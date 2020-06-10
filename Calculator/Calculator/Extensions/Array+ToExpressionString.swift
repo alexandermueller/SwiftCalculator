@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension Array where Element: StringProtocol {
+extension Array where Element : StringProtocol {
     func toExpressionString() -> String {
         var expressionString = ""
         

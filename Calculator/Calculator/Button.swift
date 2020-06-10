@@ -72,14 +72,10 @@ enum Function: Equatable {
     
     // This is important, as 2^3^2 = 2^(3^2) and 2*√2*√10000 = √(√10000)
     // That's why we need to mark these functions as greedy, otherwise it would end up
-    // like 2^3^2 = (2^3)^2 and 2*√2*√10000 = 1000^(√2), which is incorrect.
+    // like 2^3^2 = (2^3)^2 and 2*√2*√10000 = 1000^(1/√2), which is incorrect.
     func isGreedy() -> Bool {
         return [.middle(.exponent), .middle(.root)].contains(self)
     }
-    
-    // TODO: Find a better way to express numbers (something more accurate than Double),
-    //       as the following ordering for exponent and root only acts as a band-aid
-    //       which only works for small-enough base values.
     
     /** Rank (from most important to least):
      *  0. abs, sum

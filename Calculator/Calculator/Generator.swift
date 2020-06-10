@@ -46,7 +46,7 @@ class Generator {
             switch button {
             case .parenthesis(let parenthesis):
                 if parenthesis == .close {
-                    let (rightValue, newElementStack) = goToParseParenthesisLeftValue()
+                    let (rightValue, newElementStack) = Generator().startGenerator(with: elementStack)
                     elementStack = newElementStack
                     return goToRightValue(with: rightValue)
                 }
@@ -96,12 +96,6 @@ class Generator {
         }
         
         return GeneratorReturnType(value: rightValue, newElementStack: elementStack)
-    }
-    
-    
-    // TODO: Write this out!
-    private func goToParseParenthesisLeftValue() -> GeneratorReturnType {
-        return goToError(with: .error)
     }
     
     private func goToError(with result: ArithmeticExpression) -> GeneratorReturnType {

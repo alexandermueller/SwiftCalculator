@@ -42,7 +42,7 @@ class ViewController: UIViewController {
     private var variableSubviews: [String : UILabel] = [:]
     private var currentState: UIControl.State = .normal
     
-     required init?(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         viewModel = ViewModel(expressionTextSubject: expressionTextSubject,
                               currentValueSubject: currentValueSubject,
                               memorySubject: memorySubject,
@@ -53,7 +53,6 @@ class ViewController: UIViewController {
                               bag: bag)
         
         viewModel.startStateMachine()
-        
         super.init(coder: aDecoder)
     }
     

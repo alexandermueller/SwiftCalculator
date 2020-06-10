@@ -65,7 +65,6 @@ class ViewModel {
     private var expressionElements: [String] = ["0"] {
         didSet {
             if expressionElements.isEmpty {
-                self.goToZero()
                 return
             }
             
@@ -432,8 +431,8 @@ class ViewModel {
     }
     
     func goToDelete() {
-        if let lastElement = expressionElements.popLast() {
-            parenBalance += lastElement.isCloseParen() ? 1 : lastElement.isOpenParen() ? -1 : 0
+        if let lastElement = expressionElements.popLast(), lastElement.isOpenParen() || lastElement.isCloseParen() {
+            parenBalance += lastElement.isCloseParen() ? 1 : -1
         }
         
         guard let currentExpression = expressionElements.last, expressionElements != ["0"] else {
@@ -442,8 +441,6 @@ class ViewModel {
         }
         
         guard let button = Button.from(rawValue: currentExpression) else {
-            // The value that falls through can only be a double that doesn't
-            // map to a digit, if it does it will be caught below in the switch.
             goToProperDouble()
             return
         }
