@@ -45,8 +45,8 @@ The expression is created via the following steps in Generator.swift:
 ----------------------------------------------------------------------- expression == empty -> return (addition(factorial(number(2)), multiplication(number(2), number(3))), [])
 ```   
 When the parser sees a function, it compares its rank to the current rank of the parser:
-- a lower or equal rank (higher or similar importance): creating a new parser instance with the new rank, which continues and returns an appropriate leftValue
-- a higher rank (lower importance): which will return the rightValue immediately, along with the resulting expression list which is used to update the previous level to reflect the resulting values that weren't consumed
+- a lower or equal rank (higher or similar importance): create a new parser instance with the new rank, which continues and returns an appropriate leftValue
+- a higher rank (lower importance): return the rightValue immediately, along with the resulting expression list which is used to update the previous level to reflect the resulting values that weren't consumed
 
 The ranks are decided as follows:
 ```
