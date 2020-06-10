@@ -23,10 +23,10 @@ let kLabelFontToHeightRatio: CGFloat = 0.33
 class ViewController: UIViewController {
     private let viewModel: ViewModel
     private let buttonViewModeSubject = BehaviorSubject<ButtonViewMode>(value: .normal)
-    private let memorySubject = BehaviorSubject<Double>(value: 0)
-    private let answerSubject = BehaviorSubject<Double>(value: 0)
+    private let memorySubject = BehaviorSubject<Float80>(value: 0)
+    private let answerSubject = BehaviorSubject<Float80>(value: 0)
     private let expressionTextSubject = BehaviorSubject<String>(value: "0")
-    private let currentValueSubject = BehaviorSubject<Double>(value: 0)
+    private let currentValueSubject = BehaviorSubject<Float80>(value: 0)
     private let buttonPressSubject = PublishSubject<Button>()
     
     private let bag = DisposeBag()
@@ -42,7 +42,7 @@ class ViewController: UIViewController {
     private var variableSubviews: [String : UILabel] = [:]
     private var currentState: UIControl.State = .normal
     
-     required init?(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         viewModel = ViewModel(expressionTextSubject: expressionTextSubject,
                               currentValueSubject: currentValueSubject,
                               memorySubject: memorySubject,
@@ -53,13 +53,11 @@ class ViewController: UIViewController {
                               bag: bag)
         
         viewModel.startStateMachine()
-        
         super.init(coder: aDecoder)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
         backgroundView.frame = view.frame
         backgroundView.backgroundColor = .black
@@ -74,12 +72,12 @@ class ViewController: UIViewController {
                                               [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
                                               [  .other(.alternate),       .other(.clear),         .other(.delete),            .variable(.answer) ]]
         
-        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),               .other(.set),        .function(.left(.sum)) ],
-                                                 [        .digit(.one),         .digit(.two),             .digit(.three),        .function(.left(.abs)) ],
-                                                 [       .digit(.four),        .digit(.five),               .digit(.six), .function(.right(.factorial)) ],
-                                                 [      .digit(.seven),       .digit(.eight),              .digit(.nine),        .function(.left(.inv)) ],
-                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.right(.square)),   .function(.middle(.modulo)) ],
-                                                 [  .other(.alternate),       .other(.clear),            .other(.delete),            .variable(.memory) ]]
+        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),           .other(.set),        .function(.left(.sum)) ],
+                                                 [        .digit(.one),         .digit(.two),         .digit(.three),        .function(.left(.abs)) ],
+                                                 [       .digit(.four),        .digit(.five),           .digit(.six), .function(.right(.factorial)) ],
+                                                 [      .digit(.seven),       .digit(.eight),          .digit(.nine),   .function(.middle(.modulo)) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.inv)),    .function(.right(.square)) ],
+                                                 [  .other(.alternate),       .other(.clear),        .other(.delete),            .variable(.memory) ]]
         
         assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0].count == alternateButtonLayout[0].count)
         

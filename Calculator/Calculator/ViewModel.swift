@@ -34,12 +34,12 @@ class ViewModel {
         }
     }
     
-    private let generator = Generator()
+    private let generator: Generator
     private let buttonViewModeSubject: BehaviorSubject<ButtonViewMode>
-    private let memorySubject: BehaviorSubject<Double>
-    private let answerSubject: BehaviorSubject<Double>
+    private let memorySubject: BehaviorSubject<Float80>
+    private let answerSubject: BehaviorSubject<Float80>
     private let expressionTextSubject: BehaviorSubject<String>
-    private let currentValueSubject: BehaviorSubject<Double>
+    private let currentValueSubject: BehaviorSubject<Float80>
     private let buttonPressSubject: PublishSubject<Button>
     private let modifiedButtonPressSubject = PublishSubject<Button>()
     private let textDisplayColourSubject: BehaviorSubject<UIColor>
@@ -51,12 +51,12 @@ class ViewModel {
         }
     }
 
-    private var memory: Double = 0 {
+    private var memory: Float80 = 0 {
         didSet {
             memorySubject.onNext(memory)
         }
     }
-    private var answer: Double = 0 {
+    private var answer: Float80 = 0 {
         didSet {
             answerSubject.onNext(answer)
         }
@@ -65,23 +65,24 @@ class ViewModel {
     private var expressionElements: [String] = ["0"] {
         didSet {
             if expressionElements.isEmpty {
-                self.goToZero()
                 return
             }
             
             expressionTextSubject.onNext(expressionElements.toExpressionString())
             
-            if parenBalance > 0 {
-                currentValue = generator.parse(expressionElements.map({
-                    switch $0 {
+            if parenBalance == 0 {
+                let elements: [String] = expressionElements.map({ element in
+                    switch element {
                     case Variable.memory.rawValue:
                         return String(memory)
                     case Variable.answer.rawValue:
                         return String(answer)
                     default:
-                        return $0
+                        return element
                     }
-                })).evaluate()
+                })
+
+                currentValue = generator.startGenerator(with: elements).value.evaluate()
                 return
             }
             
@@ -89,7 +90,7 @@ class ViewModel {
         }
     }
     
-    private var currentValue: Double = 0 {
+    private var currentValue: Float80 = 0 {
         didSet {
             currentValueSubject.onNext(currentValue)
         }
@@ -98,13 +99,14 @@ class ViewModel {
     private var transferFunction = SerialDisposable()
     
     init(expressionTextSubject: BehaviorSubject<String>,
-         currentValueSubject: BehaviorSubject<Double>,
-         memorySubject: BehaviorSubject<Double>,
-         answerSubject: BehaviorSubject<Double>,
+         currentValueSubject: BehaviorSubject<Float80>,
+         memorySubject: BehaviorSubject<Float80>,
+         answerSubject: BehaviorSubject<Float80>,
          buttonViewModeSubject: BehaviorSubject<ButtonViewMode>,
          buttonPressSubject: PublishSubject<Button>,
          textDisplayColourSubject: BehaviorSubject<UIColor>,
          bag: DisposeBag) {
+        generator = Generator()
         self.buttonViewModeSubject = buttonViewModeSubject
         self.memorySubject = memorySubject
         self.answerSubject = answerSubject
@@ -191,8 +193,10 @@ class ViewModel {
                 case .delete:
                     self.goToDelete()
                 case .equal:
+                    self.expressionElements = self.expressionElements + []
                     self.answer = self.currentValue
                 case .set:
+                    self.expressionElements = self.expressionElements + []
                     self.memory = self.currentValue
                 }
             default:
@@ -363,14 +367,14 @@ class ViewModel {
                 self.goToProperDouble(with: buttonPressed)
             case .parenthesis(.open):
                 self.goToOpenParenthesis(with: buttonPressed)
-            case .function(.left(.sqrt)):
-                self.goToLeftFunction(with: buttonPressed)
             case .function(.left(.negate)):
                 guard let lastElement = self.expressionElements.last,
-                      let button = Button.from(rawValue: lastElement), button != buttonPressed else {
-                    return
+                    let button = Button.from(rawValue: lastElement), button != buttonPressed else {
+                        return
                 }
-                
+            
+                self.goToLeftFunction(with: buttonPressed)
+            case .function(.left(_)):
                 self.goToLeftFunction(with: buttonPressed)
             case .variable(_):
                 self.goToVariable(with: buttonPressed)
@@ -395,6 +399,8 @@ class ViewModel {
                 self.goToOpenParenthesis(with: buttonPressed)
             case .function(.left(_)):
                 self.goToLeftFunction(with: buttonPressed)
+            case .variable(_):
+                self.goToVariable(with: buttonPressed)
             default:
                 return
             }
@@ -424,10 +430,9 @@ class ViewModel {
         })
     }
     
-    
     func goToDelete() {
-        if let lastElement = expressionElements.popLast() {
-            parenBalance += lastElement.isCloseParen() ? 1 : lastElement.isOpenParen() ? -1 : 0
+        if let lastElement = expressionElements.popLast(), lastElement.isOpenParen() || lastElement.isCloseParen() {
+            parenBalance += lastElement.isCloseParen() ? 1 : -1
         }
         
         guard let currentExpression = expressionElements.last, expressionElements != ["0"] else {
@@ -436,8 +441,6 @@ class ViewModel {
         }
         
         guard let button = Button.from(rawValue: currentExpression) else {
-            // The value that falls through can only be a double that doesn't
-            // map to a digit, if it does it will be caught below in the switch.
             goToProperDouble()
             return
         }

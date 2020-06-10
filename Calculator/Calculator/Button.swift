@@ -53,7 +53,6 @@ enum Right: String, CaseIterable {
     case factorial = "!"
 }
 
-// NOTE: This has been sorted by increasing order of precedence.
 enum Function: Equatable {
     case left(Left)
     case middle(Middle)
@@ -71,34 +70,54 @@ enum Function: Equatable {
         return nil
     }
     
-    func rank() -> Double {
+    // This is important, as 2^3^2 = 2^(3^2) and 2*√2*√10000 = √(√10000)
+    // That's why we need to mark these functions as greedy, otherwise it would end up
+    // like 2^3^2 = (2^3)^2 and 2*√2*√10000 = 1000^(1/√2), which is incorrect.
+    func isGreedy() -> Bool {
+        return [.middle(.exponent), .middle(.root)].contains(self)
+    }
+    
+    /** Rank (from most important to least):
+     *  0. abs, sum
+     *  1. factorial
+     *  2. exponent
+     *  3. root
+     *  4. sqrt, inv, square
+     *  5. negate, multiply, divide
+     *  6. modulo
+     *  7. add, subtract
+     *  ∞. default level
+     **/
+    func rank() -> Int {
         switch self {
         case .left(let function):
             switch function {
-            case .negate, .sqrt, .inv:
-                return 3
+            case .negate:
+                return 5
+            case .sqrt, .inv:
+                return 4
             case .abs, .sum:
-                return 6
+                return 0
             }
         case .middle(let function):
             switch function {
             case .add, .subtract:
-                return 0
+                return 7
             case .modulo:
-                return 1
+                return 6
             case .multiply, .divide:
-                return 2
+                return 5
             case .exponent:
-                return 3
+                return 2
             case .root:
-                return 4
+                return 3
             }
         case .right(let function):
             switch function {
             case .square:
-                return 3
+                return 4
             case .factorial:
-                return 5
+                return 1
             }
         }
     }

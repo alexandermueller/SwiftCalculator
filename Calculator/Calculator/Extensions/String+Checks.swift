@@ -37,8 +37,12 @@ extension String {
         return self == Parenthesis.close.rawValue
     }
     
-    func isFactorial() -> Bool {
-        return self == Right.factorial.rawValue
+    func toDouble() -> Double {
+        return Double(self) ?? .nan
+    }
+    
+    func toFloat80() -> Float80 {
+        return Float80(self) ?? .nan
     }
 }
 

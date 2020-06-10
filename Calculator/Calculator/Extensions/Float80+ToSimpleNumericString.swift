@@ -1,5 +1,5 @@
 //
-//  Double+toSimpleNumericString.swift
+//  Float80+ToSimpleNumericString.swift
 //  Calculator
 //
 //  Created by Alexander Mueller on 2019-09-10.
@@ -14,13 +14,13 @@ enum MaxDisplayLength: Int {
     case highestLimit = 20
 }
 
-extension Double {
+extension Float80 {
     // Forces the displayed number to be the appropriate character length depending on the display type
     func toSimpleNumericString(for displayLimit: MaxDisplayLength = .highestLimit) -> String {
         guard !self.isNaN else {
             return String("NaN")
         }
-
+        
         var value = String(self).removeFirstContainedSuffix([".0", "E0", "e0"])
         
         let formatter = NumberFormatter()
@@ -28,21 +28,23 @@ extension Double {
         formatter.maximumSignificantDigits = displayLimit.rawValue
         
         if value.count > displayLimit.rawValue && (displayLimit == .buttonDisplay || self.remainder(dividingBy: 1) == 0) {
-            var formattedValue = formatter.string(from: NSNumber(value: self)) ?? "NaN"
+            var formattedValue = formatter.string(from: NSNumber(value: Double(self))) ?? "NaN"
             
             if formattedValue.count > displayLimit.rawValue {
                 let eLength = max(formattedValue.distance(from: (formattedValue.firstIndex(where: {["E", "e"].contains($0)}) ?? formattedValue.endIndex), to: formattedValue.endIndex), 0)
                 formatter.maximumSignificantDigits = displayLimit.rawValue - formattedValue.countCharacters(["-", "."], until: ["E", "e"]) - eLength
-                formattedValue = formatter.string(from: NSNumber(value: self)) ?? "NaN"
+                formattedValue = formatter.string(from: NSNumber(value: Double(self))) ?? "NaN"
             }
             
             value = formattedValue
         }
         
+        if ("+∞" == value) {
+            return "inf"
+        } else if ("-∞" == value) {
+            return "-inf"
+        }
+        
         return value.removeFirstContainedSuffix([".0", "E0", "e0"])
-    }
-    
-    func isInt() -> Bool {
-        return self.remainder(dividingBy: 1) == 0
     }
 }
