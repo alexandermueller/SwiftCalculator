@@ -58,7 +58,7 @@ Rank (from most important to least):
 5. negate, multiply, divide
 6. modulo
 7. add, subtract
-∞. default level
+∞. default rank
 ```
 The resulting expression is then reduced to its simplest form by executing the expression, which resembles the following call tree: 
 ```
