@@ -1,7 +1,7 @@
 # SimpleSwiftCalculator
 A simple swift calculator
 
-Parser:
+The underlying principles that that power this calculator are as follows:
 
 -> _Goal: Create a parser that can evaluate an arithmetic expression._
 The expansion rules implemented in the ViewModel prevents the creation of an incorrect arithmetic expression (unless it's unfinished, in which case it errors out early.) This gives the parser an easier time, as it doesn't have to completely validate the input.
