@@ -3,9 +3,11 @@
 The underlying principles that that power this calculator are as follows:
 
 -> _Goal: Create a parser that can evaluate an arithmetic expression._
+
 The expansion rules implemented in the ViewModel prevents the creation of an incorrect arithmetic expression (unless it's unfinished, in which case it errors out early.) This gives the parser an easier time, as it doesn't have to completely validate the input.
 
 -> _Implementation: Use expansion rules and concrete base expression types._
+
 Like any language, a mathematical equation follows a specific grammar and semantics. 
 - The grammar of this language consists of digits, variables (ANS, MEM) , modifiers (decimal), functions (left side, middle, right side), and parentheses. 
 - The semantics determine the meaning behind sentences of our language, in this case, our arithmetic expressions. Given a sentence of our language (a list of strings), we can iterate through every value in reverse (like a stack), and construct an arithmetic expression using expansion rules. The resulting expression is evaluated, simplifying the expression to a final value.
