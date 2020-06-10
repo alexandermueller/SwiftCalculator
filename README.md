@@ -70,5 +70,6 @@ The resulting expression is then reduced to its simplest form by executing the e
 2   2   3
 ```
 -> _Note:_ 
+
 Some functions are greedy, and prefer to evaluate immediately if the same function is seen before it. "^"  is such a function, as 2^2^3 evaluates to 2^(2^3) (using google's calculator.)
 The function side (left, middle, right) also impacts how the expression will be parsed (see Generator.swift for examples of this.)
