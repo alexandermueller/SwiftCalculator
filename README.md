@@ -1,5 +1,4 @@
-# SimpleSwiftCalculator
-A simple swift calculator
+# SwiftCalculator
 
 The underlying principles that that power this calculator are as follows:
 
