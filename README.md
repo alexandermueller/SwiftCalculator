@@ -1,6 +1,6 @@
 # SwiftCalculator
 
-The underlying principles that that power this calculator are as follows:
+The underlying principles that power this calculator are as follows:
 
 -> _Goal: Create a parser that can evaluate an arithmetic expression._
 
