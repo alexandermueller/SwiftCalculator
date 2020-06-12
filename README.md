@@ -1,6 +1,6 @@
 # SwiftCalculator
 
-This app is the result of a personal challenge I imposed upon myself – to create a calculator application completely from scratch, while doing my best to avoid using anyone else's code or guides related to creating calculators. I did, however, occasionally have to look up fundamental math concepts, refresh myself on floating point representation and computation limitations, and precedence rules based on typing functions into google calculator to see how it categorizes their precedence. It's been a fun ride so far, and I hope you enjoy learning about the core principles I've used to guide my calculator!
+This app is the result of a personal challenge I imposed upon myself, where I had to create a calculator application completely from scratch, while doing my best to avoid using anyone else's code or guides related to creating calculators. I did, however, occasionally have to look up fundamental math concepts, refresh myself on floating point representation and computation limitations, and precedence rules based on typing functions into google calculator to see how it categorizes their precedence. It's been a fun ride so far, and I hope you enjoy learning about the core principles I've used to guide my calculator!
 
 The underlying principles that power this calculator are as follows:
 
