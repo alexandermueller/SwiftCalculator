@@ -49,7 +49,7 @@ The expression is created via the following steps in Generator.swift:
 ```   
 When the parser sees a function, it compares its rank to the current rank of the parser:
 - a lower or equal rank (higher or similar importance): create a new parser instance with the new rank (or just recurse on the current parser instance if the ranks are equal), which continues and returns an appropriate leftValue
-- a higher rank (lower importance): return the rightValue immediately, along with the resulting expression list which is used to update the previous level to reflect the resulting values that weren't consumed
+- a higher rank (lower importance): return the rightValue immediately, along with the resulting expression list which is used to update the previous level to reflect the resulting values that weren't consumed yet
 
 The ranks are decided as follows:
 ```
