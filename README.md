@@ -25,24 +25,24 @@ The expression is created via the following steps in Generator.swift:
 1. [2,!,+,2,x,3] |   ∞  |         empty        |   empty  |    empty   
 2.   [2,!,+,2,x] |   ∞  |         empty        |   empty  |  number(3) 
 3.     [2,!,+,2] |   ∞  |          (*)         |     x    |  number(3)
- .  *.<---------------------------------------------------------------- (*).rank = x.rank() = 5
+ .  *.<----------+------+----------------------+----------+------------ (*).rank = x.rank() = 5
  .  1. [2,!,+,2] |   5  |         empty        |   empty  |    empty   
  .  2.   [2,!,+] |   5  |         empty        |   empty  |  number(2)   
  .  3.     [2,!] |   5  |         empty        |     +    |  number(2) 
- .  ------------------------------------------------------------------> +.rank > (*).rank -> return (number(2), [2,!,+])
+ .  -------------+------+----------------------+----------+-----------> +.rank > (*).rank -> return (number(2), [2,!,+])
 4.       [2,!,+] |   ∞  |       number(2)      |     x    |  number(3)
 5.       [2,!,+] |   ∞  |         empty        |   empty  |  multiplication(number(2), number(3))
 6.         [2,!] |   ∞  |          (*)         |     +    |  multiplication(number(2), number(3))
- .  *.<---------------------------------------------------------------- (*).rank = +.rank() = 7
+ .  *.<----------+------+----------------------+----------+------------ (*).rank = +.rank() = 7
  .  1.     [2,!] |   7  |         empty        |   empty  |    empty   
  .  2.       [2] |   7  |         (**)         |     !    |    empty   
- .   .  **.<<---------------------------------------------------------- (**).rank = !.rank() = 1
+ .   .  **.<<----+------+----------------------+----------+------------ (**).rank = !.rank() = 1
  .   .  1.   [2] |   1  |         empty        |   empty  |    empty   
  .   .  2.    [] |   1  |         empty        |   empty  |  number(2)   
- .   .  ------------------------------------------------------------->> expression == empty -> return (number(2), [])
+ .   .  ---------+------+----------------------+----------+---------->> expression == empty -> return (number(2), [])
  .  3.        [] |   7  |       number(2)      |     !    |    empty   
  .  4.        [] |   7  |         empty        |   empty  |  factorial(number(2))
- .  ------------------------------------------------------------------> expression == empty -> return (factorial(number(2)), [])
+ .  -------------+------+----------------------+----------+-----------> expression == empty -> return (factorial(number(2)), [])
 7.            [] |   ∞  | factorial(number(2)) |     +    |  multiplication(number(2), number(3))
 8.            [] |   ∞  |         empty        |   empty  |  addition(factorial(number(2)), multiplication(number(2), number(3)))
 ----------------------------------------------------------------------- expression == empty -> return (addition(factorial(number(2)), multiplication(number(2), number(3))), [])
