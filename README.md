@@ -11,7 +11,7 @@ The expansion rules implemented in the ViewModel prevents the creation of an inc
 -> _Implementation: Use expansion rules and concrete base expression types._
 
 Like any language, a mathematical equation follows a specific grammar and semantics. 
-- The grammar of this language consists of digits, variables (ANS, MEM) , modifiers (decimal), functions (left side, middle, right side), and parentheses. 
+- The grammar of this language consists of digits, variables (ANS, MEM), modifiers (decimal), functions (left side, middle, right side), and parentheses. 
 - The semantics determine the meaning behind sentences of our language, in this case, our arithmetic expressions. Given a sentence of our language (a list of strings), we can iterate through every value in reverse (like a stack), and construct an arithmetic expression using expansion rules. The resulting expression is evaluated, simplifying the expression to a final value.
 
 -> _Example:_
