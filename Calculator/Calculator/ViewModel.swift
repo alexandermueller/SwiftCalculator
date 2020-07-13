@@ -431,9 +431,11 @@ class ViewModel {
     }
     
     func goToDelete() {
-        if let lastElement = expressionElements.popLast(), lastElement.isOpenParen() || lastElement.isCloseParen() {
+        if let lastElement = expressionElements.last, lastElement.isOpenParen() || lastElement.isCloseParen() {
             parenBalance += lastElement.isCloseParen() ? 1 : -1
         }
+        
+        expressionElements.removeLast(1)
         
         guard let currentExpression = expressionElements.last, expressionElements != ["0"] else {
             goToZero()

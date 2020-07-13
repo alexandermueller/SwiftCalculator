@@ -21,6 +21,7 @@ class Generator {
             rank = function.rank()
         }
     }
+    
     private var rank: Int = .max
     private var elementStack: [String] = []
     private let bag = DisposeBag()
@@ -47,7 +48,7 @@ class Generator {
             case .parenthesis(let parenthesis):
                 if parenthesis == .close {
                     let (rightValue, newElementStack) = Generator().startGenerator(with: elementStack)
-                    elementStack = newElementStack
+                    elementStack = newElementStack.dropLast()
                     return goToRightValue(with: rightValue)
                 }
             case .function(let function):
@@ -70,8 +71,13 @@ class Generator {
     private func goToRightValue(with expression: ArithmeticExpression) -> GeneratorReturnType {
         let rightValue = expression
         
-        if let element = elementStack.popLast() {
-            if let function = Function.from(rawValue: element) {
+        if let element = elementStack.popLast(), let button = Button.from(rawValue: element) {
+            switch button {
+            case .parenthesis(let parenthesis):
+                if parenthesis == .open {
+                    return GeneratorReturnType(value: rightValue, newElementStack: elementStack + [element])
+                }
+            case .function(let function):
                 switch function {
                 case .left(_):
                     if rank < function.rank() {
@@ -92,6 +98,8 @@ class Generator {
                 default:
                     return goToError(with: .error)
                 }
+            default:
+                break
             }
         }
         
