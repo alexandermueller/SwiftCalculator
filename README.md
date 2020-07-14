@@ -103,7 +103,7 @@ This is very powerful and allows for really quick and painless implementations o
 
 -> _Note:_
 
-Some functions are greedy, and prefer to evaluate immediately if the same function is seen after it. 
+Some functions are greedy, and prefer to evaluate immediately if the same function is seen after it: 
 - "^", as 2^2^3 evaluates to 2^(2^3)
 - "\*√", as 2\*√2\*√10000 evaluates to 2\*√(2\*√(10000))
 
