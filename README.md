@@ -78,13 +78,13 @@ The resulting expression is then reduced to its simplest form by executing the e
 Each function is organized by where it is found in relation to the input values in the equation:
 ```
    side | rank | greedy |  function |      name      | symbol |  usage | Explaination
---------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------
+--------+------+--------+-----------+----------------+--------+--------+----------------------------------------------------------------------------------------
    left |    0 |  false |       abs | Absolute Value |      ~ |     ~n | The absolute value of expression n
-   left |    0 |  false |       sum |      Summation |      ∑ |     ∑i | The summation of all integers in [0...i] given a +/- integer i
+   left |    0 |  false |       sum |      Summation |      ∑ |     ∑i | The summation of all integers between and including 0 and i, given a +/- integer i
    left |    4 |  false |      sqrt |    Square Root |      √ |     √n | The square root of expression n
    left |    4 |  false |       inv |        Inverse |     1/ |    1/n | The inverse of expression n
    left |    5 |  false |    negate |       Negation |      - |     -n | The negation of expression n
---------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------
+--------+------+--------+-----------+----------------+--------+--------+----------------------------------------------------------------------------------------
  middle |    2 |   true |  exponent | Exponentiation |      ^ |  a ^ b | The exponentiation of expression a to the power of expression b
  middle |    3 |   true |      root |           Root |     *√ | a *√ b | The expression bth root of expression a (equivalent to a ^ (1/b))
  middle |    5 |  false |  multiply | Multiplication |      x |  a x b | The multiplication of expression a to expression b
@@ -92,8 +92,8 @@ Each function is organized by where it is found in relation to the input values 
  middle |    6 |  false |    modulo |         Modulo |      % |  a % b | The modulo of expression a by expression b
  middle |    7 |  false |       add |       Addition |      + |  a + b | The addition of expression a to expression b
  middle |    7 |  false |  subtract |    Subtraction |      – |  a – b | The subtraction of expression b from expression a
---------+------+--------+-----------+----------------+--------+--------+--------------------------------------------------------------------
-  right |    1 |  false | factorial |      Factorial |      ! |     i! | The multiplication of all integers in [0...i] given a +/- integer i
+--------+------+--------+-----------+----------------+--------+--------+----------------------------------------------------------------------------------------
+  right |    1 |  false | factorial |      Factorial |      ! |     i! | The multiplication of all integers between and including 0 and i, given a +/- integer i
   right |    4 |  false |    square |         Square |     ^2 |    a^2 | The square of expression a
 ```
 
