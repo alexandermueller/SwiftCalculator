@@ -108,5 +108,5 @@ Some functions are greedy, and prefer to evaluate immediately if the same functi
 - "\*√", as 2\*√2\*√10000 evaluates to 2\*√(2\*√(10000))
 
 Others, like left side functions, are greedy by the very definition of how these expressions are expanded (like "√") so there is no need to flag these as greedy. 
-Meanwhile, "^2" defies the "^" greediness for the moment due to it being a right side function, which evaluates from the left to the right side of the expression (ie: 3!<sup>a</sup>!<sup>b</sup> -> factorialB(factorialA(number(3))).)
+Meanwhile, "^2" defies the "^" greediness for the moment due to it being a right side function, which evaluates from the left to the right side of the expression (ie: 3!<sub>a</sub>!<sub>b</sub> -> factorialB(factorialA(number(3))).)
 This makes implementing the correct expansion rule for "^2" difficult, so it's left as a simple shortcut that squares the result of the inner expression.
