@@ -25,18 +25,18 @@ The expression is created via the following steps in Generator.swift:
 1. [2,!,+,2,x,3] |   ∞  |         empty        |   empty  |    empty   
 2.   [2,!,+,2,x] |   ∞  |         empty        |   empty  |  number(3) 
 3.     [2,!,+,2] |   ∞  |          (*)         |     x    |  number(3)
- .  *.<----------+------+----------------------+----------+------------ (*).rank = x.rank() = 5
+ .  *.<----------+------+----------------------+----------+------------ (*).rank = "x".rank() = 5
  .  1. [2,!,+,2] |   5  |         empty        |   empty  |    empty   
  .  2.   [2,!,+] |   5  |         empty        |   empty  |  number(2)   
  .  3.     [2,!] |   5  |         empty        |     +    |  number(2) 
- .  -------------+------+----------------------+----------+-----------> +.rank > (*).rank -> return (number(2), [2,!,+])
+ .  -------------+------+----------------------+----------+-----------> "+".rank() > (*).rank -> return (number(2), [2,!,+])
 4.       [2,!,+] |   ∞  |       number(2)      |     x    |  number(3)
 5.       [2,!,+] |   ∞  |         empty        |   empty  |  multiplication(number(2), number(3))
 6.         [2,!] |   ∞  |          (*)         |     +    |  multiplication(number(2), number(3))
- .  *.<----------+------+----------------------+----------+------------ (*).rank = +.rank() = 7
+ .  *.<----------+------+----------------------+----------+------------ (*).rank = "+".rank() = 7
  .  1.     [2,!] |   7  |         empty        |   empty  |    empty   
  .  2.       [2] |   7  |         (**)         |     !    |    empty   
- .   .  **.<<----+------+----------------------+----------+------------ (**).rank = !.rank() = 1
+ .   .  **.<<----+------+----------------------+----------+------------ (**).rank = "!".rank() = 1
  .   .  1.   [2] |   1  |         empty        |   empty  |    empty   
  .   .  2.    [] |   1  |         empty        |   empty  |  number(2)   
  .   .  ---------+------+----------------------+----------+---------->> expression == empty -> return (number(2), [])
@@ -72,7 +72,41 @@ The resulting expression is then reduced to its simplest form by executing the e
  /   / \
 2   2   3
 ```
+
+-> _Functions:_
+
+Each function is organized by where it is found in relation to the input values in the equation:
+```
+   side | rank | greedy |  function |      name      | symbol |  usage | Explaination
+--------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------
+   left |    0 |  false |       abs | Absolute Value |      ~ |     ~n | The absolute value of expression n
+   left |    0 |  false |       sum |      Summation |      ∑ |     ∑i | The summation of all integers in [0...i] given a +/- integer i
+   left |    4 |  false |      sqrt |    Square Root |      √ |     √n | The square root of expression n
+   left |    4 |  false |       inv |        Inverse |     1/ |    1/n | The inverse of expression n
+   left |    5 |  false |    negate |       Negation |      - |     -n | The negation of expression n
+--------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------
+ middle |    2 |   true |  exponent | Exponentiation |      ^ |  a ^ b | The exponentiation of expression a to the power of expression b
+ middle |    3 |   true |      root |           Root |     *√ | a *√ b | The expression bth root of expression a (equivalent to a ^ (1/b))
+ middle |    5 |  false |  multiply | Multiplication |      x |  a x b | The multiplication of expression a to expression b
+ middle |    5 |  false |    divide |       Division |      + |  a + b | The division of expression a by expression b
+ middle |    6 |  false |    modulo |         Modulo |      % |  a % b | The modulo of expression a by expression b
+ middle |    7 |  false |       add |       Addition |      + |  a + b | The addition of expression a to expression b
+ middle |    7 |  false |  subtract |    Subtraction |      – |  a – b | The subtraction of expression b from expression a
+--------+------+--------+-----------+----------------+--------+--------+--------------------------------------------------------------------
+  right |    1 |  false | factorial |      Factorial |      ! |     i! | The multiplication of all integers in [0...i] given a +/- integer i
+  right |    4 |  false |    square |         Square |     ^2 |    a^2 | The square of expression a
+```
+
+By organizing functions into these three different classifications, one can fairly easily expand the function set to include unimplemented or completely made up functions.
+The side determines how the function is evaluated to the rest of the expression, and when combined with its rank, the expansion rules can determine how the overall expression is expanded in relation to function precedence.
+This is very powerful and allows for really quick and painless implementations of new functions. 
+
 -> _Note:_
 
-Some functions are greedy, and prefer to evaluate immediately if the same function is seen after it. "^"  is such a function, as 2^2^3 evaluates to 2^(2^3) (using google's calculator.)
-The function side (left, middle, right) also impacts how the expression will be parsed (see Generator.swift for examples of this.)
+Some functions are greedy, and prefer to evaluate immediately if the same function is seen after it. 
+- "^", as 2^2^3 evaluates to 2^(2^3)
+- "\*√", as 2\*√2\*√10000 evaluates to 2\*√(2\*√(10000))
+
+Others, like left side functions, are greedy by the very definition of how these expressions are expanded (like "√") so there is no need to flag these as greedy.      *AB*
+Meanwhile, "^2" defies the "^" greediness for the moment due to it being a right side function, which evaluates from the left to the right side of the expression (ie: 3!! -> factorial*<B>*(factorial*<A>*(number(3))).)
+This makes implementing the correct expansion rule for "^2" difficult, so it's left as a simple shortcut that squares the result of the inner expression.
