@@ -116,6 +116,8 @@ class ViewController: UIViewController {
             buttonView.addSubview(buttonSubview)
         }
         
+        // TODO: 35 is a hardcoded pixel value for the notch height. This needs to be determined automatically so that 
+        //       it isn't displayed when it doesn't need to be.
         let textDisplayLabelY: CGFloat = 35
         let textDisplayLabelH: CGFloat = 99
         
