@@ -79,11 +79,11 @@ Each function is organized by where it is found in relation to the input values 
 ```
    side | rank | greedy |  function |      name      | symbol |  usage | Explaination
 --------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------------------------------
-   left |    0 |  false |       abs | Absolute Value |      ~ |     ~n | The absolute value of expression n
+   left |    0 |  false |       abs | Absolute Value |      ~ |     ~a | The absolute value of expression a
    left |    0 |  false |       sum |      Summation |      ∑ |     ∑i | The summation of all integers between (and including) 0 and i, given a +/- integer i
-   left |    4 |  false |      sqrt |    Square Root |      √ |     √n | The square root of expression n
-   left |    4 |  false |       inv |        Inverse |     1/ |    1/n | The inverse of expression n
-   left |    5 |  false |    negate |       Negation |      - |     -n | The negation of expression n
+   left |    4 |  false |      sqrt |    Square Root |      √ |     √a | The square root of expression a
+   left |    4 |  false |       inv |        Inverse |     1/ |    1/a | The inverse of expression a
+   left |    5 |  false |    negate |       Negation |      - |     -a | The negation of expression a
 --------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------------------------------
  middle |    2 |   true |  exponent | Exponentiation |      ^ |  a ^ b | The exponentiation of expression a to the power of expression b
  middle |    3 |   true |      root |           Root |     *√ | a *√ b | The expression bth root of expression a (equivalent to a ^ (1/b))
