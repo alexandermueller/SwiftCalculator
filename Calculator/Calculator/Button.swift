@@ -58,6 +58,7 @@ enum Function: Equatable {
     case middle(Middle)
     case right(Right)
     
+    // TODO: This needs a unit test to ensure that all the cases are accounted for.
     static func from(rawValue: String) -> Function? {
         if let left = Left(rawValue: rawValue) {
             return .left(left)
@@ -107,10 +108,10 @@ enum Function: Equatable {
                 return 6
             case .multiply, .divide:
                 return 5
-            case .exponent:
-                return 2
             case .root:
                 return 3
+            case .exponent:
+                return 2
             }
         case .right(let function):
             switch function {
