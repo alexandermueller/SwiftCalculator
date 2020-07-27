@@ -88,7 +88,7 @@ Each function is organized by where it is found in relation to the input values 
  middle |    2 |   true |  exponent | Exponentiation |      ^ |  a ^ b | The exponentiation of expression a to the power of expression b
  middle |    3 |   true |      root |           Root |     *√ | a *√ b | The expression bth root of expression a (equivalent to a ^ (1/b))
  middle |    5 |  false |  multiply | Multiplication |      x |  a x b | The multiplication of expression a to expression b
- middle |    5 |  false |    divide |       Division |      + |  a + b | The division of expression a by expression b
+ middle |    5 |  false |    divide |       Division |      ÷ |  a ÷ b | The division of expression a by expression b
  middle |    6 |  false |    modulo |         Modulo |      % |  a % b | The modulo of expression a by expression b
  middle |    7 |  false |       add |       Addition |      + |  a + b | The addition of expression a to expression b
  middle |    7 |  false |  subtract |    Subtraction |      – |  a – b | The subtraction of expression b from expression a
