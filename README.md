@@ -77,7 +77,7 @@ The resulting expression is then reduced to its simplest form by executing the e
 
 Each function is organized by where it is found in relation to the input values in the equation:
 ```
-   side | rank | greedy |  function |      name      | symbol |  usage | Explaination
+   side | rank | greedy |  function |      name      | symbol |  usage | explanation
 --------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------------------------------
    left |    0 |  false |       abs | Absolute Value |      ~ |     ~a | The absolute value of expression a
    left |    0 |  false |       sum |      Summation |      ∑ |     ∑i | The summation of all integers between (and including) 0 and i, given a +/- integer i
