@@ -116,9 +116,10 @@ class ViewController: UIViewController {
             buttonView.addSubview(buttonSubview)
         }
         
-        // TODO: 35 is a hardcoded pixel value for the notch height. This needs to be determined automatically so that 
-        //       it isn't displayed when it doesn't need to be.
-        let textDisplayLabelY: CGFloat = 35
+        // TODO: If the notches become that big of a deal or the bottom home tab becomes an issue, then we need to calculate
+        //       the textDisplayLabelY to something other than 0. For now, it doesn't seem like a big problem.
+        
+        let textDisplayLabelY: CGFloat = 0
         let textDisplayLabelH: CGFloat = 99
         
         textDisplayLabel.frame = CGRect(x: 0, y: textDisplayLabelY, width: view.frame.width, height: textDisplayLabelH)
