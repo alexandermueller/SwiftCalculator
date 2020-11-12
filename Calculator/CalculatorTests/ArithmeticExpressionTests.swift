@@ -94,7 +94,42 @@ class ArithmeticExpressionTests: XCTestCase {
                 UnitTest(["1", "%", "2", "÷", "1", "–", "3", "%", "5"], .subtraction(.modulo(.number(1), .division(.number(2), .number(1))), .modulo(.number(3), .number(5)))),
             ]),
             
-            // abs, sum
+            "Square Root" : (.equivalent, [
+                UnitTest(["√", "2", "+", "2"], .addition(.squareRoot(.number(2)), .number(2))),
+                UnitTest(["2", "^", "√", "2"], .exponentiation(.number(2), .squareRoot(.number(2)))),
+                UnitTest(["√", "2", "^", "2"], .squareRoot(.exponentiation(.number(2), .number(2)))), // This what the Google calculator says should be the order of operations
+            ]),
+            
+            "Inverse" : (.equivalent, [
+                UnitTest(["1/", "2"], .inverse(.number(2))),
+                UnitTest(["1/", "2", "^", "2"], .inverse(.exponentiation(.number(2), .number(2)))),
+            ]),
+            
+            "Square" : (.equivalent, [
+            
+            ]),
+            
+            "Factorial" : (.equivalent, [
+                UnitTest(["2", "!"], .factorial(.number(2))),
+                UnitTest(["-", "3", "!"], .negation(.factorial(.number(3)))),
+            ]),
+            
+            "Absolute Value" : (.equivalent, [
+                UnitTest(["~", "2"], .absoluteValue(.number(2))),
+                UnitTest(["~", "-", "3"], .absoluteValue(.negation(.number(3)))),
+                UnitTest(["~", "(", "3", "–", "4", ")"], .absoluteValue(.subtraction(.number(3), .number(4)))),
+            ]),
+            
+            "Summation" : (.equivalent, [
+                UnitTest(["∑", "2"], .summation(.number(2))),
+                UnitTest(["∑", "-", "3"], .summation(.negation(.number(3)))),
+                UnitTest(["∑", "(", "3", "–", "4", ")"], .summation(.subtraction(.number(3), .number(4)))),
+                UnitTest(["∑", "(", "3", "–", "4", ")", "!"], .factorial(.summation(.subtraction(.number(3), .number(4))))),
+            ]),
+
+            
+            
+            // Parentheses
             // factorial
             // exponent
             // root
