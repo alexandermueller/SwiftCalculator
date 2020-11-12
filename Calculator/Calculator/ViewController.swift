@@ -56,6 +56,10 @@ class ViewController: UIViewController {
         super.init(coder: aDecoder)
     }
     
+    override func viewDidLayoutSubviews() {
+        // TODO: Fill this out to redraw the calculator whenever the device is rotated
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -83,7 +87,6 @@ class ViewController: UIViewController {
         
         let buttonW = buttonView.frame.width / CGFloat(normalButtonLayout[0].count)
         let buttonH = buttonView.frame.height / CGFloat(normalButtonLayout.count)
-        var buttonPointSize: CGFloat = 0
         
         for (layout, buttonSubview, isVisible) in [(normalButtonLayout, normalButtonView, true), (alternateButtonLayout, alternateButtonView, false)] {
             buttonSubview.frame = CGRect(x: 0, y: 0, width: buttonView.frame.width, height: buttonView.frame.height)
@@ -107,8 +110,8 @@ class ViewController: UIViewController {
                     
                     buttonSubview.addSubview(button)
                     
-                    if let label = button.titleLabel, buttonPointSize == 0 {
-                        buttonPointSize = label.font.pointSize
+                    if let label = button.titleLabel {
+                        label.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
                     }
                 }
             }
@@ -116,21 +119,18 @@ class ViewController: UIViewController {
             buttonView.addSubview(buttonSubview)
         }
         
-        // TODO: 35 is a hardcoded pixel value for the notch height. This needs to be determined automatically so that 
-        //       it isn't displayed when it doesn't need to be.
-        let textDisplayLabelY: CGFloat = 35
         let textDisplayLabelH: CGFloat = 99
         
-        textDisplayLabel.frame = CGRect(x: 0, y: textDisplayLabelY, width: view.frame.width, height: textDisplayLabelH)
+        textDisplayLabel.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: textDisplayLabelH)
         textDisplayLabel.backgroundColor = .white
         textDisplayLabel.textColor = .black
         textDisplayLabel.textAlignment = .right
         textDisplayLabel.adjustsFontSizeToFitWidth = true
-        textDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: textDisplayLabelH * kLabelFontToHeightRatio)
+        textDisplayLabel.font = UIFont.systemFont(ofSize: textDisplayLabelH * kLabelFontToHeightRatio)
         textDisplayLabel.text = "0 ="
         
         let variableViewH = buttonH
-        let valueDisplayLabelY = textDisplayLabelY + textDisplayLabelH + kViewMargin
+        let valueDisplayLabelY = textDisplayLabelH + kViewMargin
         let valueDisplayLabelH = view.frame.height * 0.5 - valueDisplayLabelY - variableViewH - kViewMargin
         
         valueDisplayLabel.frame = CGRect(x: 0, y: valueDisplayLabelY, width: view.frame.width, height: valueDisplayLabelH)
@@ -138,7 +138,7 @@ class ViewController: UIViewController {
         valueDisplayLabel.textColor = .brown
         valueDisplayLabel.textAlignment = .right
         valueDisplayLabel.adjustsFontSizeToFitWidth = true
-        valueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: valueDisplayLabelH * kLabelFontToHeightRatio)
+        valueDisplayLabel.font = UIFont.systemFont(ofSize: valueDisplayLabelH * kLabelFontToHeightRatio)
         valueDisplayLabel.text = "0"
         
         buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
@@ -148,10 +148,9 @@ class ViewController: UIViewController {
         let variableViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
         let variableViewW = view.frame.width
         
-        let variableSubviewW: CGFloat = variableViewW / variableCount
+        let variableSubviewW: CGFloat = variableViewW * 0.5
         
         variableView.frame = CGRect(x: 0, y: variableViewY, width: variableViewW, height: variableViewH)
-        variableView.isOpaque = true
         variableView.backgroundColor = kInactiveButtonColor
         
         for (index, variable) in Variable.allCases.enumerated() {
@@ -163,23 +162,23 @@ class ViewController: UIViewController {
             
             let variableTitleLabel = UILabel()
             variableTitleLabel.frame = CGRect(x: 0, y: 0, width: buttonW, height: buttonH)
-            variableTitleLabel.backgroundColor = kInactiveButtonColor
             variableTitleLabel.textColor = kActiveButtonColor
             variableTitleLabel.textAlignment = .center
-            variableTitleLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
+            variableTitleLabel.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
             variableTitleLabel.text = variable.rawValue
+            variableTitleLabel.isOpaque = false
             
             let variableValueDisplayLabel = UILabel()
-            variableValueDisplayLabel.frame = CGRect(x: buttonW + 1, y: 0, width: variableSubviewW - buttonW, height: buttonH)
-            variableValueDisplayLabel.backgroundColor = kInactiveButtonColor
+            variableValueDisplayLabel.frame = CGRect(x: buttonW, y: 0, width: variableSubviewW - buttonW, height: buttonH)
             variableValueDisplayLabel.textColor = kActiveButtonColor
             variableValueDisplayLabel.textAlignment = .center
-            variableValueDisplayLabel.font = UIFont.init(name: textDisplayLabel.font.fontName, size: buttonPointSize)
+            variableValueDisplayLabel.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
             variableValueDisplayLabel.adjustsFontSizeToFitWidth = true
             variableValueDisplayLabel.text = "= 0 "
-            
+            variableValueDisplayLabel.isOpaque = false
+
             variableSubviews[variable.rawValue] = variableValueDisplayLabel
-            
+
             variableSubview.addSubview(variableTitleLabel)
             variableSubview.addSubview(variableValueDisplayLabel)
             variableView.addSubview(variableSubview)
