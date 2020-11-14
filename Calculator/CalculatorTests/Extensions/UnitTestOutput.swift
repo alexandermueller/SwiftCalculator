@@ -15,5 +15,5 @@ protocol UnitTestOutput : Equatable {
     func isPositive() -> Bool
     
     static func |-| (lhs: Self, rhs: Self) -> Self
-    static func <= (lhs: Self, rhs: Float80) -> Bool
+    static func <= (lhs: Self, rhs: Double) -> Bool
 }

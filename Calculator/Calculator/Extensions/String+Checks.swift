@@ -40,9 +40,5 @@ extension String {
     func toDouble() -> Double {
         return Double(self) ?? .nan
     }
-    
-    func toFloat80() -> Float80 {
-        return Float80(self) ?? .nan
-    }
 }
 

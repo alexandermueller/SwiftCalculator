@@ -21,7 +21,7 @@ extension String : UnitTestOutput {
         return ""
     }
     
-    static func <= (lhs: String, rhs: Float80) -> Bool {
+    static func <= (lhs: String, rhs: Double) -> Bool {
         return false
     }
 }
