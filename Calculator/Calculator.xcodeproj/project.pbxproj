@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -26,6 +26,9 @@
 		FABEBCE22327FA2C00CD024C /* String+Checks.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE12327FA2C00CD024C /* String+Checks.swift */; };
 		FABEBCE42327FA6000CD024C /* Float80+ToSimpleNumericString.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE32327FA6000CD024C /* Float80+ToSimpleNumericString.swift */; };
 		FABEBCE62327FB0000CD024C /* ArithmeticExpression.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE52327FB0000CD024C /* ArithmeticExpression.swift */; };
+		FAE7797925689D6000E3792E /* BigNum in Frameworks */ = {isa = PBXBuildFile; productRef = FAE7797825689D6000E3792E /* BigNum */; };
+		FAE7797A25689D6000E3792E /* BigNum in Embed Frameworks */ = {isa = PBXBuildFile; productRef = FAE7797825689D6000E3792E /* BigNum */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		FAE7797E25689D7600E3792E /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = FAE7797D25689D7600E3792E /* BigInt */; };
 		FAFA73D7234724F5004B0D1C /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFA73D6234724F5004B0D1C /* Button.swift */; };
 		FAFB7B6F2346FC260039904A /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB7B6E2346FC260039904A /* String+Helpers.swift */; };
 /* End PBXBuildFile section */
@@ -39,6 +42,20 @@
 			remoteInfo = Calculator;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FAE7797B25689D6000E3792E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				FAE7797A25689D6000E3792E /* BigNum in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2575982DFF1DF137A5F459E1 /* Pods-Calculator.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Calculator.release.xcconfig"; path = "Target Support Files/Pods-Calculator/Pods-Calculator.release.xcconfig"; sourceTree = "<group>"; };
@@ -77,6 +94,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAE7797E25689D7600E3792E /* BigInt in Frameworks */,
+				FAE7797925689D6000E3792E /* BigNum in Frameworks */,
 				B35FB3C690DF536764320CB9 /* Pods_Calculator.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -195,12 +214,17 @@
 				FABEBCBB2326DCED00CD024C /* Frameworks */,
 				FABEBCBC2326DCED00CD024C /* Resources */,
 				EC4019A7FD71E7B36280AE76 /* [CP] Embed Pods Frameworks */,
+				FAE7797B25689D6000E3792E /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = Calculator;
+			packageProductDependencies = (
+				FAE7797825689D6000E3792E /* BigNum */,
+				FAE7797D25689D7600E3792E /* BigInt */,
+			);
 			productName = Calculator;
 			productReference = FABEBCBE2326DCED00CD024C /* Calculator.app */;
 			productType = "com.apple.product-type.application";
@@ -254,6 +278,11 @@
 				Base,
 			);
 			mainGroup = FABEBCB52326DCED00CD024C;
+			packageReferences = (
+				FAE7797725689D6000E3792E /* XCRemoteSwiftPackageReference "swift-bignum" */,
+				FAE7797C25689D7600E3792E /* XCRemoteSwiftPackageReference "BigInt" */,
+				FAE7798025689DD500E3792E /* XCRemoteSwiftPackageReference "swift-numerics" */,
+			);
 			productRefGroup = FABEBCBF2326DCED00CD024C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -674,6 +703,46 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FAE7797725689D6000E3792E /* XCRemoteSwiftPackageReference "swift-bignum" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dankogai/swift-bignum.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.1;
+			};
+		};
+		FAE7797C25689D7600E3792E /* XCRemoteSwiftPackageReference "BigInt" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/attaswift/BigInt.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.1;
+			};
+		};
+		FAE7798025689DD500E3792E /* XCRemoteSwiftPackageReference "swift-numerics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-numerics.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.8;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FAE7797825689D6000E3792E /* BigNum */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAE7797725689D6000E3792E /* XCRemoteSwiftPackageReference "swift-bignum" */;
+			productName = BigNum;
+		};
+		FAE7797D25689D7600E3792E /* BigInt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAE7797C25689D7600E3792E /* XCRemoteSwiftPackageReference "BigInt" */;
+			productName = BigInt;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FABEBCB62326DCED00CD024C /* Project object */;
 }
