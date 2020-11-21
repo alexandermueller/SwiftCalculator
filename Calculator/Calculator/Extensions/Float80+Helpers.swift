@@ -1,5 +1,5 @@
 //
-//  Double+Helpers.swift
+//  Float80+Helpers.swift
 //  Calculator
 //
 //  Created by Alexander Mueller on 2020-05-31.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension Double {
+extension Float80 {
     func isWhole() -> Bool {
         return self.remainder(dividingBy: 1) == 0 || self.isInfinite
     }
@@ -17,7 +17,7 @@ extension Double {
         return self.truncatingRemainder(dividingBy: 2.0) == 0
     }
     
-    func getSign() -> Double {
+    func getSign() -> Float80 {
         return self >= 0 ? 1.0 : -1.0
     }
 }

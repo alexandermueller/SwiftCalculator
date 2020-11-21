@@ -36,10 +36,10 @@ class ViewModel {
     
     private let generator: Generator
     private let buttonViewModeSubject: BehaviorSubject<ButtonViewMode>
-    private let memorySubject: BehaviorSubject<Double>
-    private let answerSubject: BehaviorSubject<Double>
+    private let memorySubject: BehaviorSubject<Float80>
+    private let answerSubject: BehaviorSubject<Float80>
     private let expressionTextSubject: BehaviorSubject<String>
-    private let currentValueSubject: BehaviorSubject<Double>
+    private let currentValueSubject: BehaviorSubject<Float80>
     private let buttonPressSubject: PublishSubject<Button>
     private let modifiedButtonPressSubject = PublishSubject<Button>()
     private let textDisplayColourSubject: BehaviorSubject<UIColor>
@@ -51,12 +51,12 @@ class ViewModel {
         }
     }
 
-    private var memory: Double = 0 {
+    private var memory: Float80 = 0 {
         didSet {
             memorySubject.onNext(memory)
         }
     }
-    private var answer: Double = 0 {
+    private var answer: Float80 = 0 {
         didSet {
             answerSubject.onNext(answer)
         }
@@ -90,7 +90,7 @@ class ViewModel {
         }
     }
     
-    private var currentValue: Double = 0 {
+    private var currentValue: Float80 = 0 {
         didSet {
             currentValueSubject.onNext(currentValue)
         }
@@ -99,9 +99,9 @@ class ViewModel {
     private var transferFunction = SerialDisposable()
     
     init(expressionTextSubject: BehaviorSubject<String>,
-         currentValueSubject: BehaviorSubject<Double>,
-         memorySubject: BehaviorSubject<Double>,
-         answerSubject: BehaviorSubject<Double>,
+         currentValueSubject: BehaviorSubject<Float80>,
+         memorySubject: BehaviorSubject<Float80>,
+         answerSubject: BehaviorSubject<Float80>,
          buttonViewModeSubject: BehaviorSubject<ButtonViewMode>,
          buttonPressSubject: PublishSubject<Button>,
          textDisplayColourSubject: BehaviorSubject<UIColor>,

@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 indirect enum ArithmeticExpression: Equatable {
-    case number(Double)
+    case number(Float80)
     case negation(ArithmeticExpression)
     case squareRoot(ArithmeticExpression)
     case inverse(ArithmeticExpression)
@@ -70,7 +70,7 @@ indirect enum ArithmeticExpression: Equatable {
         }
     }
     
-    func evaluate() -> Double {
+    func evaluate() -> Float80 {
         switch self {
         case .number(let value):
             return value
@@ -114,19 +114,19 @@ indirect enum ArithmeticExpression: Equatable {
             return ArithmeticExpression.exponentiation(base, .number(2.0)).evaluate()
         case .factorial(let expression):
             let value = expression.evaluate()
-            guard abs(value) < Double(Int.max) else {
+            guard abs(value) < Float80(Int.max) else {
                 return value.getSign() * .infinity
             }
             
             if value.isWhole() {
-                var result: Double = 1
+                var result: Float80 = 1
                 let intValue = Int(value)
                 let sign = intValue < 0 ? -1 : 1
                 let upper = sign * max(abs(sign < 0 ? sign : intValue), 1)
                 let lower = sign < 0 ? intValue : sign
                 
                 for i in lower ... upper {
-                    result *= Double(i)
+                    result *= Float80(i)
                 }
                 
                 return result

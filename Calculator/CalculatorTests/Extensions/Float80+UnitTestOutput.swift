@@ -1,5 +1,5 @@
 //
-//  Double+isNaN.swift
+//  Float80+isNaN.swift
 //  CalculatorTests
 //
 //  Created by Alex Mueller on 2020-05-31.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension Double : UnitTestOutput {
+extension Float80 : UnitTestOutput {
     func isNaN() -> Bool {
         return self.isNaN
     }
@@ -17,7 +17,7 @@ extension Double : UnitTestOutput {
         return 0 <= self
     }
     
-    static func |-| (lhs: Double, rhs: Double) -> Double {
+    static func |-| (lhs: Float80, rhs: Float80) -> Float80 {
         return abs((lhs - rhs) / lhs)
     }
 }
