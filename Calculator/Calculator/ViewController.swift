@@ -33,13 +33,27 @@ class ViewController: UIViewController {
     private let textDisplayLabel = UILabel()
     private let textDisplayColourSubject = BehaviorSubject<UIColor>(value: .gray)
     private let valueDisplayLabel = UILabel()
-    private let variableView = UIView()
-    private let buttonView = UIView()
-    private let normalButtonView = UIView()
-    private let alternateButtonView = UIView()
+    private let variablesView = UIView()
+    private let buttonsView = UIView()
+    private let normalButtonsView = UIView()
+    private let alternateButtonsView = UIView()
 
-    private var variableSubviews: [String : UILabel] = [:]
+    private var variableViewsDict: [String : UILabel] = [:]
     private var currentState: UIControl.State = .normal
+    
+    private let normalButtonsLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)) ],
+                                                   [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)) ],
+                                                   [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)) ],
+                                                   [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)) ],
+                                                   [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
+                                                   [  .other(.alternate),       .other(.clear),         .other(.delete),            .variable(.answer) ]]
+            
+    private let alternateButtonsLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),           .other(.set),        .function(.left(.sum)) ],
+                                                      [        .digit(.one),         .digit(.two),         .digit(.three),        .function(.left(.abs)) ],
+                                                      [       .digit(.four),        .digit(.five),           .digit(.six), .function(.right(.factorial)) ],
+                                                      [      .digit(.seven),       .digit(.eight),          .digit(.nine),   .function(.middle(.modulo)) ],
+                                                      [ .parenthesis(.open), .parenthesis(.close), .function(.left(.inv)),    .function(.right(.square)) ],
+                                                      [  .other(.alternate),       .other(.clear),        .other(.delete),            .variable(.memory) ]]
     
     required init?(coder aDecoder: NSCoder) {
         viewModel = ViewModel(expressionTextSubject: expressionTextSubject,
@@ -56,138 +70,142 @@ class ViewController: UIViewController {
     }
     
     override func viewDidLayoutSubviews() {
-        // TODO: Fill this out to redraw the calculator whenever the device is rotated
+        assert(normalButtonsLayout.count == alternateButtonsLayout.count && normalButtonsLayout[0].count == alternateButtonsLayout[0].count)
+        
+        backgroundView.frame = view.frame
+        buttonsView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
+        
+        let rows = normalButtonsLayout.count
+        let columns = normalButtonsLayout[0].count
+        let buttonW = buttonsView.frame.width / CGFloat(columns)
+        let buttonH = buttonsView.frame.height / CGFloat(rows)
+        
+        // TODO: Set a MIN WIDTH AND HEIGHT for the main view on MacOS!!!
+        
+        for buttonsSubview in [normalButtonsView, alternateButtonsView] {
+            buttonsSubview.frame = CGRect(x: 0, y: 0, width: buttonsView.frame.width, height: buttonsView.frame.height)
+            
+            for (index, buttonSubview) in buttonsSubview.subviews.enumerated() {
+                let rowIndex = index / columns
+                let columnIndex = index % columns
+                let buttonY = buttonsView.frame.height - CGFloat(rowIndex + 1) * buttonH
+                let buttonX = CGFloat(columnIndex) * buttonW
+                
+                buttonSubview.frame = CGRect(x: buttonX, y: buttonY, width: buttonW, height: buttonH)
+                
+                if let button = buttonSubview as? UIButton, let label = button.titleLabel {
+                    label.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
+                }
+            }
+        }
+        
+        let textDisplayLabelH: CGFloat = buttonH * 1.5 // TODO: Something is messing with the text label centering on MacOS
+        textDisplayLabel.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: textDisplayLabelH)
+        textDisplayLabel.font = UIFont.systemFont(ofSize: textDisplayLabelH * kLabelFontToHeightRatio)
+        
+        let variablesViewH = buttonH
+        let valueDisplayLabelY = textDisplayLabelH + kViewMargin
+        let valueDisplayLabelH = view.frame.height * 0.5 - valueDisplayLabelY - variablesViewH - kViewMargin
+        valueDisplayLabel.frame = CGRect(x: 0, y: valueDisplayLabelY, width: view.frame.width, height: valueDisplayLabelH)
+        valueDisplayLabel.font = UIFont.systemFont(ofSize: valueDisplayLabelH * kLabelFontToHeightRatio)
+        
+        let variableCount: CGFloat = CGFloat(Variable.allCases.count)
+        let variablesViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
+        let variablesViewW = view.frame.width
+        let variableViewW = variablesViewW / variableCount
+        variablesView.frame = CGRect(x: 0, y: variablesViewY, width: variablesViewW, height: variablesViewH)
+        
+        for (index, variableView) in variablesView.subviews.enumerated() {
+            let variableViewX: CGFloat = CGFloat(index) * variablesViewW / variableCount
+
+            variableView.frame = CGRect(x: variableViewX, y: 0, width: variableViewW, height: variablesViewH)
+            
+            if let variableTitleLabel = variableView.subviews[0] as? UILabel {
+                variableTitleLabel.frame = CGRect(x: 0, y: 0, width: buttonW, height: buttonH)
+                variableTitleLabel.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
+            }
+            
+            if let variableValueDisplayLabel = variableView.subviews[1] as? UILabel {
+                variableValueDisplayLabel.frame = CGRect(x: buttonW, y: 0, width: variableViewW - buttonW, height: buttonH)
+                variableValueDisplayLabel.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
+            }
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        assert(normalButtonsLayout.count == alternateButtonsLayout.count && normalButtonsLayout[0].count == alternateButtonsLayout[0].count)
         
-        backgroundView.frame = view.frame
         backgroundView.backgroundColor = .black
-        
-        buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
-        buttonView.isOpaque = false
-        
-        let normalButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)) ],
-                                              [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)) ],
-                                              [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)) ],
-                                              [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)) ],
-                                              [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
-                                              [  .other(.alternate),       .other(.clear),         .other(.delete),            .variable(.answer) ]]
-        
-        let alternateButtonLayout: [[Button]] = [[       .digit(.zero),  .modifier(.decimal),           .other(.set),        .function(.left(.sum)) ],
-                                                 [        .digit(.one),         .digit(.two),         .digit(.three),        .function(.left(.abs)) ],
-                                                 [       .digit(.four),        .digit(.five),           .digit(.six), .function(.right(.factorial)) ],
-                                                 [      .digit(.seven),       .digit(.eight),          .digit(.nine),   .function(.middle(.modulo)) ],
-                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.inv)),    .function(.right(.square)) ],
-                                                 [  .other(.alternate),       .other(.clear),        .other(.delete),            .variable(.memory) ]]
-        
-        assert(normalButtonLayout.count == alternateButtonLayout.count && normalButtonLayout[0].count == alternateButtonLayout[0].count)
-        
-        let buttonW = buttonView.frame.width / CGFloat(normalButtonLayout[0].count)
-        let buttonH = buttonView.frame.height / CGFloat(normalButtonLayout.count)
-        
-        for (layout, buttonSubview, isVisible) in [(normalButtonLayout, normalButtonView, true), (alternateButtonLayout, alternateButtonView, false)] {
-            buttonSubview.frame = CGRect(x: 0, y: 0, width: buttonView.frame.width, height: buttonView.frame.height)
-            buttonSubview.isOpaque = false
-            buttonSubview.isHidden = !isVisible
-            
-            for (rowIndex, row) in layout.enumerated() {
-                let buttonY = buttonView.frame.height - CGFloat(rowIndex + 1) * buttonH
+        buttonsView.isOpaque = false
                 
-                for (columnIndex, buttonType) in row.enumerated() {
-                    let buttonX = CGFloat(columnIndex % 4) * buttonW
-                    
+        for (layout, buttonsSubview, isVisible) in [(normalButtonsLayout, normalButtonsView, true), (alternateButtonsLayout, alternateButtonsView, false)] {
+            buttonsSubview.isOpaque = false
+            buttonsSubview.isHidden = !isVisible
+            
+            for row in layout {
+                for buttonType in row {
                     let button = UIButton()
-                    button.frame = CGRect(x: buttonX, y: buttonY, width: buttonW, height: buttonH)
                     button.setTitle(buttonType.rawValue(), for: .normal)
                     button.backgroundColor = kInactiveButtonColor
-                    button.setTitleColor(layout == alternateButtonLayout && buttonType == .other(.alternate) ? kActiveButtonColor : .white, for: .normal)
+                    button.setTitleColor(layout == alternateButtonsLayout && buttonType == .other(.alternate) ? kActiveButtonColor : .white, for: .normal)
                     button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)
                     button.addTarget(self, action: #selector(buttonTouchUpInside), for: UIControl.Event.touchUpInside)
                     button.addTarget(self, action: #selector(buttonTouchUpOutside), for: UIControl.Event.touchUpOutside)
                     
-                    buttonSubview.addSubview(button)
-                    
-                    if let label = button.titleLabel {
-                        label.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
-                    }
+                    buttonsSubview.addSubview(button)
                 }
             }
             
-            buttonView.addSubview(buttonSubview)
+            buttonsView.addSubview(buttonsSubview)
         }
         
-        let textDisplayLabelH: CGFloat = 99
-        
-        textDisplayLabel.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: textDisplayLabelH)
         textDisplayLabel.backgroundColor = .white
         textDisplayLabel.textColor = .black
         textDisplayLabel.textAlignment = .right
         textDisplayLabel.adjustsFontSizeToFitWidth = true
-        textDisplayLabel.font = UIFont.systemFont(ofSize: textDisplayLabelH * kLabelFontToHeightRatio)
         textDisplayLabel.text = "0 ="
         
-        let variableViewH = buttonH
-        let valueDisplayLabelY = textDisplayLabelH + kViewMargin
-        let valueDisplayLabelH = view.frame.height * 0.5 - valueDisplayLabelY - variableViewH - kViewMargin
-        
-        valueDisplayLabel.frame = CGRect(x: 0, y: valueDisplayLabelY, width: view.frame.width, height: valueDisplayLabelH)
         valueDisplayLabel.backgroundColor = .white
         valueDisplayLabel.textColor = .brown
         valueDisplayLabel.textAlignment = .right
         valueDisplayLabel.adjustsFontSizeToFitWidth = true
-        valueDisplayLabel.font = UIFont.systemFont(ofSize: valueDisplayLabelH * kLabelFontToHeightRatio)
         valueDisplayLabel.text = "0"
         
-        buttonView.frame = CGRect(x: 0, y: view.frame.height * 0.5, width: view.frame.width, height: view.frame.height * 0.5)
-        buttonView.isOpaque = false
+        buttonsView.isOpaque = false
         
-        let variableCount: CGFloat = CGFloat(Variable.allCases.count)
-        let variableViewY = valueDisplayLabelY + valueDisplayLabelH + kViewMargin
-        let variableViewW = view.frame.width
+        variablesView.backgroundColor = kInactiveButtonColor
         
-        let variableSubviewW: CGFloat = variableViewW * 0.5
-        
-        variableView.frame = CGRect(x: 0, y: variableViewY, width: variableViewW, height: variableViewH)
-        variableView.backgroundColor = kInactiveButtonColor
-        
-        for (index, variable) in Variable.allCases.enumerated() {
-            let variableSubviewX: CGFloat = CGFloat(index) * variableViewW / variableCount
-
-            let variableSubview = UIView()
-            variableSubview.frame = CGRect(x: variableSubviewX, y: 0, width: variableSubviewW, height: variableViewH)
-            variableSubview.isOpaque = false
+        for variable in Variable.allCases {
+            let variableView = UIView()
+            variableView.isOpaque = false
             
             let variableTitleLabel = UILabel()
-            variableTitleLabel.frame = CGRect(x: 0, y: 0, width: buttonW, height: buttonH)
             variableTitleLabel.textColor = kActiveButtonColor
             variableTitleLabel.textAlignment = .center
-            variableTitleLabel.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
             variableTitleLabel.text = variable.rawValue
             variableTitleLabel.isOpaque = false
             
             let variableValueDisplayLabel = UILabel()
-            variableValueDisplayLabel.frame = CGRect(x: buttonW, y: 0, width: variableSubviewW - buttonW, height: buttonH)
             variableValueDisplayLabel.textColor = kActiveButtonColor
             variableValueDisplayLabel.textAlignment = .center
-            variableValueDisplayLabel.font = UIFont.systemFont(ofSize: buttonH * kLabelFontToHeightRatio)
             variableValueDisplayLabel.adjustsFontSizeToFitWidth = true
             variableValueDisplayLabel.text = "= 0 "
             variableValueDisplayLabel.isOpaque = false
 
-            variableSubviews[variable.rawValue] = variableValueDisplayLabel
+            variableViewsDict[variable.rawValue] = variableValueDisplayLabel
 
-            variableSubview.addSubview(variableTitleLabel)
-            variableSubview.addSubview(variableValueDisplayLabel)
-            variableView.addSubview(variableSubview)
+            variableView.addSubview(variableTitleLabel)
+            variableView.addSubview(variableValueDisplayLabel)
+            variablesView.addSubview(variableView)
         }
         
         view.addSubview(backgroundView)
         view.addSubview(textDisplayLabel)
         view.addSubview(valueDisplayLabel)
-        view.addSubview(variableView)
-        view.addSubview(buttonView)
+        view.addSubview(variablesView)
+        view.addSubview(buttonsView)
         
         textDisplayColourSubject.subscribe(onNext: { [unowned self] colour in
             self.textDisplayLabel.textColor = colour
@@ -202,18 +220,18 @@ class ViewController: UIViewController {
         }).disposed(by: bag)
         
         buttonViewModeSubject.subscribe(onNext: { [unowned self] buttonViewMode in
-            self.normalButtonView.isHidden = buttonViewMode != .normal
-            self.alternateButtonView.isHidden = buttonViewMode != .alternate
+            self.normalButtonsView.isHidden = buttonViewMode != .normal
+            self.alternateButtonsView.isHidden = buttonViewMode != .alternate
         }).disposed(by: bag)
         
         memorySubject.subscribe(onNext: { [unowned self] memory in
-            if let memoryValueDisplayLabel = self.variableSubviews[Variable.memory.rawValue] {
+            if let memoryValueDisplayLabel = self.variableViewsDict[Variable.memory.rawValue] {
                 memoryValueDisplayLabel.text = "= " + memory.toSimpleNumericString(for: .buttonDisplay) + " "
             }
         }).disposed(by: bag)
         
         answerSubject.subscribe(onNext: { [unowned self] answer in
-            if let answerValueDisplayLabel = self.variableSubviews[Variable.answer.rawValue] {
+            if let answerValueDisplayLabel = self.variableViewsDict[Variable.answer.rawValue] {
                 answerValueDisplayLabel.text = "= " + answer.toSimpleNumericString(for: .buttonDisplay) + " "
             }
         }).disposed(by: bag)
