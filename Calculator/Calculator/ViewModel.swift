@@ -8,6 +8,7 @@
 
 import Foundation
 import RxSwift
+import UIKit
 
 enum ExpressionState: Equatable {
     case zero
