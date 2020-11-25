@@ -40,7 +40,7 @@ class Generator {
         }
         
         if element.isProperDouble() {
-            return goToRightValue(with: .number(element.toFloat80()))
+            return goToRightValue(with: .number(element.toMaxPrecisionNumber()))
         }
         
         if let button = Button.from(rawValue: element) {

@@ -1,5 +1,5 @@
 //
-//  Float80+isNaN.swift
+//  MaxPrecisionNumber+isNaN.swift
 //  CalculatorTests
 //
 //  Created by Alex Mueller on 2020-05-31.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension Float80 : UnitTestOutput {
+extension MaxPrecisionNumber : UnitTestOutput {
     func isNaN() -> Bool {
         return self.isNaN
     }
@@ -17,7 +17,7 @@ extension Float80 : UnitTestOutput {
         return 0 <= self
     }
     
-    static func |-| (lhs: Float80, rhs: Float80) -> Float80 {
+    static func |-| (lhs: MaxPrecisionNumber, rhs: MaxPrecisionNumber) -> MaxPrecisionNumber {
         return abs((lhs - rhs) / lhs)
     }
 }

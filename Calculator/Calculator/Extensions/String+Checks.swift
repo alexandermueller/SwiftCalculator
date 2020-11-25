@@ -41,8 +41,8 @@ extension String {
         return Double(self) ?? .nan
     }
     
-    func toFloat80() -> Float80 {
-        return Float80(self) ?? .nan
+    func toMaxPrecisionNumber() -> MaxPrecisionNumber {
+        return MaxPrecisionNumber(self) ?? .nan
     }
 }
 

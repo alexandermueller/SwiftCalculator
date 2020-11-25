@@ -37,10 +37,10 @@ class ViewModel {
     
     private let generator: Generator
     private let buttonViewModeSubject: BehaviorSubject<ButtonViewMode>
-    private let memorySubject: BehaviorSubject<Float80>
-    private let answerSubject: BehaviorSubject<Float80>
+    private let memorySubject: BehaviorSubject<MaxPrecisionNumber>
+    private let answerSubject: BehaviorSubject<MaxPrecisionNumber>
     private let expressionTextSubject: BehaviorSubject<String>
-    private let currentValueSubject: BehaviorSubject<Float80>
+    private let currentValueSubject: BehaviorSubject<MaxPrecisionNumber>
     private let buttonPressSubject: PublishSubject<Button>
     private let modifiedButtonPressSubject = PublishSubject<Button>()
     private let textDisplayColourSubject: BehaviorSubject<UIColor>
@@ -52,12 +52,12 @@ class ViewModel {
         }
     }
 
-    private var memory: Float80 = 0 {
+    private var memory: MaxPrecisionNumber = 0 {
         didSet {
             memorySubject.onNext(memory)
         }
     }
-    private var answer: Float80 = 0 {
+    private var answer: MaxPrecisionNumber = 0 {
         didSet {
             answerSubject.onNext(answer)
         }
@@ -91,7 +91,7 @@ class ViewModel {
         }
     }
     
-    private var currentValue: Float80 = 0 {
+    private var currentValue: MaxPrecisionNumber = 0 {
         didSet {
             currentValueSubject.onNext(currentValue)
         }
@@ -100,9 +100,9 @@ class ViewModel {
     private var transferFunction = SerialDisposable()
     
     init(expressionTextSubject: BehaviorSubject<String>,
-         currentValueSubject: BehaviorSubject<Float80>,
-         memorySubject: BehaviorSubject<Float80>,
-         answerSubject: BehaviorSubject<Float80>,
+         currentValueSubject: BehaviorSubject<MaxPrecisionNumber>,
+         memorySubject: BehaviorSubject<MaxPrecisionNumber>,
+         answerSubject: BehaviorSubject<MaxPrecisionNumber>,
          buttonViewModeSubject: BehaviorSubject<ButtonViewMode>,
          buttonPressSubject: PublishSubject<Button>,
          textDisplayColourSubject: BehaviorSubject<UIColor>,

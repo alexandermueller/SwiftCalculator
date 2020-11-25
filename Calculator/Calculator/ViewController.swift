@@ -22,10 +22,10 @@ let kLabelFontToHeightRatio: CGFloat = 0.33
 class ViewController: UIViewController {
     private let viewModel: ViewModel
     private let buttonViewModeSubject = BehaviorSubject<ButtonViewMode>(value: .normal)
-    private let memorySubject = BehaviorSubject<Float80>(value: 0)
-    private let answerSubject = BehaviorSubject<Float80>(value: 0)
+    private let memorySubject = BehaviorSubject<MaxPrecisionNumber>(value: 0)
+    private let answerSubject = BehaviorSubject<MaxPrecisionNumber>(value: 0)
     private let expressionTextSubject = BehaviorSubject<String>(value: "0")
-    private let currentValueSubject = BehaviorSubject<Float80>(value: 0)
+    private let currentValueSubject = BehaviorSubject<MaxPrecisionNumber>(value: 0)
     private let buttonPressSubject = PublishSubject<Button>()
     
     private let bag = DisposeBag()

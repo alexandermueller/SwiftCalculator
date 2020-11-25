@@ -22,7 +22,7 @@ extension ArithmeticExpression : UnitTestOutput {
         return .error
     }
     
-    static func <= (lhs: ArithmeticExpression, rhs: Float80) -> Bool {
+    static func <= (lhs: ArithmeticExpression, rhs: MaxPrecisionNumber) -> Bool {
         return false
     }
 }

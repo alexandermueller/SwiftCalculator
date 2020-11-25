@@ -1,5 +1,5 @@
 //
-//  Float80+ToSimpleNumericString.swift
+//  MaxPrecisionNumber+ToSimpleNumericString.swift
 //  Calculator
 //
 //  Created by Alexander Mueller on 2019-09-10.
@@ -14,7 +14,7 @@ enum MaxDisplayLength: Int {
     case highestLimit = 20
 }
 
-extension Float80 {
+extension MaxPrecisionNumber {
     // Forces the displayed number to be the appropriate character length depending on the display type
     func toSimpleNumericString(for displayLimit: MaxDisplayLength = .highestLimit) -> String {
         guard !self.isNaN else {
