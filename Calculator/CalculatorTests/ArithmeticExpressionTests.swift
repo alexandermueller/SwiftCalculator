@@ -18,7 +18,7 @@ enum SuccessCondition {
 
 typealias TemplateTest<I, O: UnitTestOutput> = (input: I, output: O)
 
-class ArithmeticExpressionTests: XCTestCase {
+class ArithmeticExpressionTests : XCTestCase {
     func testParseExpression() {
         typealias UnitTest = TemplateTest<[String], ArithmeticExpression>
         

@@ -27,6 +27,7 @@
 		FABEBCE22327FA2C00CD024C /* String+Checks.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE12327FA2C00CD024C /* String+Checks.swift */; };
 		FABEBCE42327FA6000CD024C /* MaxPrecisionNumber+ToSimpleNumericString.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE32327FA6000CD024C /* MaxPrecisionNumber+ToSimpleNumericString.swift */; };
 		FABEBCE62327FB0000CD024C /* ArithmeticExpression.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE52327FB0000CD024C /* ArithmeticExpression.swift */; };
+		FACBFD1D2570E5B800E8EE30 /* ButtonPopoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBFD1C2570E5B800E8EE30 /* ButtonPopoverViewController.swift */; };
 		FAFA73D7234724F5004B0D1C /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFA73D6234724F5004B0D1C /* Button.swift */; };
 		FAFB7B6F2346FC260039904A /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB7B6E2346FC260039904A /* String+Helpers.swift */; };
 /* End PBXBuildFile section */
@@ -78,6 +79,7 @@
 		FABEBCE12327FA2C00CD024C /* String+Checks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Checks.swift"; sourceTree = "<group>"; };
 		FABEBCE32327FA6000CD024C /* MaxPrecisionNumber+ToSimpleNumericString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MaxPrecisionNumber+ToSimpleNumericString.swift"; sourceTree = "<group>"; };
 		FABEBCE52327FB0000CD024C /* ArithmeticExpression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArithmeticExpression.swift; sourceTree = "<group>"; };
+		FACBFD1C2570E5B800E8EE30 /* ButtonPopoverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonPopoverViewController.swift; sourceTree = "<group>"; };
 		FAFA73D6234724F5004B0D1C /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
 		FAFB7B6E2346FC260039904A /* String+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Helpers.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -147,6 +149,7 @@
 			children = (
 				FABEBCC12326DCED00CD024C /* AppDelegate.swift */,
 				FABEBCE52327FB0000CD024C /* ArithmeticExpression.swift */,
+				FACBFD1C2570E5B800E8EE30 /* ButtonPopoverViewController.swift */,
 				FABEBCC82326DCEE00CD024C /* Assets.xcassets */,
 				FAFA73D6234724F5004B0D1C /* Button.swift */,
 				FA11DB6F256DF3C9007E6978 /* Calculator.entitlements */,
@@ -284,6 +287,7 @@
 				FAFB7B6F2346FC260039904A /* String+Helpers.swift in Sources */,
 				FABEBCE62327FB0000CD024C /* ArithmeticExpression.swift in Sources */,
 				FA11DB71256DF5B9007E6978 /* MaxPrecisionNumber.swift in Sources */,
+				FACBFD1D2570E5B800E8EE30 /* ButtonPopoverViewController.swift in Sources */,
 				FABEBCE42327FA6000CD024C /* MaxPrecisionNumber+ToSimpleNumericString.swift in Sources */,
 				FAFA73D7234724F5004B0D1C /* Button.swift in Sources */,
 				FABEBCC42326DCED00CD024C /* ViewController.swift in Sources */,

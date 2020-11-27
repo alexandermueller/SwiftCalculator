@@ -26,7 +26,7 @@ class Generator {
     private var elementStack: [String] = []
     private let bag = DisposeBag()
     
-    // MARK: State Machine Functions
+    // MARK: - State Machine Functions:
     
     func startGenerator(with elementStack: [String], function: Function? = nil) -> GeneratorReturnType {
         previousFunction = function

@@ -163,7 +163,7 @@ class ViewModel {
         }
     }
     
-    // MARK: State Machine Functions
+    // MARK: - State Machine Functions:
     
     func startStateMachine() {
         // This persists until the application terminates. Catches input and
