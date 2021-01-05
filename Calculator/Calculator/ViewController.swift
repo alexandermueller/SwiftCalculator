@@ -47,31 +47,28 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     private var currentState: UIControl.State = .normal
     
     // TODO: - Abolish this weird split system using popovers instead of a dedicated ALT button.
-    //       - Remove Clear button (from the button view, keep the button type), implement long
-    //         press functionality for Delete so that it triggers a Clear button press instead
+    //       - Remove Clear button (from the button view, keep the button type)
     
-    private let normalButtonsLayout: [[Button]] = [[  .other(.alternate),       .other(.clear),         .other(.delete),            .variable(.answer) ],
+    private let normalButtonsLayout: [[Button]] = [[  .other(.alternate),      .other(.delete),      .variable(.answer),            .variable(.memory) ],
                                                    [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
                                                    [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)) ],
                                                    [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)) ],
                                                    [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)) ],
                                                    [       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)) ]].reversed()
             
-    private let alternateButtonsLayout: [[Button]] = [[  .other(.alternate),       .other(.clear),        .other(.delete),            .variable(.memory) ],
+    private let alternateButtonsLayout: [[Button]] = [[  .other(.alternate),      .other(.delete),     .variable(.answer),            .variable(.memory) ],
                                                       [ .parenthesis(.open), .parenthesis(.close), .function(.left(.inv)),    .function(.right(.square)) ],
                                                       [      .digit(.seven),       .digit(.eight),          .digit(.nine),   .function(.middle(.modulo)) ],
                                                       [       .digit(.four),        .digit(.five),           .digit(.six), .function(.right(.factorial)) ],
                                                       [        .digit(.one),         .digit(.two),         .digit(.three),        .function(.left(.abs)) ],
                                                       [       .digit(.zero),  .modifier(.decimal),           .other(.set),        .function(.left(.sum)) ]].reversed()
     
-    private let fullButtonsLayout: [[Button]] = [[      .other(.clear),      .other(.delete),      .variable(.answer),            .variable(.memory),                  .other(.set)],
-                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)),    .function(.right(.square))],
-                                                 [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)),   .function(.middle(.modulo))],
-                                                 [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)), .function(.right(.factorial))],
-                                                 [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)),        .function(.left(.abs))],
-                                                 [       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)),        .function(.left(.sum))]].reversed()
-    
-    // TODO: Figure out how to add '1/' button to fullButtons layout
+    private let fullButtonsLayout: [[Button]] = [[     .other(.delete),   .variable(.answer),      .variable(.memory),                  .other(.set),        .function(.left(.inv)) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)),    .function(.right(.square)) ],
+                                                 [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)),   .function(.middle(.modulo)) ],
+                                                 [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)), .function(.right(.factorial)) ],
+                                                 [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)),        .function(.left(.abs)) ],
+                                                 [       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)),        .function(.left(.sum)) ]].reversed()
     
     required init?(coder aDecoder: NSCoder) {
         viewModel = ViewModel(expressionTextSubject: expressionTextSubject,
@@ -195,7 +192,7 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        showFullButtonsView = size.width > size.height
+        showFullButtonsView = size.width > size.height * 0.75
         updateButtonLayout()
         redrawSubviews(with: CGRect(x: 0, y: 0, width: size.width, height: size.height))
     }
@@ -296,13 +293,23 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
         }
         
         if gestureRecognizer.state == .began {
+            // TODO: Timed animation showing a filling bubble on the button,
+            //       so that people know they're about to yeet their entire equation??
+            if button.title(for: .normal) == Button.other(.delete).rawValue() {
+                buttonPressSubject.onNext(.other(.clear))
+                return
+            }
+            
             let vc = ButtonPopoverViewController()
             vc.preferredContentSize = button.frame.size
             vc.modalPresentationStyle = .popover
+            
             if let pres = vc.presentationController {
                 pres.delegate = self
             }
+            
             self.present(vc, animated: true)
+            
             if let pop = vc.popoverPresentationController {
                 pop.sourceView = button
                 pop.sourceRect = button.bounds
