@@ -194,11 +194,11 @@ class ViewModel {
                 case .delete:
                     self.goToDelete()
                 case .equal:
-                    self.expressionElements = self.expressionElements + []
                     self.answer = self.currentValue
-                case .set:
                     self.expressionElements = self.expressionElements + []
+                case .set:
                     self.memory = self.currentValue
+                    self.expressionElements = self.expressionElements + []
                 }
             default:
                 self.modifiedButtonPressSubject.onNext(buttonPressed)
