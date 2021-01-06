@@ -296,11 +296,17 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
         if gestureRecognizer.state == .began {
             // TODO: Timed animation showing a filling bubble on the button,
             //       so that people know they're about to yeet their entire equation??
-            if button.title(for: .normal) == Button.other(.delete).rawValue() {
+            
+            switch Button.from(rawValue: button.title(for: .normal) ?? "") {
+            case .other(.delete):
                 buttonPressSubject.onNext(.other(.clear))
                 return
+            case .other(.equal):
+                buttonPressSubject.onNext(.other(.set))
+                return
+            default:
+                break
             }
-            
 //            TODO: Finish this in another release.
 //            let vc = ButtonPopoverViewController()
 //            vc.preferredContentSize = button.frame.size
