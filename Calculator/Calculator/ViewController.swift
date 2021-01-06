@@ -300,20 +300,21 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
                 return
             }
             
-            let vc = ButtonPopoverViewController()
-            vc.preferredContentSize = button.frame.size
-            vc.modalPresentationStyle = .popover
-            
-            if let pres = vc.presentationController {
-                pres.delegate = self
-            }
-            
-            self.present(vc, animated: true)
-            
-            if let pop = vc.popoverPresentationController {
-                pop.sourceView = button
-                pop.sourceRect = button.bounds
-            }
+//            TODO: Finish this in another release.
+//            let vc = ButtonPopoverViewController()
+//            vc.preferredContentSize = button.frame.size
+//            vc.modalPresentationStyle = .popover
+//
+//            if let pres = vc.presentationController {
+//                pres.delegate = self
+//            }
+//
+//            self.present(vc, animated: true)
+//
+//            if let pop = vc.popoverPresentationController {
+//                pop.sourceView = button
+//                pop.sourceRect = button.bounds
+//            }
         } else if gestureRecognizer.state == .ended {
             buttonTouchUpOutside(sender: button)
         }
