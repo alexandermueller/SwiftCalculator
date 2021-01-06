@@ -47,7 +47,7 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     private var currentState: UIControl.State = .normal
     
     // TODO: - Abolish this weird split system using popovers instead of a dedicated ALT button.
-    //       - Remove Clear button (from the button view, keep the button type)
+    //       - Make keyboard on macs work as input, ie delete == delete, etc etc.
     
     private let normalButtonsLayout: [[Button]] = [[  .other(.alternate),      .other(.delete),      .variable(.answer),            .variable(.memory) ],
                                                    [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
