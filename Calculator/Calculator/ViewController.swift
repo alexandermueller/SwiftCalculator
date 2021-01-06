@@ -18,7 +18,7 @@ let kInactiveButtonColor: UIColor = .brown
 let kActiveButtonColor: UIColor = .orange
 let kViewMargin: CGFloat = 2
 let kLabelFontToHeightRatio: CGFloat = 0.33
-let kAspectRatioThreshold: Int = 0.75
+let kAspectRatioThreshold: CGFloat = 0.75
 
 class ViewController : UIViewController, UIPopoverPresentationControllerDelegate {
     private let viewModel: ViewModel
