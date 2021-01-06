@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@testable import Calculator
+@testable import Swift_Calculator
 
 extension ArithmeticExpression : UnitTestOutput {
     func isNaN() -> Bool {

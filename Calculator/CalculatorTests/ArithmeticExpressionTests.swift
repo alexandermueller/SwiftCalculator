@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Calculator
+@testable import Swift_Calculator
 
 let kErrorThreshold: MaxPrecisionNumber = 1 * powl(10, -18)
 

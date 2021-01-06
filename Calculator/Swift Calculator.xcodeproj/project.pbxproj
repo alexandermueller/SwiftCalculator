@@ -67,14 +67,14 @@
 		FA9D9AE62484AC8300DBD2EE /* MaxPrecisionNumber+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MaxPrecisionNumber+Helpers.swift"; sourceTree = "<group>"; };
 		FA9D9AE82484CD1D00DBD2EE /* Array+ToExpressionString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+ToExpressionString.swift"; sourceTree = "<group>"; };
 		FAA07C6C2341D27800D9E43F /* ArithmeticExpressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArithmeticExpressionTests.swift; sourceTree = "<group>"; };
-		FABEBCBE2326DCED00CD024C /* Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Calculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FABEBCBE2326DCED00CD024C /* Swift Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Swift Calculator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FABEBCC12326DCED00CD024C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FABEBCC32326DCED00CD024C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		FABEBCC62326DCED00CD024C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		FABEBCC82326DCEE00CD024C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FABEBCCB2326DCEE00CD024C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FABEBCCD2326DCEE00CD024C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		FABEBCD22326DCEE00CD024C /* CalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalculatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FABEBCD22326DCEE00CD024C /* Swift CalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Swift CalculatorTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FABEBCD82326DCEE00CD024C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FABEBCE12327FA2C00CD024C /* String+Checks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Checks.swift"; sourceTree = "<group>"; };
 		FABEBCE32327FA6000CD024C /* MaxPrecisionNumber+ToSimpleNumericString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MaxPrecisionNumber+ToSimpleNumericString.swift"; sourceTree = "<group>"; };
@@ -138,8 +138,8 @@
 		FABEBCBF2326DCED00CD024C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FABEBCBE2326DCED00CD024C /* Calculator.app */,
-				FABEBCD22326DCEE00CD024C /* CalculatorTests.xctest */,
+				FABEBCBE2326DCED00CD024C /* Swift Calculator.app */,
+				FABEBCD22326DCEE00CD024C /* Swift CalculatorTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -178,9 +178,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		FABEBCBD2326DCED00CD024C /* Calculator */ = {
+		FABEBCBD2326DCED00CD024C /* Swift Calculator */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FABEBCDB2326DCEF00CD024C /* Build configuration list for PBXNativeTarget "Calculator" */;
+			buildConfigurationList = FABEBCDB2326DCEF00CD024C /* Build configuration list for PBXNativeTarget "Swift Calculator" */;
 			buildPhases = (
 				FABEBCBA2326DCED00CD024C /* Sources */,
 				FABEBCBB2326DCED00CD024C /* Frameworks */,
@@ -191,17 +191,17 @@
 			);
 			dependencies = (
 			);
-			name = Calculator;
+			name = "Swift Calculator";
 			packageProductDependencies = (
 				FA11DB6B256DF2F0007E6978 /* RxSwift */,
 			);
 			productName = Calculator;
-			productReference = FABEBCBE2326DCED00CD024C /* Calculator.app */;
+			productReference = FABEBCBE2326DCED00CD024C /* Swift Calculator.app */;
 			productType = "com.apple.product-type.application";
 		};
-		FABEBCD12326DCEE00CD024C /* CalculatorTests */ = {
+		FABEBCD12326DCEE00CD024C /* Swift CalculatorTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FABEBCDE2326DCEF00CD024C /* Build configuration list for PBXNativeTarget "CalculatorTests" */;
+			buildConfigurationList = FABEBCDE2326DCEF00CD024C /* Build configuration list for PBXNativeTarget "Swift CalculatorTests" */;
 			buildPhases = (
 				FABEBCCE2326DCEE00CD024C /* Sources */,
 				FABEBCCF2326DCEE00CD024C /* Frameworks */,
@@ -212,9 +212,9 @@
 			dependencies = (
 				FAA07C6F2341D32800D9E43F /* PBXTargetDependency */,
 			);
-			name = CalculatorTests;
+			name = "Swift CalculatorTests";
 			productName = CalculatorTests;
-			productReference = FABEBCD22326DCEE00CD024C /* CalculatorTests.xctest */;
+			productReference = FABEBCD22326DCEE00CD024C /* Swift CalculatorTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -224,7 +224,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1030;
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1230;
 				ORGANIZATIONNAME = "Alexander Mueller";
 				TargetAttributes = {
 					FABEBCBD2326DCED00CD024C = {
@@ -237,7 +237,7 @@
 					};
 				};
 			};
-			buildConfigurationList = FABEBCB92326DCED00CD024C /* Build configuration list for PBXProject "Calculator" */;
+			buildConfigurationList = FABEBCB92326DCED00CD024C /* Build configuration list for PBXProject "Swift Calculator" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -253,8 +253,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				FABEBCBD2326DCED00CD024C /* Calculator */,
-				FABEBCD12326DCEE00CD024C /* CalculatorTests */,
+				FABEBCBD2326DCED00CD024C /* Swift Calculator */,
+				FABEBCD12326DCEE00CD024C /* Swift CalculatorTests */,
 			);
 		};
 /* End PBXProject section */
@@ -318,7 +318,7 @@
 /* Begin PBXTargetDependency section */
 		FAA07C6F2341D32800D9E43F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = FABEBCBD2326DCED00CD024C /* Calculator */;
+			target = FABEBCBD2326DCED00CD024C /* Swift Calculator */;
 			targetProxy = FAA07C6E2341D32800D9E43F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -369,6 +369,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -431,6 +432,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -474,12 +476,13 @@
 				DEVELOPMENT_TEAM = 39STF66TCU;
 				INFOPLIST_FILE = Calculator/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 13.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9;
-				PRODUCT_BUNDLE_IDENTIFIER = "Alexander-Mueller.Calculator";
+				PRODUCT_BUNDLE_IDENTIFIER = "Alexander-Mueller.Swift-Calculator";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -502,12 +505,13 @@
 				DEVELOPMENT_TEAM = 39STF66TCU;
 				INFOPLIST_FILE = Calculator/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 13.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9;
-				PRODUCT_BUNDLE_IDENTIFIER = "Alexander-Mueller.Calculator";
+				PRODUCT_BUNDLE_IDENTIFIER = "Alexander-Mueller.Swift-Calculator";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -543,7 +547,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Calculator.app/Calculator";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Swift Calculator.app/Swift Calculator";
 			};
 			name = Debug;
 		};
@@ -572,14 +576,14 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Calculator.app/Calculator";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Swift Calculator.app/Swift Calculator";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		FABEBCB92326DCED00CD024C /* Build configuration list for PBXProject "Calculator" */ = {
+		FABEBCB92326DCED00CD024C /* Build configuration list for PBXProject "Swift Calculator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FABEBCD92326DCEE00CD024C /* Debug */,
@@ -588,7 +592,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		FABEBCDB2326DCEF00CD024C /* Build configuration list for PBXNativeTarget "Calculator" */ = {
+		FABEBCDB2326DCEF00CD024C /* Build configuration list for PBXNativeTarget "Swift Calculator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FABEBCDC2326DCEF00CD024C /* Debug */,
@@ -597,7 +601,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		FABEBCDE2326DCEF00CD024C /* Build configuration list for PBXNativeTarget "CalculatorTests" */ = {
+		FABEBCDE2326DCEF00CD024C /* Build configuration list for PBXNativeTarget "Swift CalculatorTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FABEBCDF2326DCEF00CD024C /* Debug */,
@@ -614,7 +618,7 @@
 			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.1.1;
+				minimumVersion = 6.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
