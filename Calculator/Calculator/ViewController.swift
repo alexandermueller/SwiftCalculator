@@ -18,6 +18,7 @@ let kInactiveButtonColor: UIColor = .brown
 let kActiveButtonColor: UIColor = .orange
 let kViewMargin: CGFloat = 2
 let kLabelFontToHeightRatio: CGFloat = 0.33
+let kAspectRatioThreshold: Int = 0.75
 
 class ViewController : UIViewController, UIPopoverPresentationControllerDelegate {
     private let viewModel: ViewModel
@@ -192,7 +193,7 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        showFullButtonsView = size.width > size.height * 0.75
+        showFullButtonsView = size.width > size.height * kAspectRatioThreshold
         updateButtonLayout()
         redrawSubviews(with: CGRect(x: 0, y: 0, width: size.width, height: size.height))
     }
