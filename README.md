@@ -1,4 +1,4 @@
-# SwiftCalculator
+# SwiftCalculator (App Store Link: [Spark Calculator](https://www.youtube.com/watch?v=Z0taVhwj3EY)) 
 
 This app is the result of a personal challenge I imposed upon myself, where I had to create a calculator application completely from scratch, while doing my best to avoid using anyone else's code or guides related to creating calculators. I did, however, occasionally have to look up fundamental math concepts, refresh myself on floating point representation and computation limitations, and precedence rules based on typing functions into google calculator to see how it categorizes their precedence. It's been a fun ride so far, and I hope you enjoy learning about the core principles I've used to guide my calculator!
 
@@ -110,7 +110,5 @@ Some functions are greedy, and prefer to evaluate immediately if the same functi
 Others, like left side functions, are greedy by the very definition of how these expressions are expanded (like "√") so there is no need to flag these as greedy. 
 Meanwhile, "^2" defies the "^" greediness for the moment due to it being a right side function, which evaluates from the left to the right side of the expression (ie: 3!<sub>a</sub>!<sub>b</sub> -> factorialB(factorialA(number(3))).)
 This makes implementing the correct expansion rule for "^2" difficult, so it's left as a simple shortcut that squares the result of the inner expression.
-
-# Available on the app store as [Spark Calculator](https://www.youtube.com/watch?v=Z0taVhwj3EY):
 
 [![Spark Calculator iOS App](https://is5-ssl.mzstatic.com/image/thumb/Purple124/v4/14/8e/75/148e75ac-9bed-5f89-f96b-cdf2d58e92c6/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/90x90bb.png)](https://www.youtube.com/watch?v=Z0taVhwj3EY)
