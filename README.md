@@ -4,7 +4,7 @@ This app is the result of a personal challenge I imposed upon myself, where I ha
 
 Available on the app store as Spark Calculator:
 
-[![Spark Calculator iOS App](https://is5-ssl.mzstatic.com/image/thumb/Purple124/v4/14/8e/75/148e75ac-9bed-5f89-f96b-cdf2d58e92c6/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/300x300bb.png)](https://www.youtube.com/watch?v=Z0taVhwj3EY)
+[![Spark Calculator iOS App](https://is5-ssl.mzstatic.com/image/thumb/Purple124/v4/14/8e/75/148e75ac-9bed-5f89-f96b-cdf2d58e92c6/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/90x90bb.png)](https://www.youtube.com/watch?v=Z0taVhwj3EY)
 
 The underlying principles that power this calculator are as follows:
 
