@@ -50,21 +50,21 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     // TODO: - Abolish this weird split system using popovers instead of a dedicated ALT button.
     //       - Make keyboard on macs work as input, ie delete == delete, etc etc.
     
-    private let normalButtonsLayout: [[Button]] = [[  .other(.alternate),      .other(.delete),      .variable(.answer),            .variable(.memory) ],
+    private let normalButtonsLayout: [[Button]] = [[  .other(.alternate),   .variable(.answer),      .variable(.memory),               .other(.delete) ],
                                                    [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
                                                    [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)) ],
                                                    [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)) ],
                                                    [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)) ],
                                                    [       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)) ]].reversed()
             
-    private let alternateButtonsLayout: [[Button]] = [[  .other(.alternate),      .other(.delete),     .variable(.answer),            .variable(.memory) ],
+    private let alternateButtonsLayout: [[Button]] = [[  .other(.alternate),   .variable(.answer),     .variable(.memory),               .other(.delete) ],
                                                       [ .parenthesis(.open), .parenthesis(.close), .function(.left(.inv)),    .function(.right(.square)) ],
                                                       [      .digit(.seven),       .digit(.eight),          .digit(.nine),   .function(.middle(.modulo)) ],
                                                       [       .digit(.four),        .digit(.five),           .digit(.six), .function(.right(.factorial)) ],
                                                       [        .digit(.one),         .digit(.two),         .digit(.three),        .function(.left(.abs)) ],
                                                       [       .digit(.zero),  .modifier(.decimal),           .other(.set),        .function(.left(.sum)) ]].reversed()
     
-    private let fullButtonsLayout: [[Button]] = [[     .other(.delete),   .variable(.answer),      .variable(.memory),                  .other(.set),        .function(.left(.inv)) ],
+    private let fullButtonsLayout: [[Button]] = [[  .variable(.answer),   .variable(.memory),            .other(.set),               .other(.delete),        .function(.left(.inv)) ],
                                                  [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)),    .function(.right(.square)) ],
                                                  [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)),   .function(.middle(.modulo)) ],
                                                  [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)), .function(.right(.factorial)) ],
