@@ -45,7 +45,6 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     private var buttonColumns = 0
     
     private var variableViewsDict: [String : UILabel] = [:]
-    private var currentState: UIControl.State = .normal
     
     // TODO: - Abolish this weird split system using popovers instead of a dedicated ALT button.
     //       - Make keyboard on macs work as input, ie delete == delete, etc etc.
@@ -99,7 +98,9 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
             for row in layout {
                 for buttonType in row {
                     let button = UIButton()
-                    button.setTitle(buttonType.rawValue(), for: .normal)
+                    
+                    button.setTitle(buttonType.buttonDisplayValue(), for: .normal)
+                    button.setTitle(buttonType.rawValue(), for: .reserved)
                     button.backgroundColor = kInactiveButtonColor
                     button.setTitleColor(layout == alternateButtonsLayout && buttonType == .other(.alternate) ? kActiveButtonColor : .white, for: .normal)
                     button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)
@@ -201,12 +202,15 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     // MARK: - Redrawing Functions:
     
     func updateButtonLayout() {
+        assert(Thread.isMainThread)
+        
         fullButtonsView.isHidden = !showFullButtonsView
         buttonRows = (!showFullButtonsView ? normalButtonsLayout : fullButtonsLayout).count
         buttonColumns = (!showFullButtonsView ? normalButtonsLayout[0] : fullButtonsLayout[0]).count
     }
     
     func redrawSubviews(with viewFrame: CGRect) {
+        assert(Thread.isMainThread)
         assert(normalButtonsLayout.count == alternateButtonsLayout.count && normalButtonsLayout[0].count == alternateButtonsLayout[0].count)
         
         backgroundView.frame = viewFrame
@@ -276,8 +280,8 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     @objc func buttonTouchUpInside(sender: UIButton!) {
         sender.backgroundColor = kInactiveButtonColor
         
-        guard let buttonText: String = sender.title(for: currentState),
-              let button: Button = Button.from(rawValue: buttonText) else {
+        guard let rawButtonText: String = sender.title(for: .reserved),
+              let button: Button = Button.from(rawValue: rawButtonText) else {
             return
         }
         

@@ -214,6 +214,7 @@ class ViewModel {
         parenBalance = 0
         expressionElements = ["0"]
         textDisplayColourSubject.onNext(.gray)
+        
         transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
             switch buttonPressed {
             case .digit(_):

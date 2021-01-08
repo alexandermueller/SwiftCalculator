@@ -36,6 +36,19 @@ enum Left: String, CaseIterable {
     case inv = "1/"
     case abs = "~"
     case sum = "∑"
+    
+    func buttonDisplayValue() -> String {
+        let value = self.rawValue
+        
+        switch self {
+        case .inv, .abs:
+            return "\(value)x"
+        case .sum:
+            return "\(value)i"
+        case .negate, .sqrt:
+            return value
+        }
+    }
 }
 
 enum Middle: String, CaseIterable {
@@ -46,11 +59,33 @@ enum Middle: String, CaseIterable {
     case divide = "÷"
     case exponent = "^"
     case root = "*√"
+    
+    func buttonDisplayValue() -> String {
+        let value = self.rawValue
+        
+        switch self {
+        case .exponent, .modulo:
+            return "x\(value)y"
+        case .add, .subtract, .multiply, .divide, .root:
+            return value
+        }
+    }
 }
 
 enum Right: String, CaseIterable {
     case square = "^2"
     case factorial = "!"
+    
+    func buttonDisplayValue() -> String {
+        let value = self.rawValue
+        
+        switch self {
+        case .factorial:
+            return "i\(value)"
+        case .square:
+            return "x\(value)"
+        }
+    }
 }
 
 enum Function: Equatable {
@@ -133,6 +168,17 @@ enum Function: Equatable {
             return function.rawValue
         }
     }
+    
+    func buttonDisplayValue() -> String {
+        switch self {
+        case .left(let function):
+            return function.buttonDisplayValue()
+        case .middle(let function):
+            return function.buttonDisplayValue()
+        case .right(let function):
+            return function.buttonDisplayValue()
+        }
+    }
 }
 
 enum Variable: String, CaseIterable {
@@ -189,6 +235,15 @@ enum Button: Equatable {
             return button.rawValue
         case .other(let button):
             return button.rawValue
+        }
+    }
+    
+    func buttonDisplayValue() -> String {
+        switch self {
+        case .function(let button):
+            return button.buttonDisplayValue()
+        default:
+            return self.rawValue()
         }
     }
 }
