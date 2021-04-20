@@ -21,16 +21,12 @@ extension String {
         return Variable.allCases.map({$0.rawValue}).contains(self)
     }
     
-    func isNumber() -> Bool {
-        return !self.toMaxPrecisionNumber().isNaN
-    }
-    
     func isDouble() -> Bool {
         return Double(self) != nil
     }
     
-    func isInteger() -> Bool {
-        return self.toMaxPrecisionNumber().isWhole()
+    func isInt() -> Bool {
+        return Int(self) != nil
     }
     
     func isOpenParen() -> Bool {
