@@ -462,13 +462,8 @@ extension ViewModel {
             }
         case .function(let function):
             switch function {
-            case .left(let left):
-                switch left {
-                case .negate:
-                    goToDelete()
-                default:
-                    goToLeftFunction()
-                }
+            case .left(_):
+                goToLeftFunction()
             case .middle(_):
                 goToMiddleFunction()
             case .right(_):
