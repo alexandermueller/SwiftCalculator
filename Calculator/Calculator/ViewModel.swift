@@ -12,8 +12,8 @@ import UIKit
 
 enum ExpressionState: Equatable {
     case zero
-    case properDouble
-    case modifiedDouble
+    case properNumber
+    case modifiedNumber
     case variable
     case openParenthesis
     case closeParenthesis
@@ -125,65 +125,43 @@ class ViewModel {
         
         let lastElementIndex = expressionElements.count - 1
         
-        switch button {
-        case .digit(_):
-            switch lastExpressionState {
-            case .zero:
-                expressionElements[lastElementIndex] = button.rawValue()
-            case .properDouble, .modifiedDouble:
-                expressionElements[lastElementIndex] = lastElement == "0" ? lastElement : lastElement + button.rawValue()
-            default:
-                expressionElements += [button.rawValue()]
-            }
-        case .modifier(.decimal):
+        switch (button, lastExpressionState) {
+        case (.digit(_), .zero), (.parenthesis(.open), .zero), (.function(.left(_)), .zero), (.variable(_), .zero):
+            expressionElements[lastElementIndex] = button.rawValue()
+        case (.digit(_), .properNumber), (.digit(_), .modifiedNumber):
+            expressionElements[lastElementIndex] = lastElement == "0" ? lastElement : lastElement + button.rawValue()
+        case (.modifier(.decimal), .properNumber):
             expressionElements[lastElementIndex] = lastElement + button.rawValue()
-        case .parenthesis(.open):
-            switch lastExpressionState {
-            case .zero:
-                expressionElements[lastElementIndex] = button.rawValue()
-            default:
-                expressionElements += [button.rawValue()]
-            }
-        case .function(.left(_)):
-            switch lastExpressionState {
-            case .zero:
-                expressionElements[lastElementIndex] = button.rawValue()
-            default:
-                expressionElements += [button.rawValue()]
-            }
-        case .variable(_):
-            switch lastExpressionState {
-            case .zero:
-                expressionElements[lastElementIndex] = button.rawValue()
-            default:
-                expressionElements += [button.rawValue()]
-            }
+        case (.modifier(.decimal), .openParenthesis), (.modifier(.decimal), .leftFunction), (.modifier(.decimal), .middleFunction):
+            expressionElements += ["0" + button.rawValue()]
         default:
             expressionElements += [button.rawValue()]
         }
     }
-    
-    // MARK: - State Machine Functions:
-    
+}
+
+// MARK: - State Machine Functions:
+ 
+extension ViewModel {
     func startStateMachine() {
         // This persists until the application terminates. Catches input and
         // converts it depending on the current state, performs a UI level
         // modifying function, or lets the button press through.
-        buttonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        buttonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .function(.middle(.subtract)):
                 switch self.currentExpressionState {
                 case .zero, .openParenthesis, .leftFunction, .middleFunction:
                     self.modifiedButtonPressSubject.onNext(.function(.left(.negate)))
                 default:
-                    self.modifiedButtonPressSubject.onNext(buttonPressed)
+                    self.modifiedButtonPressSubject.onNext(pressedButton)
                 }
             case .function(.left(.sqrt)):
                 switch self.currentExpressionState {
-                case .properDouble, .variable, .closeParenthesis, .rightFunction:
+                case .properNumber, .variable, .closeParenthesis, .rightFunction:
                     self.modifiedButtonPressSubject.onNext(.function(.middle(.root)))
                 default:
-                    self.modifiedButtonPressSubject.onNext(buttonPressed)
+                    self.modifiedButtonPressSubject.onNext(pressedButton)
                 }
             case .other(let other):
                 switch other {
@@ -201,7 +179,7 @@ class ViewModel {
                     self.expressionElements = self.expressionElements + []
                 }
             default:
-                self.modifiedButtonPressSubject.onNext(buttonPressed)
+                self.modifiedButtonPressSubject.onNext(pressedButton)
             }
         }).disposed(by: bag)
         
@@ -215,22 +193,22 @@ class ViewModel {
         expressionElements = ["0"]
         textDisplayColourSubject.onNext(.gray)
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .digit(_):
-                self.goToProperDouble(with: buttonPressed)
+                self.goToProperNumber(with: pressedButton)
             case .modifier(_):
-                self.goToModifiedDouble(with: buttonPressed)
+                self.goToModifiedNumber(with: pressedButton)
             case .parenthesis(.open):
-                self.goToOpenParenthesis(with: buttonPressed)
+                self.goToOpenParenthesis(with: pressedButton)
             case .function(.left(_)):
-                self.goToLeftFunction(with: buttonPressed)
+                self.goToLeftFunction(with: pressedButton)
             case .function(.middle(_)):
-                self.goToMiddleFunction(with: buttonPressed)
+                self.goToMiddleFunction(with: pressedButton)
             case .function(.right(_)):
-                self.goToRightFunction(with: buttonPressed)
+                self.goToRightFunction(with: pressedButton)
             case .variable(_):
-                self.goToVariable(with: buttonPressed)
+                self.goToVariable(with: pressedButton)
             default:
                 return
             }
@@ -239,46 +217,46 @@ class ViewModel {
         })
     }
     
-    func goToProperDouble(with buttonElement: Button? = nil) {
-        currentExpressionState = .properDouble
+    func goToProperNumber(with buttonElement: Button? = nil) {
+        currentExpressionState = .properNumber
         
         if let button = buttonElement {
             addExpressionElement(from: button)
         }
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .digit(_):
-                self.goToProperDouble(with: buttonPressed)
+                self.goToProperNumber(with: pressedButton)
             case .modifier(_):
-                if let lastElement = self.expressionElements.last, lastElement.isInt() {
-                    self.goToModifiedDouble(with: buttonPressed)
+                if let lastElement = self.expressionElements.last, lastElement.isInteger() {
+                    self.goToModifiedNumber(with: pressedButton)
                 }
             case .parenthesis(.close):
                 if self.parenBalance > 0 {
-                    self.goToCloseParenthesis(with: buttonPressed)
+                    self.goToCloseParenthesis(with: pressedButton)
                 }
             case .function(.middle(_)):
-                self.goToMiddleFunction(with: buttonPressed)
+                self.goToMiddleFunction(with: pressedButton)
             case .function(.right(_)):
-                self.goToRightFunction(with: buttonPressed)
+                self.goToRightFunction(with: pressedButton)
             default:
                 return
             }
         })
     }
     
-    func goToModifiedDouble(with buttonElement: Button? = nil) {
-        currentExpressionState = .modifiedDouble
+    func goToModifiedNumber(with buttonElement: Button? = nil) {
+        currentExpressionState = .modifiedNumber
         
         if let button = buttonElement {
             addExpressionElement(from: button)
         }
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .digit(_):
-                self.goToProperDouble(with: buttonPressed)
+                self.goToProperNumber(with: pressedButton)
             default:
                 return
             }
@@ -292,15 +270,15 @@ class ViewModel {
             addExpressionElement(from: button)
         }
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .function(.middle(_)):
-                self.goToMiddleFunction(with: buttonPressed)
+                self.goToMiddleFunction(with: pressedButton)
             case .function(.right(_)):
-                self.goToRightFunction(with: buttonPressed)
+                self.goToRightFunction(with: pressedButton)
             case .parenthesis(.close):
                 if self.parenBalance > 0 {
-                    self.goToCloseParenthesis(with: buttonPressed)
+                    self.goToCloseParenthesis(with: pressedButton)
                 }
             default:
                 return
@@ -316,16 +294,18 @@ class ViewModel {
             addExpressionElement(from: button)
         }
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .digit(_):
-                self.goToProperDouble(with: buttonPressed)
+                self.goToProperNumber(with: pressedButton)
+            case .modifier(.decimal):
+                self.goToModifiedNumber(with: pressedButton)
             case .parenthesis(.open):
-                self.goToOpenParenthesis(with: buttonPressed)
+                self.goToOpenParenthesis(with: pressedButton)
             case .function(.left(_)):
-                self.goToLeftFunction(with: buttonPressed)
+                self.goToLeftFunction(with: pressedButton)
             case .variable(_):
-                self.goToVariable(with: buttonPressed)
+                self.goToVariable(with: pressedButton)
             default:
                 return
             }
@@ -340,16 +320,16 @@ class ViewModel {
             addExpressionElement(from: button)
         }
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .parenthesis(.close):
                 if self.parenBalance > 0 {
-                    self.goToCloseParenthesis(with: buttonPressed)
+                    self.goToCloseParenthesis(with: pressedButton)
                 }
             case .function(.middle(_)):
-                self.goToMiddleFunction(with: buttonPressed)
+                self.goToMiddleFunction(with: pressedButton)
             case .function(.right(_)):
-                self.goToRightFunction(with: buttonPressed)
+                self.goToRightFunction(with: pressedButton)
             default:
                 return
             }
@@ -363,23 +343,25 @@ class ViewModel {
             addExpressionElement(from: button)
         }
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .digit(_):
-                self.goToProperDouble(with: buttonPressed)
+                self.goToProperNumber(with: pressedButton)
+            case .modifier(.decimal):
+                self.goToModifiedNumber(with: pressedButton)
             case .parenthesis(.open):
-                self.goToOpenParenthesis(with: buttonPressed)
+                self.goToOpenParenthesis(with: pressedButton)
             case .function(.left(.negate)):
                 guard let lastElement = self.expressionElements.last,
-                    let button = Button.from(rawValue: lastElement), button != buttonPressed else {
+                    let button = Button.from(rawValue: lastElement), button != pressedButton else {
                         return
                 }
             
-                self.goToLeftFunction(with: buttonPressed)
+                self.goToLeftFunction(with: pressedButton)
             case .function(.left(_)):
-                self.goToLeftFunction(with: buttonPressed)
+                self.goToLeftFunction(with: pressedButton)
             case .variable(_):
-                self.goToVariable(with: buttonPressed)
+                self.goToVariable(with: pressedButton)
             default:
                 return
             }
@@ -393,16 +375,18 @@ class ViewModel {
             addExpressionElement(from: button)
         }
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .digit(_):
-                self.goToProperDouble(with: buttonPressed)
+                self.goToProperNumber(with: pressedButton)
+            case .modifier(.decimal):
+                self.goToModifiedNumber(with: pressedButton)
             case .parenthesis(.open):
-                self.goToOpenParenthesis(with: buttonPressed)
+                self.goToOpenParenthesis(with: pressedButton)
             case .function(.left(_)):
-                self.goToLeftFunction(with: buttonPressed)
+                self.goToLeftFunction(with: pressedButton)
             case .variable(_):
-                self.goToVariable(with: buttonPressed)
+                self.goToVariable(with: pressedButton)
             default:
                 return
             }
@@ -416,16 +400,16 @@ class ViewModel {
             addExpressionElement(from: button)
         }
         
-        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] buttonPressed in
-            switch buttonPressed {
+        transferFunction.disposable = modifiedButtonPressSubject.subscribe(onNext: { [unowned self] pressedButton in
+            switch pressedButton {
             case .parenthesis(.close):
                 if self.parenBalance > 0 {
-                    self.goToCloseParenthesis(with: buttonPressed)
+                    self.goToCloseParenthesis(with: pressedButton)
                 }
             case .function(.middle(_)):
-                self.goToMiddleFunction(with: buttonPressed)
+                self.goToMiddleFunction(with: pressedButton)
             case .function(.right(_)):
-                self.goToRightFunction(with: buttonPressed)
+                self.goToRightFunction(with: pressedButton)
             default:
                 return
             }
@@ -437,7 +421,24 @@ class ViewModel {
             parenBalance += lastElement.isCloseParen() ? 1 : -1
         }
         
-        expressionElements.removeLast(1)
+        var lastElement = expressionElements.removeLast()
+                        
+        if lastElement.isNumber() && lastElement.count > 1 {
+            lastElement.removeLast(1)
+            
+            if let lastCharacter = lastElement.last {
+                expressionElements += [lastElement]
+                
+                switch String(lastCharacter) {
+                case Button.modifier(.decimal).rawValue():
+                    goToModifiedNumber()
+                default:
+                    goToProperNumber()
+                }
+                
+                return
+            }
+        }
         
         guard let currentExpression = expressionElements.last, expressionElements != ["0"] else {
             goToZero()
@@ -445,19 +446,19 @@ class ViewModel {
         }
         
         guard let button = Button.from(rawValue: currentExpression) else {
-            goToProperDouble()
+            goToProperNumber()
             return
         }
         
         switch button {
         case .digit(_):
-            self.goToProperDouble()
+            goToProperNumber()
         case .parenthesis(let parenthesis):
             switch parenthesis {
             case .open:
-                self.goToOpenParenthesis()
+                goToOpenParenthesis()
             case .close:
-                self.goToCloseParenthesis()
+                goToCloseParenthesis()
             }
         case .function(let function):
             switch function {
@@ -465,17 +466,16 @@ class ViewModel {
                 switch left {
                 case .negate:
                     goToDelete()
-                    return
                 default:
                     goToLeftFunction()
                 }
             case .middle(_):
-                self.goToMiddleFunction()
+                goToMiddleFunction()
             case .right(_):
-                self.goToRightFunction()
+                goToRightFunction()
             }
         case .variable(_):
-            self.goToVariable()
+            goToVariable()
         default:
             return
         }
