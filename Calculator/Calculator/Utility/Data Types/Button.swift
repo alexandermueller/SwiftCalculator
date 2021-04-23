@@ -202,7 +202,7 @@ enum Button: Equatable {
     case variable(Variable)
     case other(Other)
         
-    // TDOD: This needs a unit test to ensure that all the types have been accounted for.
+    // TODO: This needs a unit test to ensure that all the types have been accounted for.
     static func from(rawValue: String) -> Button? {
         if let digit = Digit(rawValue: rawValue) {
             return .digit(digit)

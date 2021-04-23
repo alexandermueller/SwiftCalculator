@@ -80,12 +80,15 @@ class ViewModel {
             expressionTextSubject.onNext(expressionElements.toExpressionString())
             
             var mappedElements: [String] = expressionElements.map({ element in
-                switch element {
-                case Variable.memory.rawValue:
-                    return String(memory)
-                case Variable.answer.rawValue:
-                    return String(answer)
-                default:
+                switch Variable(rawValue: element) {
+                case .some(let variable):
+                    switch variable {
+                    case .answer:
+                        return String(answer)
+                    case .memory:
+                        return String(memory)
+                    }
+                case .none:
                     return element
                 }
             })
