@@ -1,14 +1,16 @@
 //
-//  Array+ToExpressionString.swift
-//  Calculator
+//  ExpressionList.swift
+//  Swift Calculator
 //
-//  Created by Alexander Mueller on 2020-06-01.
-//  Copyright © 2020 Alexander Mueller. All rights reserved.
+//  Created by Alex Mueller on 2021-04-23.
+//  Copyright © 2021 Alexander Mueller. All rights reserved.
 //
 
 import Foundation
 
-extension Array where Element : StringProtocol {
+typealias ExpressionList = [String]
+
+extension ExpressionList {
     func toExpressionString() -> String {
         var expressionString = ""
         

@@ -63,7 +63,15 @@ class ViewModel {
         }
     }
     
-    private var expressionElements: [String] = ["0"] {
+    private var valueStack: Stack<MaxPrecisionNumber> = Stack(from: [0])
+    private var currentValue: MaxPrecisionNumber = 0 {
+        didSet {
+            currentValueSubject.onNext(valueStack.peek() ?? currentValue)
+        }
+    }
+    
+    private var lastMappedElements: ExpressionList = ["0"]
+    private var expressionElements: ExpressionList = ["0"] {
         didSet {
             if expressionElements.isEmpty {
                 return
@@ -71,29 +79,31 @@ class ViewModel {
             
             expressionTextSubject.onNext(expressionElements.toExpressionString())
             
-            if parenBalance == 0 {
-                let elements: [String] = expressionElements.map({ element in
-                    switch element {
-                    case Variable.memory.rawValue:
-                        return String(memory)
-                    case Variable.answer.rawValue:
-                        return String(answer)
-                    default:
-                        return element
-                    }
-                })
-
-                currentValue = generator.startGenerator(with: elements).value.evaluate()
-                return
-            }
+            var mappedElements: [String] = expressionElements.map({ element in
+                switch element {
+                case Variable.memory.rawValue:
+                    return String(memory)
+                case Variable.answer.rawValue:
+                    return String(answer)
+                default:
+                    return element
+                }
+            })
             
-            currentValue = .nan
-        }
-    }
-    
-    private var currentValue: MaxPrecisionNumber = 0 {
-        didSet {
-            currentValueSubject.onNext(currentValue)
+            // Soft balance the parentheses so that users can preview the current value
+            mappedElements += Array(repeating: Button.parenthesis(.close).rawValue(), count: parenBalance)
+            let nextValue = generator.startGenerator(with: mappedElements).value.evaluate()
+            
+            if mappedElements == ["0"] {
+                valueStack = Stack<MaxPrecisionNumber>(from: [0])
+            } else if !currentValue.isNaN && mappedElements.count < lastMappedElements.count {
+                valueStack.pop()
+            } else if !nextValue.isNaN && mappedElements.count >= lastMappedElements.count && mappedElements != lastMappedElements {
+                valueStack.push(nextValue)
+            }
+                           
+            currentValue = nextValue
+            lastMappedElements = mappedElements
         }
     }
     
@@ -118,7 +128,7 @@ class ViewModel {
         self.bag = bag
     }
     
-    func addExpressionElement(from button: Button) {
+    private func addExpressionElement(from button: Button) {
         guard let lastElement = expressionElements.last else {
             return
         }
@@ -172,10 +182,10 @@ extension ViewModel {
                 case .delete:
                     self.goToDelete()
                 case .equal:
-                    self.answer = self.currentValue
+                    self.answer = self.valueStack.peek() ?? currentValue
                     self.expressionElements = self.expressionElements + []
                 case .set:
-                    self.memory = self.currentValue
+                    self.memory = self.valueStack.peek() ?? currentValue
                     self.expressionElements = self.expressionElements + []
                 }
             default:
@@ -420,14 +430,12 @@ extension ViewModel {
         if let lastElement = expressionElements.last, lastElement.isOpenParen() || lastElement.isCloseParen() {
             parenBalance += lastElement.isCloseParen() ? 1 : -1
         }
-        
-        var lastElement = expressionElements.removeLast()
-                        
-        if lastElement.isNumber() && lastElement.count > 1 {
+
+        if var lastElement = expressionElements.last, lastElement.isNumber() && lastElement.count > 1 {
             lastElement.removeLast(1)
             
             if let lastCharacter = lastElement.last {
-                expressionElements += [lastElement]
+                expressionElements[expressionElements.count - 1] = lastElement
                 
                 switch String(lastCharacter) {
                 case Button.modifier(.decimal).rawValue():
@@ -439,6 +447,8 @@ extension ViewModel {
                 return
             }
         }
+        
+        expressionElements.removeLast(1)
         
         guard let currentExpression = expressionElements.last, expressionElements != ["0"] else {
             goToZero()
