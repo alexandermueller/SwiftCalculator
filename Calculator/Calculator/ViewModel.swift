@@ -97,11 +97,14 @@ class ViewModel {
             mappedElements += Array(repeating: Button.parenthesis(.close).rawValue(), count: parenBalance)
             let nextValue = generator.startGenerator(with: mappedElements).value.evaluate()
             
-            if mappedElements == ["0"] {
+            let mappedExpressionString = mappedElements.toExpressionString()
+            let lastMappedExpressionString = lastMappedElements.toExpressionString()
+            
+            if mappedExpressionString == "0" {
                 valueStack = Stack<MaxPrecisionNumber>(from: [0])
-            } else if !currentValue.isNaN && mappedElements.count < lastMappedElements.count {
+            } else if !currentValue.isNaN && mappedExpressionString.count < lastMappedExpressionString.count {
                 valueStack.pop()
-            } else if !nextValue.isNaN && mappedElements.count >= lastMappedElements.count && mappedElements != lastMappedElements {
+            } else if !nextValue.isNaN && mappedExpressionString.count >= lastMappedExpressionString.count && mappedExpressionString != lastMappedExpressionString {
                 valueStack.push(nextValue)
             }
                            
@@ -146,7 +149,8 @@ class ViewModel {
         case (.modifier(.decimal), .properNumber):
             expressionElements[lastElementIndex] = lastElement + button.rawValue()
         case (.modifier(.decimal), .openParenthesis), (.modifier(.decimal), .leftFunction), (.modifier(.decimal), .middleFunction):
-            expressionElements += ["0" + button.rawValue()]
+            expressionElements += ["0"]
+            expressionElements += [button.rawValue()]
         default:
             expressionElements += [button.rawValue()]
         }
@@ -176,6 +180,13 @@ extension ViewModel {
                 default:
                     self.modifiedButtonPressSubject.onNext(pressedButton)
                 }
+            case .convenience(let convenience):
+                switch convenience {
+                case .fraction:
+                    simulate(pressedButtonCombo: [.parenthesis(.open), .digit(.one), .function(.middle(.divide))])
+                case .square:
+                    simulate(pressedButtonCombo: [.function(.middle(.exponent)), .digit(.two)])
+                }
             case .other(let other):
                 switch other {
                 case .alternate:
@@ -197,6 +208,22 @@ extension ViewModel {
         }).disposed(by: bag)
         
         goToZero()
+    }
+    
+    func simulate(pressedButtonCombo: [Button]) {
+        guard let firstButton = pressedButtonCombo.first else {
+            return
+        }
+        
+        let lastExpressionElements = expressionElements
+        
+        modifiedButtonPressSubject.onNext(firstButton)
+        
+        if expressionElements != lastExpressionElements {
+            for pressedButton in pressedButtonCombo.dropFirst() {
+                modifiedButtonPressSubject.onNext(pressedButton)
+            }
+        }
     }
     
     func goToZero() {

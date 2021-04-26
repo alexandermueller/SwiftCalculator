@@ -33,7 +33,6 @@ enum Parenthesis: String, CaseIterable {
 enum Left: String, CaseIterable {
     case negate = "-"
     case sqrt = "√"
-    case inv = "1/"
     case abs = "~"
     case sum = "∑"
     
@@ -41,7 +40,7 @@ enum Left: String, CaseIterable {
         let value = self.rawValue
         
         switch self {
-        case .inv, .abs:
+        case .abs:
             return "\(value)x"
         case .sum:
             return "\(value)i"
@@ -73,7 +72,6 @@ enum Middle: String, CaseIterable {
 }
 
 enum Right: String, CaseIterable {
-    case square = "^2"
     case factorial = "!"
     
     func buttonDisplayValue() -> String {
@@ -82,8 +80,6 @@ enum Right: String, CaseIterable {
         switch self {
         case .factorial:
             return "i\(value)"
-        case .square:
-            return "x\(value)"
         }
     }
 }
@@ -118,7 +114,7 @@ enum Function: Equatable {
      *  1. factorial
      *  2. exponent
      *  3. root
-     *  4. sqrt, inv, square
+     *  4. sqrt
      *  5. negate, multiply, divide
      *  6. modulo
      *  7. add, subtract
@@ -130,7 +126,7 @@ enum Function: Equatable {
             switch function {
             case .negate:
                 return 5
-            case .sqrt, .inv:
+            case .sqrt:
                 return 4
             case .abs, .sum:
                 return 0
@@ -150,8 +146,6 @@ enum Function: Equatable {
             }
         case .right(let function):
             switch function {
-            case .square:
-                return 4
             case .factorial:
                 return 1
             }
@@ -186,6 +180,11 @@ enum Variable: String, CaseIterable {
     case memory = "MEM"
 }
 
+enum Convenience: String, CaseIterable {
+    case square = "x^2"
+    case fraction = "1/x"
+}
+
 enum Other: String, CaseIterable {
     case equal = "="
     case set = "SET"
@@ -200,6 +199,7 @@ enum Button: Equatable {
     case parenthesis(Parenthesis)
     case function(Function)
     case variable(Variable)
+    case convenience(Convenience)
     case other(Other)
         
     // TODO: This needs a unit test to ensure that all the types have been accounted for.
@@ -214,6 +214,8 @@ enum Button: Equatable {
             return .function(function)
         } else if let variable = Variable(rawValue: rawValue) {
             return .variable(variable)
+        } else if let convenience = Convenience(rawValue: rawValue) {
+            return .convenience(convenience)
         } else if let other = Other(rawValue: rawValue) {
             return .other(other)
         }
@@ -232,6 +234,8 @@ enum Button: Equatable {
         case .function(let button):
             return button.rawValue()
         case .variable(let button):
+            return button.rawValue
+        case .convenience(let button):
             return button.rawValue
         case .other(let button):
             return button.rawValue

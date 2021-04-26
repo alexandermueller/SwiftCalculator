@@ -170,12 +170,12 @@
 		FABEBCC02326DCED00CD024C /* Calculator */ = {
 			isa = PBXGroup;
 			children = (
+				84A50E8D262EC29300F9A2F3 /* Utility */,
 				FABEBCC82326DCEE00CD024C /* Assets.xcassets */,
 				FA11DB6F256DF3C9007E6978 /* Calculator.entitlements */,
 				FABEBCCD2326DCEE00CD024C /* Info.plist */,
 				FABEBCCA2326DCEE00CD024C /* LaunchScreen.storyboard */,
 				FABEBCC52326DCED00CD024C /* Main.storyboard */,
-				84A50E8D262EC29300F9A2F3 /* Utility */,
 				FABEBCC12326DCED00CD024C /* AppDelegate.swift */,
 				FA0085B32429E04E00DCC90C /* Generator.swift */,
 				FABEBCC32326DCED00CD024C /* ViewController.swift */,
