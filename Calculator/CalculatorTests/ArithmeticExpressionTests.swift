@@ -9,16 +9,7 @@
 import XCTest
 @testable import Swift_Calculator
 
-let kErrorThreshold: MaxPrecisionNumber = 1 * powl(10, -18)
-
-enum SuccessCondition {
-    case equivalent
-    case approximate(within: MaxPrecisionNumber)
-}
-
-typealias TemplateTest<I, O: UnitTestOutput> = (input: I, output: O)
-
-class ArithmeticExpressionTests : XCTestCase {
+class ArithmeticExpressionTests: UnitTestSuite {
     func testParseExpression() {
         typealias UnitTest = TemplateTest<[String], ArithmeticExpression>
         
@@ -100,15 +91,6 @@ class ArithmeticExpressionTests : XCTestCase {
                 UnitTest(["√", "2", "^", "2"], .squareRoot(.exponentiation(.number(2), .number(2)))), // This what the Google calculator says should be the order of operations
             ]),
             
-            "Inverse" : (.equivalent, [
-                UnitTest(["1/", "2"], .inverse(.number(2))),
-                UnitTest(["1/", "2", "^", "2"], .inverse(.exponentiation(.number(2), .number(2)))),
-            ]),
-            
-            "Square" : (.equivalent, [
-            
-            ]),
-            
             "Factorial" : (.equivalent, [
                 UnitTest(["2", "!"], .factorial(.number(2))),
                 UnitTest(["-", "3", "!"], .negation(.factorial(.number(3)))),
@@ -128,9 +110,7 @@ class ArithmeticExpressionTests : XCTestCase {
             ]),
         ]
         
-        evaluateTestCaseSuite(testCaseSuite, using: { input in
-            return Generator().startGenerator(with: input).value
-        })
+        evaluateTestCaseSuite(testCaseSuite, using: { Generator().startGenerator(with: $0).value })
     }
     
     func testArithmeticExpressionEvaluate() {
@@ -508,24 +488,6 @@ class ArithmeticExpressionTests : XCTestCase {
             ]),
         ]
         
-        evaluateTestCaseSuite(testCaseSuite, using: { input in
-            return input.evaluate()
-        })
-    }
-    
-    func evaluateTestCaseSuite<I, O: UnitTestOutput>(_ testCaseSuite: [String : (SuccessCondition, [TemplateTest<I, O>])], using outputClosure: (I) -> O) {
-        for (section, (condition, testCases)) in testCaseSuite {
-            for (index, testCase) in testCases.enumerated() {
-                let output = outputClosure(testCase.input)
-                
-                switch condition {
-                case .approximate(within: let threshold):
-                    let outputError = output |-| testCase.output
-                    XCTAssert(outputError.isNaN() && output == testCase.output || outputError.isPositive() && outputError <= threshold, String(format: "Test Case \(index + 1)/\(testCases.count) in '\(section)' Failed.\nExpected: \(testCase.output),\n\t  Saw: \(outputError) for \(output)"))
-                case .equivalent:
-                    XCTAssert(output == testCase.output || output.isNaN() && testCase.output.isNaN(), String(format: "Test Case \(index + 1)/\(testCases.count) in '\(section)' Failed.\nExpected: \(testCase.output),\n\t  Saw: \(output)"))
-                }
-            }
-        }
+        evaluateTestCaseSuite(testCaseSuite, using: { $0.evaluate() })
     }
 }

@@ -63,7 +63,15 @@ class ViewModel {
         }
     }
     
-    private var expressionElements: [String] = ["0"] {
+    private var valueStack: Stack<MaxPrecisionNumber> = Stack(from: [0])
+    private var currentValue: MaxPrecisionNumber = 0 {
+        didSet {
+            currentValueSubject.onNext(valueStack.peek() ?? currentValue)
+        }
+    }
+    
+    private var lastMappedElements: ExpressionList = ["0"]
+    private var expressionElements: ExpressionList = ["0"] {
         didSet {
             if expressionElements.isEmpty {
                 return
@@ -71,29 +79,37 @@ class ViewModel {
             
             expressionTextSubject.onNext(expressionElements.toExpressionString())
             
-            if parenBalance == 0 {
-                let elements: [String] = expressionElements.map({ element in
-                    switch element {
-                    case Variable.memory.rawValue:
-                        return String(memory)
-                    case Variable.answer.rawValue:
+            var mappedElements: [String] = expressionElements.map({ element in
+                switch Variable(rawValue: element) {
+                case .some(let variable):
+                    switch variable {
+                    case .answer:
                         return String(answer)
-                    default:
-                        return element
+                    case .memory:
+                        return String(memory)
                     }
-                })
-
-                currentValue = generator.startGenerator(with: elements).value.evaluate()
-                return
-            }
+                case .none:
+                    return element
+                }
+            })
             
-            currentValue = .nan
-        }
-    }
-    
-    private var currentValue: MaxPrecisionNumber = 0 {
-        didSet {
-            currentValueSubject.onNext(currentValue)
+            // Soft balance the parentheses so that users can preview the current value
+            mappedElements += Array(repeating: Button.parenthesis(.close).rawValue, count: parenBalance)
+            let nextValue = generator.startGenerator(with: mappedElements).value.evaluate()
+            
+            let mappedExpressionString = mappedElements.toExpressionString()
+            let lastMappedExpressionString = lastMappedElements.toExpressionString()
+            
+            if mappedExpressionString == "0" {
+                valueStack = Stack<MaxPrecisionNumber>(from: [0])
+            } else if !currentValue.isNaN && mappedExpressionString.count < lastMappedExpressionString.count {
+                valueStack.pop()
+            } else if !nextValue.isNaN && mappedExpressionString.count >= lastMappedExpressionString.count && mappedExpressionString != lastMappedExpressionString {
+                valueStack.push(nextValue)
+            }
+                           
+            currentValue = nextValue
+            lastMappedElements = mappedElements
         }
     }
     
@@ -118,7 +134,7 @@ class ViewModel {
         self.bag = bag
     }
     
-    func addExpressionElement(from button: Button) {
+    private func addExpressionElement(from button: Button) {
         guard let lastElement = expressionElements.last else {
             return
         }
@@ -127,15 +143,16 @@ class ViewModel {
         
         switch (button, lastExpressionState) {
         case (.digit(_), .zero), (.parenthesis(.open), .zero), (.function(.left(_)), .zero), (.variable(_), .zero):
-            expressionElements[lastElementIndex] = button.rawValue()
+            expressionElements[lastElementIndex] = button.rawValue
         case (.digit(_), .properNumber), (.digit(_), .modifiedNumber):
-            expressionElements[lastElementIndex] = lastElement == "0" ? lastElement : lastElement + button.rawValue()
+            expressionElements[lastElementIndex] = lastElement == "0" ? lastElement : lastElement + button.rawValue
         case (.modifier(.decimal), .properNumber):
-            expressionElements[lastElementIndex] = lastElement + button.rawValue()
+            expressionElements[lastElementIndex] = lastElement + button.rawValue
         case (.modifier(.decimal), .openParenthesis), (.modifier(.decimal), .leftFunction), (.modifier(.decimal), .middleFunction):
-            expressionElements += ["0" + button.rawValue()]
+            expressionElements += ["0"]
+            expressionElements += [button.rawValue]
         default:
-            expressionElements += [button.rawValue()]
+            expressionElements += [button.rawValue]
         }
     }
 }
@@ -163,6 +180,13 @@ extension ViewModel {
                 default:
                     self.modifiedButtonPressSubject.onNext(pressedButton)
                 }
+            case .convenience(let convenience):
+                switch convenience {
+                case .fraction:
+                    simulate(pressedButtonCombo: [.parenthesis(.open), .digit(.one), .function(.middle(.divide))])
+                case .square:
+                    simulate(pressedButtonCombo: [.function(.middle(.exponent)), .digit(.two)])
+                }
             case .other(let other):
                 switch other {
                 case .alternate:
@@ -172,10 +196,10 @@ extension ViewModel {
                 case .delete:
                     self.goToDelete()
                 case .equal:
-                    self.answer = self.currentValue
+                    self.answer = self.valueStack.peek() ?? currentValue
                     self.expressionElements = self.expressionElements + []
                 case .set:
-                    self.memory = self.currentValue
+                    self.memory = self.valueStack.peek() ?? currentValue
                     self.expressionElements = self.expressionElements + []
                 }
             default:
@@ -184,6 +208,22 @@ extension ViewModel {
         }).disposed(by: bag)
         
         goToZero()
+    }
+    
+    func simulate(pressedButtonCombo: [Button]) {
+        guard let firstButton = pressedButtonCombo.first else {
+            return
+        }
+        
+        let lastExpressionElements = expressionElements
+        
+        modifiedButtonPressSubject.onNext(firstButton)
+        
+        if expressionElements != lastExpressionElements {
+            for pressedButton in pressedButtonCombo.dropFirst() {
+                modifiedButtonPressSubject.onNext(pressedButton)
+            }
+        }
     }
     
     func goToZero() {
@@ -420,17 +460,15 @@ extension ViewModel {
         if let lastElement = expressionElements.last, lastElement.isOpenParen() || lastElement.isCloseParen() {
             parenBalance += lastElement.isCloseParen() ? 1 : -1
         }
-        
-        var lastElement = expressionElements.removeLast()
-                        
-        if lastElement.isNumber() && lastElement.count > 1 {
+
+        if var lastElement = expressionElements.last, lastElement.isNumber() && lastElement.count > 1 {
             lastElement.removeLast(1)
             
             if let lastCharacter = lastElement.last {
-                expressionElements += [lastElement]
+                expressionElements[expressionElements.count - 1] = lastElement
                 
                 switch String(lastCharacter) {
-                case Button.modifier(.decimal).rawValue():
+                case Button.modifier(.decimal).rawValue:
                     goToModifiedNumber()
                 default:
                     goToProperNumber()
@@ -439,6 +477,8 @@ extension ViewModel {
                 return
             }
         }
+        
+        expressionElements.removeLast(1)
         
         guard let currentExpression = expressionElements.last, expressionElements != ["0"] else {
             goToZero()

@@ -13,6 +13,10 @@ extension String : UnitTestOutput {
         return false
     }
     
+    func isEmpty() -> Bool {
+        return self == ""
+    }
+    
     func isPositive() -> Bool {
         return false
     }

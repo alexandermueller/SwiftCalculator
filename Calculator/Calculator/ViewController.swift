@@ -56,15 +56,15 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
                                                    [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)) ],
                                                    [       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)) ]].reversed()
             
-    private let alternateButtonsLayout: [[Button]] = [[  .other(.alternate),   .variable(.answer),     .variable(.memory),               .other(.delete) ],
-                                                      [ .parenthesis(.open), .parenthesis(.close), .function(.left(.inv)),    .function(.right(.square)) ],
-                                                      [      .digit(.seven),       .digit(.eight),          .digit(.nine),   .function(.middle(.modulo)) ],
-                                                      [       .digit(.four),        .digit(.five),           .digit(.six), .function(.right(.factorial)) ],
-                                                      [        .digit(.one),         .digit(.two),         .digit(.three),        .function(.left(.abs)) ],
-                                                      [       .digit(.zero),  .modifier(.decimal),           .other(.set),        .function(.left(.sum)) ]].reversed()
+    private let alternateButtonsLayout: [[Button]] = [[  .other(.alternate),   .variable(.answer),      .variable(.memory),               .other(.delete) ],
+                                                      [ .parenthesis(.open), .parenthesis(.close), .convenience(.fraction),         .convenience(.square) ],
+                                                      [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.modulo)) ],
+                                                      [       .digit(.four),        .digit(.five),            .digit(.six), .function(.right(.factorial)) ],
+                                                      [        .digit(.one),         .digit(.two),          .digit(.three),        .function(.left(.abs)) ],
+                                                      [       .digit(.zero),  .modifier(.decimal),            .other(.set),        .function(.left(.sum)) ]].reversed()
     
-    private let fullButtonsLayout: [[Button]] = [[  .variable(.answer),   .variable(.memory),            .other(.set),               .other(.delete),        .function(.left(.inv)) ],
-                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)),    .function(.right(.square)) ],
+    private let fullButtonsLayout: [[Button]] = [[  .variable(.answer),   .variable(.memory),            .other(.set),               .other(.delete),       .convenience(.fraction) ],
+                                                 [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)),         .convenience(.square) ],
                                                  [      .digit(.seven),       .digit(.eight),           .digit(.nine),   .function(.middle(.divide)),   .function(.middle(.modulo)) ],
                                                  [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)), .function(.right(.factorial)) ],
                                                  [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)),        .function(.left(.abs)) ],
@@ -99,8 +99,8 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
                 for buttonType in row {
                     let button = UIButton()
                     
-                    button.setTitle(buttonType.buttonDisplayValue(), for: .normal)
-                    button.setTitle(buttonType.rawValue(), for: .reserved)
+                    button.setTitle(buttonType.buttonDisplayValue, for: .normal)
+                    button.setTitle(buttonType.rawValue, for: .reserved)
                     button.backgroundColor = kInactiveButtonColor
                     button.setTitleColor(layout == alternateButtonsLayout && buttonType == .other(.alternate) ? kActiveButtonColor : .white, for: .normal)
                     button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)

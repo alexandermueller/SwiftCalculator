@@ -33,15 +33,14 @@ enum Parenthesis: String, CaseIterable {
 enum Left: String, CaseIterable {
     case negate = "-"
     case sqrt = "√"
-    case inv = "1/"
     case abs = "~"
     case sum = "∑"
     
-    func buttonDisplayValue() -> String {
+    var buttonDisplayValue: String {
         let value = self.rawValue
         
         switch self {
-        case .inv, .abs:
+        case .abs:
             return "\(value)x"
         case .sum:
             return "\(value)i"
@@ -60,7 +59,7 @@ enum Middle: String, CaseIterable {
     case exponent = "^"
     case root = "*√"
     
-    func buttonDisplayValue() -> String {
+    var buttonDisplayValue: String {
         let value = self.rawValue
         
         switch self {
@@ -73,17 +72,14 @@ enum Middle: String, CaseIterable {
 }
 
 enum Right: String, CaseIterable {
-    case square = "^2"
     case factorial = "!"
     
-    func buttonDisplayValue() -> String {
+    var buttonDisplayValue: String {
         let value = self.rawValue
         
         switch self {
         case .factorial:
             return "i\(value)"
-        case .square:
-            return "x\(value)"
         }
     }
 }
@@ -93,23 +89,31 @@ enum Function: Equatable {
     case middle(Middle)
     case right(Right)
     
-    // TODO: This needs a unit test to ensure that all the cases are accounted for.
-    static func from(rawValue: String) -> Function? {
-        if let left = Left(rawValue: rawValue) {
-            return .left(left)
-        } else if let middle = Middle(rawValue: rawValue) {
-            return .middle(middle)
-        } else if let right = Right(rawValue: rawValue) {
-            return .right(right)
-        }
+    static var allCases: [Function] {
+        var functions: [Function] = []
         
-        return nil
+        functions += Left.allCases.map({ Function.left($0) })
+        functions += Middle.allCases.map({ Function.middle($0) })
+        functions += Right.allCases.map({ Function.right($0) })
+        
+        return functions
+    }
+    
+    var buttonDisplayValue: String {
+        switch self {
+        case .left(let function):
+            return function.buttonDisplayValue
+        case .middle(let function):
+            return function.buttonDisplayValue
+        case .right(let function):
+            return function.buttonDisplayValue
+        }
     }
     
     // This is important, as 2^3^2 = 2^(3^2) and 2*√2*√10000 = √(√10000)
     // That's why we need to mark these functions as greedy, otherwise it would end up
     // like 2^3^2 = (2^3)^2 and 2*√2*√10000 = 1000^(1/√2), which is incorrect.
-    func isGreedy() -> Bool {
+    var isGreedy: Bool {
         return [.middle(.exponent), .middle(.root)].contains(self)
     }
     
@@ -118,19 +122,19 @@ enum Function: Equatable {
      *  1. factorial
      *  2. exponent
      *  3. root
-     *  4. sqrt, inv, square
+     *  4. sqrt
      *  5. negate, multiply, divide
      *  6. modulo
      *  7. add, subtract
      *  ∞. default level
      **/
-    func rank() -> Int {
+    var rank: Int {
         switch self {
         case .left(let function):
             switch function {
             case .negate:
                 return 5
-            case .sqrt, .inv:
+            case .sqrt:
                 return 4
             case .abs, .sum:
                 return 0
@@ -150,15 +154,13 @@ enum Function: Equatable {
             }
         case .right(let function):
             switch function {
-            case .square:
-                return 4
             case .factorial:
                 return 1
             }
         }
     }
     
-    func rawValue() -> String {
+    var rawValue: String {
         switch self {
         case .left(let function):
             return function.rawValue
@@ -169,21 +171,27 @@ enum Function: Equatable {
         }
     }
     
-    func buttonDisplayValue() -> String {
-        switch self {
-        case .left(let function):
-            return function.buttonDisplayValue()
-        case .middle(let function):
-            return function.buttonDisplayValue()
-        case .right(let function):
-            return function.buttonDisplayValue()
+    static func from(rawValue: String) -> Function? {
+        if let left = Left(rawValue: rawValue) {
+            return .left(left)
+        } else if let middle = Middle(rawValue: rawValue) {
+            return .middle(middle)
+        } else if let right = Right(rawValue: rawValue) {
+            return .right(right)
         }
+        
+        return nil
     }
 }
 
 enum Variable: String, CaseIterable {
     case answer = "ANS"
     case memory = "MEM"
+}
+
+enum Convenience: String, CaseIterable {
+    case square = "x^2"
+    case fraction = "1/x"
 }
 
 enum Other: String, CaseIterable {
@@ -200,9 +208,51 @@ enum Button: Equatable {
     case parenthesis(Parenthesis)
     case function(Function)
     case variable(Variable)
+    case convenience(Convenience)
     case other(Other)
+    
+    static var allCases: [Button] {
+        var buttons: [Button] = []
         
-    // TDOD: This needs a unit test to ensure that all the types have been accounted for.
+        buttons += Digit.allCases.map({ Button.digit($0) })
+        buttons += Modifier.allCases.map({ Button.modifier($0) })
+        buttons += Parenthesis.allCases.map({ Button.parenthesis($0) })
+        buttons += Function.allCases.map({ Button.function($0) })
+        buttons += Variable.allCases.map({ Button.variable($0) })
+        buttons += Convenience.allCases.map({ Button.convenience($0) })
+        buttons += Other.allCases.map({ Button.other($0) })
+        
+        return buttons
+    }
+    
+    var buttonDisplayValue: String {
+        switch self {
+        case .function(let button):
+            return button.buttonDisplayValue
+        default:
+            return self.rawValue
+        }
+    }
+    
+    var rawValue: String {
+        switch self {
+        case .digit(let button):
+            return button.rawValue
+        case .modifier(let button):
+            return button.rawValue
+        case .parenthesis(let button):
+            return button.rawValue
+        case .function(let button):
+            return button.rawValue
+        case .variable(let button):
+            return button.rawValue
+        case .convenience(let button):
+            return button.rawValue
+        case .other(let button):
+            return button.rawValue
+        }
+    }
+    
     static func from(rawValue: String) -> Button? {
         if let digit = Digit(rawValue: rawValue) {
             return .digit(digit)
@@ -214,36 +264,12 @@ enum Button: Equatable {
             return .function(function)
         } else if let variable = Variable(rawValue: rawValue) {
             return .variable(variable)
+        } else if let convenience = Convenience(rawValue: rawValue) {
+            return .convenience(convenience)
         } else if let other = Other(rawValue: rawValue) {
             return .other(other)
         }
         
         return nil
-    }
-    
-    func rawValue() -> String {
-        switch self {
-        case .digit(let button):
-            return button.rawValue
-        case .modifier(let button):
-            return button.rawValue
-        case .parenthesis(let button):
-            return button.rawValue
-        case .function(let button):
-            return button.rawValue()
-        case .variable(let button):
-            return button.rawValue
-        case .other(let button):
-            return button.rawValue
-        }
-    }
-    
-    func buttonDisplayValue() -> String {
-        switch self {
-        case .function(let button):
-            return button.buttonDisplayValue()
-        default:
-            return self.rawValue()
-        }
     }
 }
