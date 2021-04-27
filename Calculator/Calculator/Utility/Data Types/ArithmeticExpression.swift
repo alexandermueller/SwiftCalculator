@@ -28,44 +28,6 @@ indirect enum ArithmeticExpression : Equatable {
     case empty
     case error
     
-    static func from(function: Function, leftValue: ArithmeticExpression = .empty, rightValue: ArithmeticExpression = .empty) -> ArithmeticExpression {
-        switch function {
-        case .left(let leftHandFunction):
-            switch leftHandFunction {
-            case .negate:
-                return .negation(rightValue)
-            case .sqrt:
-                return .squareRoot(rightValue)
-            case .abs:
-                return .absoluteValue(rightValue)
-            case .sum:
-                return .summation(rightValue)
-            }
-        case .middle(let middleFunction):
-            switch middleFunction {
-            case .add:
-                return .addition(leftValue, rightValue)
-            case .subtract:
-                return .subtraction(leftValue, rightValue)
-            case .modulo:
-                return .modulo(leftValue, rightValue)
-            case .multiply:
-                return .multiplication(leftValue, rightValue)
-            case .divide:
-                return .division(leftValue, rightValue)
-            case .exponent:
-                return .exponentiation(leftValue, rightValue)
-            case .root:
-                return .root(leftValue, rightValue)
-            }
-        case .right(let rightHandFunction):
-            switch rightHandFunction {
-            case .factorial:
-                return .factorial(leftValue)
-            }
-        }
-    }
-    
     func evaluate() -> MaxPrecisionNumber {
         switch self {
         case .number(let value):
@@ -131,6 +93,44 @@ indirect enum ArithmeticExpression : Equatable {
             return .nan
         case .empty, .error:
             return .nan
+        }
+    }
+    
+    static func from(function: Function, leftValue: ArithmeticExpression = .empty, rightValue: ArithmeticExpression = .empty) -> ArithmeticExpression {
+        switch function {
+        case .left(let leftHandFunction):
+            switch leftHandFunction {
+            case .negate:
+                return .negation(rightValue)
+            case .sqrt:
+                return .squareRoot(rightValue)
+            case .abs:
+                return .absoluteValue(rightValue)
+            case .sum:
+                return .summation(rightValue)
+            }
+        case .middle(let middleFunction):
+            switch middleFunction {
+            case .add:
+                return .addition(leftValue, rightValue)
+            case .subtract:
+                return .subtraction(leftValue, rightValue)
+            case .modulo:
+                return .modulo(leftValue, rightValue)
+            case .multiply:
+                return .multiplication(leftValue, rightValue)
+            case .divide:
+                return .division(leftValue, rightValue)
+            case .exponent:
+                return .exponentiation(leftValue, rightValue)
+            case .root:
+                return .root(leftValue, rightValue)
+            }
+        case .right(let rightHandFunction):
+            switch rightHandFunction {
+            case .factorial:
+                return .factorial(leftValue)
+            }
         }
     }
 }

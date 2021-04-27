@@ -19,10 +19,17 @@ enum SuccessCondition {
 typealias TemplateTest<I, O: UnitTestOutput> = (input: I, output: O)
 
 class UnitTestSuite : XCTestCase {
+    func testCasesEvaluateNonNilOrEmpty<I, O: UnitTestOutput>(_ testCases: [I], using outputClosure: (I) -> O) {
+        for input in testCases {
+            let output = outputClosure(input)
+            XCTAssert(!output.isNaN() && !output.isEmpty(), "Test Case For Input \"\(input)\" Failed.\nSaw \"\(output)\".")
+        }
+    }
+    
     func evaluateTestCases<I, O: UnitTestOutput>(_ testCases: [TemplateTest<I, O>], using outputClosure: (I) -> O) {
         for testCase in testCases {
             let output = outputClosure(testCase.input)
-            XCTAssert(output == testCase.output || output.isNaN() && testCase.output.isNaN(), "Test Case \(testCase) Failed.")
+            XCTAssert(output == testCase.output || output.isNaN() && testCase.output.isNaN(), "Test Case For Input \(testCase) Failed.\nExpected: \(testCase.output),\n\t  Saw: \(output) ")
         }
     }
     

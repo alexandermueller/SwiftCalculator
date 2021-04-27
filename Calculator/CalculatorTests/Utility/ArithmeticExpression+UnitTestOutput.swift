@@ -11,7 +11,11 @@ import Foundation
 
 extension ArithmeticExpression : UnitTestOutput {
     func isNaN() -> Bool {
-        return false
+        return self == .error
+    }
+    
+    func isEmpty() -> Bool {
+        return self == .empty
     }
     
     func isPositive() -> Bool {

@@ -110,6 +110,13 @@ enum Function: Equatable {
         }
     }
     
+    // This is important, as 2^3^2 = 2^(3^2) and 2*√2*√10000 = √(√10000)
+    // That's why we need to mark these functions as greedy, otherwise it would end up
+    // like 2^3^2 = (2^3)^2 and 2*√2*√10000 = 1000^(1/√2), which is incorrect.
+    var isGreedy: Bool {
+        return [.middle(.exponent), .middle(.root)].contains(self)
+    }
+    
     /** Rank (from most important to least):
      *  0. abs, sum
      *  1. factorial
@@ -174,13 +181,6 @@ enum Function: Equatable {
         }
         
         return nil
-    }
-    
-    // This is important, as 2^3^2 = 2^(3^2) and 2*√2*√10000 = √(√10000)
-    // That's why we need to mark these functions as greedy, otherwise it would end up
-    // like 2^3^2 = (2^3)^2 and 2*√2*√10000 = 1000^(1/√2), which is incorrect.
-    var isGreedy: Bool {
-        return [.middle(.exponent), .middle(.root)].contains(self)
     }
 }
 

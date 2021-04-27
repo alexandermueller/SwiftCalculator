@@ -13,6 +13,10 @@ extension MaxPrecisionNumber : UnitTestOutput {
         return self.isNaN
     }
     
+    func isEmpty() -> Bool {
+        return false
+    }
+    
     func isPositive() -> Bool {
         return 0 <= self
     }
