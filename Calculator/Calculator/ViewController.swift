@@ -99,8 +99,8 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
                 for buttonType in row {
                     let button = UIButton()
                     
-                    button.setTitle(buttonType.buttonDisplayValue(), for: .normal)
-                    button.setTitle(buttonType.rawValue(), for: .reserved)
+                    button.setTitle(buttonType.buttonDisplayValue, for: .normal)
+                    button.setTitle(buttonType.rawValue, for: .reserved)
                     button.backgroundColor = kInactiveButtonColor
                     button.setTitleColor(layout == alternateButtonsLayout && buttonType == .other(.alternate) ? kActiveButtonColor : .white, for: .normal)
                     button.addTarget(self, action: #selector(buttonTouchDown), for: UIControl.Event.touchDown)

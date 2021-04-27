@@ -18,7 +18,7 @@ class Generator {
                 return
             }
             
-            rank = function.rank()
+            rank = function.rank
         }
     }
     
@@ -80,19 +80,19 @@ class Generator {
             case .function(let function):
                 switch function {
                 case .left(_):
-                    if rank < function.rank() {
+                    if rank < function.rank {
                         elementStack += [element]
                         break
                     }
                     
                     return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: .empty, rightValue: rightValue))
                 case .middle(_):
-                    if let previous = previousFunction, rank < function.rank() || previous == function && previous.isGreedy() {
+                    if let previous = previousFunction, rank < function.rank || previous == function && previous.isGreedy {
                         elementStack += [element]
                         break
                     }
                     
-                    let (leftValue, newElementStack) = rank == function.rank() ? goToStart() : Generator().startGenerator(with: elementStack, function: function)
+                    let (leftValue, newElementStack) = rank == function.rank ? goToStart() : Generator().startGenerator(with: elementStack, function: function)
                     elementStack = newElementStack
                     return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue, rightValue: rightValue))
                 default:

@@ -94,7 +94,7 @@ class ViewModel {
             })
             
             // Soft balance the parentheses so that users can preview the current value
-            mappedElements += Array(repeating: Button.parenthesis(.close).rawValue(), count: parenBalance)
+            mappedElements += Array(repeating: Button.parenthesis(.close).rawValue, count: parenBalance)
             let nextValue = generator.startGenerator(with: mappedElements).value.evaluate()
             
             let mappedExpressionString = mappedElements.toExpressionString()
@@ -143,16 +143,16 @@ class ViewModel {
         
         switch (button, lastExpressionState) {
         case (.digit(_), .zero), (.parenthesis(.open), .zero), (.function(.left(_)), .zero), (.variable(_), .zero):
-            expressionElements[lastElementIndex] = button.rawValue()
+            expressionElements[lastElementIndex] = button.rawValue
         case (.digit(_), .properNumber), (.digit(_), .modifiedNumber):
-            expressionElements[lastElementIndex] = lastElement == "0" ? lastElement : lastElement + button.rawValue()
+            expressionElements[lastElementIndex] = lastElement == "0" ? lastElement : lastElement + button.rawValue
         case (.modifier(.decimal), .properNumber):
-            expressionElements[lastElementIndex] = lastElement + button.rawValue()
+            expressionElements[lastElementIndex] = lastElement + button.rawValue
         case (.modifier(.decimal), .openParenthesis), (.modifier(.decimal), .leftFunction), (.modifier(.decimal), .middleFunction):
             expressionElements += ["0"]
-            expressionElements += [button.rawValue()]
+            expressionElements += [button.rawValue]
         default:
-            expressionElements += [button.rawValue()]
+            expressionElements += [button.rawValue]
         }
     }
 }
@@ -468,7 +468,7 @@ extension ViewModel {
                 expressionElements[expressionElements.count - 1] = lastElement
                 
                 switch String(lastCharacter) {
-                case Button.modifier(.decimal).rawValue():
+                case Button.modifier(.decimal).rawValue:
                     goToModifiedNumber()
                 default:
                     goToProperNumber()

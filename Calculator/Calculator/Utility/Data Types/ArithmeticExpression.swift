@@ -23,6 +23,7 @@ indirect enum ArithmeticExpression : Equatable {
     case division(ArithmeticExpression, ArithmeticExpression)
     case exponentiation(ArithmeticExpression, ArithmeticExpression)
     case root(ArithmeticExpression, ArithmeticExpression)
+    case square(ArithmeticExpression)
     case factorial(ArithmeticExpression)
     case empty
     case error
@@ -105,6 +106,8 @@ indirect enum ArithmeticExpression : Equatable {
             return sign * pow(sign * base.evaluate(), exponentValue)
         case .root(let root, let base):
             return ArithmeticExpression.exponentiation(base, .inverse(root)).evaluate()
+        case .square(let base):
+            return ArithmeticExpression.exponentiation(base, .number(2)).evaluate()
         case .factorial(let expression):
             let value = expression.evaluate()
             guard abs(value) < MaxPrecisionNumber(Int.max) else {

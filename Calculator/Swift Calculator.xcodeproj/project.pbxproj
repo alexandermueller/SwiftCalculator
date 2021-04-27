@@ -29,6 +29,8 @@
 		FABEBCE22327FA2C00CD024C /* String+Checks.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE12327FA2C00CD024C /* String+Checks.swift */; };
 		FABEBCE42327FA6000CD024C /* MaxPrecisionNumber+ToSimpleNumericString.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE32327FA6000CD024C /* MaxPrecisionNumber+ToSimpleNumericString.swift */; };
 		FABEBCE62327FB0000CD024C /* ArithmeticExpression.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABEBCE52327FB0000CD024C /* ArithmeticExpression.swift */; };
+		FAD420B226389998005E13AC /* UnitTestSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD420B126389998005E13AC /* UnitTestSuite.swift */; };
+		FAD420BD26389F87005E13AC /* ButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD420B926389F2D005E13AC /* ButtonTests.swift */; };
 		FAFA73D7234724F5004B0D1C /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFA73D6234724F5004B0D1C /* Button.swift */; };
 		FAFB7B6F2346FC260039904A /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB7B6E2346FC260039904A /* String+Helpers.swift */; };
 /* End PBXBuildFile section */
@@ -82,6 +84,8 @@
 		FABEBCE12327FA2C00CD024C /* String+Checks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Checks.swift"; sourceTree = "<group>"; };
 		FABEBCE32327FA6000CD024C /* MaxPrecisionNumber+ToSimpleNumericString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MaxPrecisionNumber+ToSimpleNumericString.swift"; sourceTree = "<group>"; };
 		FABEBCE52327FB0000CD024C /* ArithmeticExpression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArithmeticExpression.swift; sourceTree = "<group>"; };
+		FAD420B126389998005E13AC /* UnitTestSuite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UnitTestSuite.swift; path = CalculatorTests/UnitTestSuite.swift; sourceTree = SOURCE_ROOT; };
+		FAD420B926389F2D005E13AC /* ButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonTests.swift; sourceTree = "<group>"; };
 		FAFA73D6234724F5004B0D1C /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
 		FAFB7B6E2346FC260039904A /* String+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Helpers.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -138,15 +142,16 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		FA9D9AEB2484CDBF00DBD2EE /* Extensions */ = {
+		FA9D9AEB2484CDBF00DBD2EE /* Utility */ = {
 			isa = PBXGroup;
 			children = (
 				FA4A0B3524846721006060D1 /* UnitTestOutput.swift */,
 				FA4A0B33248466EE006060D1 /* String+UnitTestOutput.swift */,
 				FA4A0B3724846887006060D1 /* MaxPrecisionNumber+UnitTestOutput.swift */,
 				FA4A0B392484691F006060D1 /* ArithmeticExpression+UnitTestOutput.swift */,
+				FAD420B126389998005E13AC /* UnitTestSuite.swift */,
 			);
-			path = Extensions;
+			path = Utility;
 			sourceTree = "<group>";
 		};
 		FABEBCB52326DCED00CD024C = {
@@ -187,8 +192,9 @@
 		FABEBCD52326DCEE00CD024C /* CalculatorTests */ = {
 			isa = PBXGroup;
 			children = (
-				FA9D9AEB2484CDBF00DBD2EE /* Extensions */,
+				FA9D9AEB2484CDBF00DBD2EE /* Utility */,
 				FAA07C6C2341D27800D9E43F /* ArithmeticExpressionTests.swift */,
+				FAD420B926389F2D005E13AC /* ButtonTests.swift */,
 				FABEBCD82326DCEE00CD024C /* Info.plist */,
 			);
 			path = CalculatorTests;
@@ -325,7 +331,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA11DB72256DFB43007E6978 /* MaxPrecisionNumber.swift in Sources */,
+				FAD420B226389998005E13AC /* UnitTestSuite.swift in Sources */,
 				FA4A0B3624846721006060D1 /* UnitTestOutput.swift in Sources */,
+				FAD420BD26389F87005E13AC /* ButtonTests.swift in Sources */,
 				FA4A0B34248466EE006060D1 /* String+UnitTestOutput.swift in Sources */,
 				FA4A0B3824846887006060D1 /* MaxPrecisionNumber+UnitTestOutput.swift in Sources */,
 				FAA07C6D2341D27800D9E43F /* ArithmeticExpressionTests.swift in Sources */,
