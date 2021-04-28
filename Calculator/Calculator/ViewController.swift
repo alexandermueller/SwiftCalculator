@@ -20,7 +20,7 @@ let kViewMargin: CGFloat = 2
 let kLabelFontToHeightRatio: CGFloat = 0.33
 let kAspectRatioThreshold: CGFloat = 0.75
 
-class ViewController : UIViewController, UIPopoverPresentationControllerDelegate {
+class ViewController : UIViewController {
     private let viewModel: ViewModel
     private let buttonViewModeSubject = BehaviorSubject<ButtonViewMode>(value: .normal)
     private let memorySubject = BehaviorSubject<MaxPrecisionNumber>(value: 0)
@@ -46,8 +46,7 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
     
     private var variableViewsDict: [String : UILabel] = [:]
     
-    // TODO: - Abolish this weird split system using popovers instead of a dedicated ALT button.
-    //       - Make keyboard on macs work as input, ie delete == delete, etc etc.
+    // TODO: Make keyboard on macs work as input, ie delete == delete, etc etc.
     
     private let normalButtonsLayout: [[Button]] = [[  .other(.alternate),   .variable(.answer),      .variable(.memory),               .other(.delete) ],
                                                    [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)) ],
@@ -198,9 +197,11 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
         updateButtonLayout()
         redrawSubviews(with: CGRect(x: 0, y: 0, width: size.width, height: size.height))
     }
-    
-    // MARK: - Redrawing Functions:
-    
+}
+
+// MARK: - Redrawing Functions:
+
+extension ViewController {
     func updateButtonLayout() {
         assert(Thread.isMainThread)
         
@@ -270,9 +271,11 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
             }
         }
     }
+}
     
-    // MARK: - Button Touch Events:
-    
+// MARK: - Button Touch Events:
+
+extension ViewController {
     @objc func buttonTouchDown(sender: UIButton!) {
         sender.backgroundColor = kActiveButtonColor
     }
@@ -314,19 +317,5 @@ class ViewController : UIViewController, UIPopoverPresentationControllerDelegate
         } else if gestureRecognizer.state == .ended {
             buttonTouchUpOutside(sender: button)
         }
-    }
-    
-    // MARK: - UIPopoverPresentationControllerDelegate Implementation:
-    
-    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        return .none
-    }
-     
-    func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
-     
-    }
-     
-    func popoverPresentationControllerShouldDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) -> Bool {
-        return true
     }
 }
