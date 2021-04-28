@@ -58,7 +58,7 @@ Rank (from most important to least):
 1. factorial
 2. exponent
 3. root
-4. sqrt, inv, square
+4. sqrt
 5. negate, multiply, divide
 6. modulo
 7. add, subtract
@@ -82,7 +82,6 @@ Each function is organized by where it is found in relation to the input values 
    left |    0 |  false |       abs | Absolute Value |      ~ |     ~a | The absolute value of expression a
    left |    0 |  false |       sum |      Summation |      ∑ |     ∑i | The summation of all integers between (and including) 0 and i, given a +/- integer i
    left |    4 |  false |      sqrt |    Square Root |      √ |     √a | The square root of expression a
-   left |    4 |  false |       inv |        Inverse |     1/ |    1/a | The inverse of expression a
    left |    5 |  false |    negate |       Negation |      - |     -a | The negation of expression a
 --------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------------------------------
  middle |    2 |   true |  exponent | Exponentiation |      ^ |  a ^ b | The exponentiation of expression a to the power of expression b
@@ -94,7 +93,6 @@ Each function is organized by where it is found in relation to the input values 
  middle |    7 |  false |  subtract |    Subtraction |      – |  a – b | The subtraction of expression b from expression a
 --------+------+--------+-----------+----------------+--------+--------+-------------------------------------------------------------------------------------------
   right |    1 |  false | factorial |      Factorial |      ! |     i! | The multiplication of all integers between (and including) 0 and i, given a +/- integer i
-  right |    4 |  false |    square |         Square |     ^2 |    a^2 | The square of expression a
 ```
 
 By organizing functions into these three different classifications, one can fairly easily expand the function set to include unimplemented or completely made up functions.
@@ -108,5 +106,3 @@ Some functions are greedy, and prefer to evaluate immediately if the same functi
 - "\*√", as 2\*√2\*√10000 evaluates to 2\*√(2\*√10000), which is the same as √(√10000)
 
 Others, like left side functions, are greedy by the very definition of how these expressions are expanded (like "√") so there is no need to flag these as greedy. 
-Meanwhile, "^2" defies the "^" greediness for the moment due to it being a right side function, which evaluates from the left to the right side of the expression (ie: 3!<sub>a</sub>!<sub>b</sub> -> factorialB(factorialA(number(3))).)
-This makes implementing the correct expansion rule for "^2" difficult, so it's left as a simple shortcut that squares the result of the inner expression.
