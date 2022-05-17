@@ -273,3 +273,9 @@ enum Button: Equatable {
         return nil
     }
 }
+
+extension Button: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self.rawValue)
+    }
+}

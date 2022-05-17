@@ -11,6 +11,8 @@ import Foundation
 typealias ExpressionList = [String]
 
 extension ExpressionList {
+    static var defaultList: ExpressionList { ["0"] }
+    
     func toExpressionString() -> String {
         var expressionString = ""
         
@@ -30,5 +32,5 @@ extension ExpressionList {
         }
         
         return expressionString
-    }
+    }    
 }
