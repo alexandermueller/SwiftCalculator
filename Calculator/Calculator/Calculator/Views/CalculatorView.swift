@@ -23,18 +23,31 @@ struct TextDisplayField: View {
     let size: DisplayFieldSize
     
     var body: some View {
-        ZStack {
-            if colorScheme == .dark {
-                Color.black.edgesIgnoringSafeArea(.all)
-            } else {
-                Color.white.edgesIgnoringSafeArea(.all)
-            }
-            
-            Text(text)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-        }
+        Text(text)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .background(Color(colorScheme == .light ? .white : .black))
     }
+}
+
+struct Pressed: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(Color(configuration.isPressed ? .orange : .brown))
+            .animation(nil)
+    }
+}
+
+struct ButtonView: View {
+    let button: Button
+    let action: () -> Void
     
+    var body: some View {
+        SwiftUI.Button(action: action) {
+            Text(button.rawValue)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .buttonStyle(Pressed())
+    }
 }
 
 struct ButtonDisplayView: View {
@@ -42,17 +55,19 @@ struct ButtonDisplayView: View {
         case normal
         case alternate
     }
-        
-    @Environment(\.colorScheme) var colorScheme
     
-    let mode: Mode
+    @Environment(\.colorScheme) var colorScheme
+    @ObservedObject var viewModel: CalculatorViewModel
     
     var body: some View {
-        VStack {
-            ForEach(Array(Button.layout(for: mode)), id:\.self) { row in
-                HStack {
+        VStack(spacing: 0) {
+            ForEach(Array(Button.layout(for: viewModel.buttonDisplayViewMode)), id:\.self) { row in
+                HStack(spacing: 0) {
                     ForEach(Array(row), id: \.self) { button in
-                        Text(button.rawValue)
+                        ButtonView(button: button) {
+                            viewModel.buttonPressed = button
+                        }
+                        .foregroundColor(viewModel.buttonDisplayViewMode == .alternate && button == .other(.alternate) ? .orange : .white)
                     }
                 }
             }
@@ -62,29 +77,22 @@ struct ButtonDisplayView: View {
 
 struct CalculatorView: View {
     @Environment(\.colorScheme) var colorScheme
-    
     @ObservedObject fileprivate var viewModel: CalculatorViewModel
     
-    let kInactiveButtonColor: UIColor = .brown
-    let kActiveButtonColor: UIColor = .orange
-    let kViewMargin: CGFloat = 2
-    let kLabelFontToHeightRatio: CGFloat = 0.33
-    let kAspectRatioThreshold: CGFloat = 0.75
+    let viewMargin: CGFloat = 2
+    let labelFontToHeightRatio: CGFloat = 0.33
+    let aspectRatioThreshold: CGFloat = 0.75
     
     var body: some View {
-        ZStack {
-            if colorScheme == .light {
-                Color.black.edgesIgnoringSafeArea(.all)
-            } else {
-                Color.white.edgesIgnoringSafeArea(.all)
-            }
+        VStack(spacing: kViewMargin) {
+            TextDisplayField(text: viewModel.expressionText + "=", size: .small)
+            TextDisplayField(text: viewModel.currentValue.toSimpleNumericString(for: .fullDisplay), size: .large)
             
-            VStack(spacing: 2) {
-                TextDisplayField(text: viewModel.expressionText + "=", size: .small)
-                TextDisplayField(text: viewModel.currentValue.toSimpleNumericString(for: .fullDisplay), size: .large)
-                ButtonDisplayView(mode: viewModel.buttonDisplayViewMode)
+            VStack(spacing: 0) {
+                ButtonDisplayView(viewModel: viewModel)
             }
         }
+        .background(Color(colorScheme == .light ? .black : .white))
     }
 }
 
