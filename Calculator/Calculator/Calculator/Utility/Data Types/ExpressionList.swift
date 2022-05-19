@@ -32,5 +32,5 @@ extension ExpressionList {
         }
         
         return expressionString
-    }    
+    }
 }

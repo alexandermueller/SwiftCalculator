@@ -26,7 +26,7 @@ final class CalculatorViewModel: ObservableObject {
     }
 
     @Published var expressionText: String = "0"
-    @Published var currentValue: MaxPrecisionNumber = 0
+    @Published var displayedValue: MaxPrecisionNumber = 0
     @Published var variableValueDict: VariableValueDict = Variable.defaultVariableValueDict
     @Published var textDisplayColour: Color = .gray
     @Published var buttonDisplayViewMode: ButtonDisplayView.Mode = .normal
@@ -84,6 +84,11 @@ final class CalculatorViewModel: ObservableObject {
     private let generator = Generator()
     
     private var valueStack: Stack<MaxPrecisionNumber> = Stack(from: [0])
+    private var currentValue: MaxPrecisionNumber = 0 {
+        didSet {
+            displayedValue = valueStack.peek() ?? currentValue
+        }
+    }
     private var lastMappedElements: ExpressionList = .defaultList
     private var expressionElements: ExpressionList = .defaultList {
         didSet {

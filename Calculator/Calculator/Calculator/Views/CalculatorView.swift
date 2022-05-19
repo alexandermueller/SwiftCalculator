@@ -103,7 +103,7 @@ struct CalculatorView: View {
     var body: some View {
         VStack(spacing: viewMargin) {
             TextDisplayField(text: viewModel.expressionText + "=", size: .small)
-            TextDisplayField(text: viewModel.currentValue.toSimpleNumericString(for: .fullDisplay), size: .large)
+            TextDisplayField(text: viewModel.displayedValue.toSimpleNumericString(for: .fullDisplay), size: .large)
             
             VStack(spacing: 0) {
                 VariableDisplayView(variableValueDict: viewModel.variableValueDict)
