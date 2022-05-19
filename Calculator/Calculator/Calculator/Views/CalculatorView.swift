@@ -94,14 +94,14 @@ struct ButtonDisplayView: View {
 
 struct CalculatorView: View {
     @Environment(\.colorScheme) var colorScheme
-    @ObservedObject fileprivate var viewModel: CalculatorViewModel
+    @ObservedObject var viewModel: CalculatorViewModel
     
     let viewMargin: CGFloat = 2
     let labelFontToHeightRatio: CGFloat = 0.33
     let aspectRatioThreshold: CGFloat = 0.75
     
     var body: some View {
-        VStack(spacing: kViewMargin) {
+        VStack(spacing: viewMargin) {
             TextDisplayField(text: viewModel.expressionText + "=", size: .small)
             TextDisplayField(text: viewModel.currentValue.toSimpleNumericString(for: .fullDisplay), size: .large)
             

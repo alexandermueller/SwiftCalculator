@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import RxSwift
 
 typealias GeneratorReturnType = (value: ArithmeticExpression, newElementStack: [String])
 
@@ -24,7 +23,6 @@ class Generator {
     
     private var rank: Int = .max
     private var elementStack: [String] = []
-    private let bag = DisposeBag()
     
     // MARK: - State Machine Functions:
     
