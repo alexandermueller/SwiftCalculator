@@ -10,6 +10,8 @@ import Combine
 import SwiftUI
 import XCTest
 
+typealias VariableValueDict = [Variable : MaxPrecisionNumber]
+
 final class CalculatorViewModel: ObservableObject {
     enum ExpressionState: Equatable {
         case zero
@@ -25,8 +27,7 @@ final class CalculatorViewModel: ObservableObject {
 
     @Published var expressionText: String = "0"
     @Published var currentValue: MaxPrecisionNumber = 0
-    @Published var memory: MaxPrecisionNumber = 0
-    @Published var answer: MaxPrecisionNumber = 0
+    @Published var variableValueDict: VariableValueDict = Variable.defaultVariableValueDict
     @Published var textDisplayColour: Color = .gray
     @Published var buttonDisplayViewMode: ButtonDisplayView.Mode = .normal
     @Published var buttonPressed: Button? {
@@ -62,10 +63,10 @@ final class CalculatorViewModel: ObservableObject {
                 case .delete:
                     goToDelete()
                 case .equal:
-                    answer = valueStack.peek() ?? currentValue
+                    variableValueDict[.answer] = valueStack.peek() ?? currentValue
                     expressionElements = expressionElements + []
                 case .set:
-                    memory = valueStack.peek() ?? currentValue
+                    variableValueDict[.memory] = valueStack.peek() ?? currentValue
                     expressionElements = expressionElements + []
                 }
             default:
@@ -93,12 +94,7 @@ final class CalculatorViewModel: ObservableObject {
             var mappedElements: [String] = expressionElements.map({ element in
                 switch Variable(rawValue: element) {
                 case .some(let variable):
-                    switch variable {
-                    case .answer:
-                        return String(answer)
-                    case .memory:
-                        return String(memory)
-                    }
+                    return String(variableValueDict[variable, default: 0])
                 case .none:
                     return element
                 }
@@ -457,5 +453,19 @@ extension CalculatorViewModel {
         default:
             return
         }
+    }
+}
+
+// MARK: - Variable Extension
+
+extension Variable {
+    static var defaultVariableValueDict: VariableValueDict {
+        var variableValueDict: VariableValueDict = [:]
+        
+        for variable in allCases {
+            variableValueDict[variable] = 0
+        }
+        
+        return variableValueDict
     }
 }

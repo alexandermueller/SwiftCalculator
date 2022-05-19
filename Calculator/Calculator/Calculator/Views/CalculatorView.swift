@@ -9,6 +9,7 @@
 import SwiftUI
 
 typealias ButtonLayout = [[Button]]
+typealias VariableValuePair = (variable: Variable, value: MaxPrecisionNumber)
 
 struct TextDisplayField: View {
     enum DisplayFieldSize {
@@ -26,6 +27,22 @@ struct TextDisplayField: View {
         Text(text)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .background(Color(colorScheme == .light ? .white : .black))
+    }
+}
+
+struct VariableDisplayView: View {
+    let variableValueDict: VariableValueDict
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(variableValueDict.sortedKeyValuePairArray, id:\.variable.rawValue) { (variable, value) in
+                Text(variable.rawValue)
+                Text("= \(value.toSimpleNumericString(for: .buttonDisplay)) ")
+            }
+            .frame(maxWidth: .infinity)
+            .foregroundColor(.orange)
+        }
+        .background(Color(.brown))
     }
 }
 
@@ -61,9 +78,9 @@ struct ButtonDisplayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            ForEach(Array(Button.layout(for: viewModel.buttonDisplayViewMode)), id:\.self) { row in
+            ForEach(Button.layout(for: viewModel.buttonDisplayViewMode), id:\.self) { row in
                 HStack(spacing: 0) {
-                    ForEach(Array(row), id: \.self) { button in
+                    ForEach(row, id: \.self) { button in
                         ButtonView(button: button) {
                             viewModel.buttonPressed = button
                         }
@@ -89,6 +106,7 @@ struct CalculatorView: View {
             TextDisplayField(text: viewModel.currentValue.toSimpleNumericString(for: .fullDisplay), size: .large)
             
             VStack(spacing: 0) {
+                VariableDisplayView(variableValueDict: viewModel.variableValueDict)
                 ButtonDisplayView(viewModel: viewModel)
             }
         }
@@ -142,5 +160,11 @@ private extension ButtonLayout {
          [       .digit(.four),        .digit(.five),            .digit(.six), .function(.middle(.multiply)), .function(.right(.factorial)) ],
          [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)),        .function(.left(.abs)) ],
          [       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)),        .function(.left(.sum)) ]]
+    }
+}
+
+extension VariableValueDict {
+    var sortedKeyValuePairArray: [VariableValuePair] {
+        Variable.allCases.map { ($0, self[$0, default: 0]) }
     }
 }
