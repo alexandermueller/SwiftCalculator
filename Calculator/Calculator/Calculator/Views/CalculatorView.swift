@@ -125,9 +125,9 @@ struct CalculatorView: View {
             .lineLimit(1)
             .minimumScaleFactor(0.01)
             .background(theme.viewSeparatorColour)
-            .environmentObject(theme)
         }
         .ignoresSafeArea()
+        .environmentObject(theme)
     }
     
     private func arithmeticExpressionTextDisplayFieldHeight(for geometry: GeometryProxy) -> CGFloat {
