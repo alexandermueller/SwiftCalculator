@@ -207,7 +207,7 @@ extension CalculatorViewModel {
                 return
             }
             
-            textDisplayColour = .black
+            textDisplayColour = Color(light: .black, dark: .white)
         }
     }
     

@@ -12,49 +12,54 @@ typealias ButtonLayout = [[Button]]
 typealias VariableValuePair = (variable: Variable, value: MaxPrecisionNumber)
 
 struct TextDisplayField: View {
-    enum DisplayFieldSize {
-        case large
-        case medium
-        case small
-    }
-    
-    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var theme: Theme
     
     let text: String
-    let size: DisplayFieldSize
     
     var body: some View {
-        Text(text)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .background(Color(colorScheme == .light ? .white : .black))
+        GeometryReader { geometry in
+            Text(text)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                .font(.system(for: geometry))
+                .multilineTextAlignment(.trailing)
+        }
+        .background(theme.textDisplayFieldBackgroundColour)
     }
 }
 
 struct VariableDisplayView: View {
+    @EnvironmentObject var theme: Theme
+
     let variableValueDict: VariableValueDict
     
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(variableValueDict.sortedKeyValuePairArray, id:\.variable.rawValue) { (variable, value) in
-                Text(variable.rawValue)
-                Text("= \(value.toSimpleNumericString(for: .buttonDisplay)) ")
+        GeometryReader { geometry in
+            HStack(spacing: 0) {
+                ForEach(variableValueDict.sortedKeyValuePairArray, id:\.variable.rawValue) { (variable, value) in
+                    Text(variable.rawValue)
+                    Text("= \(value.toSimpleNumericString(for: .buttonDisplay)) ")
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(theme.primaryColour)
+                .font(.system(for: geometry))
             }
-            .frame(maxWidth: .infinity)
-            .foregroundColor(.orange)
         }
-        .background(Color(.brown))
     }
 }
 
 struct Pressed: ButtonStyle {
+    let theme: Theme
+    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .background(Color(configuration.isPressed ? .orange : .brown))
+            .background(configuration.isPressed ? theme.accentColour : theme.primaryColour)
             .animation(nil)
     }
 }
 
 struct ButtonView: View {
+    @EnvironmentObject var theme: Theme
+    
     let button: Button
     let action: () -> Void
     
@@ -63,7 +68,7 @@ struct ButtonView: View {
             Text(button.rawValue)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .buttonStyle(Pressed())
+        .buttonStyle(Pressed(theme: theme))
     }
 }
 
@@ -73,7 +78,7 @@ struct ButtonDisplayView: View {
         case alternate
     }
     
-    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var theme: Theme
     @ObservedObject var viewModel: CalculatorViewModel
     
     var body: some View {
@@ -81,10 +86,13 @@ struct ButtonDisplayView: View {
             ForEach(Button.layout(for: viewModel.buttonDisplayViewMode), id:\.self) { row in
                 HStack(spacing: 0) {
                     ForEach(row, id: \.self) { button in
-                        ButtonView(button: button) {
-                            viewModel.buttonPressed = button
+                        GeometryReader { geometry in
+                            ButtonView(button: button) {
+                                viewModel.buttonPressed = button
+                            }
+                            .font(.system(for: geometry))
+                            .foregroundColor(viewModel.buttonDisplayViewMode == .alternate && button == .other(.alternate) ? theme.accentColour : theme.buttonForegroundColour)
                         }
-                        .foregroundColor(viewModel.buttonDisplayViewMode == .alternate && button == .other(.alternate) ? .orange : .white)
                     }
                 }
             }
@@ -93,32 +101,53 @@ struct ButtonDisplayView: View {
 }
 
 struct CalculatorView: View {
-    @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: CalculatorViewModel
+    @ObservedObject var theme: Theme
     
-    let viewMargin: CGFloat = 2
-    let labelFontToHeightRatio: CGFloat = 0.33
     let aspectRatioThreshold: CGFloat = 0.75
     
     var body: some View {
-        VStack(spacing: viewMargin) {
-            TextDisplayField(text: viewModel.expressionText + "=", size: .small)
-            TextDisplayField(text: viewModel.displayedValue.toSimpleNumericString(for: .fullDisplay), size: .large)
-            
-            VStack(spacing: 0) {
-                VariableDisplayView(variableValueDict: viewModel.variableValueDict)
-                ButtonDisplayView(viewModel: viewModel)
+        GeometryReader { geometry in
+            VStack(spacing: 2) {
+                TextDisplayField(text: viewModel.expressionText + "=")
+                    .frame(height: arithmeticExpressionTextDisplayFieldHeight(for: geometry))
+                    .foregroundColor(viewModel.textDisplayColour)
+                TextDisplayField(text: viewModel.displayedValue.toSimpleNumericString(for: .fullDisplay))
+                    .foregroundColor(theme.primaryColour)
+                VStack(spacing: 0) {
+                    VariableDisplayView(variableValueDict: viewModel.variableValueDict)
+                        .frame(height: buttonViewHeight(for: geometry))
+                        .foregroundColor(theme.accentColour)
+                    ButtonDisplayView(viewModel: viewModel)
+                        .frame(height: buttonDisplayViewHeight(for: geometry))
+                }
             }
+            .lineLimit(1)
+            .minimumScaleFactor(0.01)
+            .background(theme.viewSeparatorColour)
+            .environmentObject(theme)
         }
-        .background(Color(colorScheme == .light ? .black : .white))
+        .ignoresSafeArea()
+    }
+    
+    private func arithmeticExpressionTextDisplayFieldHeight(for geometry: GeometryProxy) -> CGFloat {
+        buttonViewHeight(for: geometry) * 1.5
+    }
+    
+    private func buttonDisplayViewHeight(for geometry: GeometryProxy) -> CGFloat {
+        geometry.size.height / 2.0
+    }
+    
+    private func buttonViewHeight(for geometry: GeometryProxy) -> CGFloat {
+        buttonDisplayViewHeight(for: geometry) / CGFloat(ButtonLayout.fullButtonsLayout.count)
     }
 }
 
 struct CalculatorView_Previews: PreviewProvider {
     static var previews: some View {
-        CalculatorView(viewModel: CalculatorViewModel())
+        CalculatorView(viewModel: CalculatorViewModel(), theme: Theme())
             .preferredColorScheme(.dark)
-        CalculatorView(viewModel: CalculatorViewModel())
+        CalculatorView(viewModel: CalculatorViewModel(), theme: Theme())
             .preferredColorScheme(.light)
     }
 }
@@ -166,5 +195,11 @@ private extension ButtonLayout {
 extension VariableValueDict {
     var sortedKeyValuePairArray: [VariableValuePair] {
         Variable.allCases.map { ($0, self[$0, default: 0]) }
+    }
+}
+
+private extension Font {
+    static func system(for geometry: GeometryProxy) -> Font {
+        .system(size: geometry.size.height * Theme.labelFontToHeightRatio)
     }
 }
