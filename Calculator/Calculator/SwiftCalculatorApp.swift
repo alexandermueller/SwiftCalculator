@@ -17,6 +17,7 @@ final class Theme: ObservableObject {
     @Published var buttonForegroundColour = Color(light: .white, dark: .white)
     
     static var labelFontToHeightRatio: CGFloat = 0.33
+    static var defaultAnimationDuration = 0.5
 }
 
 @main

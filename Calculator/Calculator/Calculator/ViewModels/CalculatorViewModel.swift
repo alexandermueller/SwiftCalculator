@@ -6,10 +6,9 @@
 //  Copyright © 2022 Alexander Mueller. All rights reserved.
 //
 
-import Combine
 import SwiftUI
-import XCTest
 
+typealias ButtonMappings = [Button : Button]
 typealias VariableValueDict = [Variable : MaxPrecisionNumber]
 
 final class CalculatorViewModel: ObservableObject {
@@ -30,6 +29,12 @@ final class CalculatorViewModel: ObservableObject {
     @Published var variableValueDict: VariableValueDict = Variable.defaultVariableValueDict
     @Published var textDisplayColour: Color = .gray
     @Published var buttonDisplayViewMode: ButtonDisplayView.Mode = .normal
+    @Published var buttonLongPressed: Button? {
+        didSet {
+            guard let button = buttonLongPressed, let mapping = button.longPressMapping else { return }
+            buttonPressed = mapping
+        }
+    }
     @Published var buttonPressed: Button? {
         didSet {
             switch buttonPressed {
@@ -460,6 +465,23 @@ extension CalculatorViewModel {
         }
     }
 }
+
+// MARK: - Button Extension
+
+extension Button {
+    static var longPressMappings: ButtonMappings {
+        [.other(.delete) : .other(.clear), .other(.equal) : .other(.set)]
+    }
+    
+    var hasLongPressMapping: Bool {
+        longPressMapping != nil
+    }
+    
+    var longPressMapping: Button? {
+        Button.longPressMappings[self]
+    }
+}
+
 
 // MARK: - Variable Extension
 
