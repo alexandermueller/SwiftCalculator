@@ -15,6 +15,7 @@
 		843129C4285D538E00F61986 /* ButtonDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843129C3285D538E00F61986 /* ButtonDisplayView.swift */; };
 		843129C6285D559400F61986 /* ButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843129C5285D559400F61986 /* ButtonView.swift */; };
 		843129CA285D69C600F61986 /* Stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843129C9285D69C600F61986 /* Stack.swift */; };
+		843129CC2862256E00F61986 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843129CB2862256D00F61986 /* Theme.swift */; };
 		84676C6B2632A95500A3D65D /* ExpressionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84676C6A2632A95500A3D65D /* ExpressionList.swift */; };
 		84921BF42832C6F3005DFB23 /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84921BF32832C6F3005DFB23 /* CalculatorViewModel.swift */; };
 		84AC054A283712A300861939 /* DynamicColours.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AC0549283712A300861939 /* DynamicColours.swift */; };
@@ -69,6 +70,7 @@
 		843129C3285D538E00F61986 /* ButtonDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonDisplayView.swift; sourceTree = "<group>"; };
 		843129C5285D559400F61986 /* ButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonView.swift; sourceTree = "<group>"; };
 		843129C9285D69C600F61986 /* Stack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stack.swift; sourceTree = "<group>"; };
+		843129CB2862256D00F61986 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		84476C0D28331ADE0064024C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		84676C6A2632A95500A3D65D /* ExpressionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressionList.swift; sourceTree = "<group>"; };
 		84921BF32832C6F3005DFB23 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				843129BB285BB0F300F61986 /* Haptics.swift */,
 				FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */,
 				843129C9285D69C600F61986 /* Stack.swift */,
+				843129CB2862256D00F61986 /* Theme.swift */,
 			);
 			path = "Data Types";
 			sourceTree = "<group>";
@@ -365,6 +368,7 @@
 				FA0085B42429E04E00DCC90C /* Generator.swift in Sources */,
 				843129CA285D69C600F61986 /* Stack.swift in Sources */,
 				843129C6285D559400F61986 /* ButtonView.swift in Sources */,
+				843129CC2862256E00F61986 /* Theme.swift in Sources */,
 				FABEBCC22326DCED00CD024C /* SwiftCalculatorApp.swift in Sources */,
 				FA9D9AE72484AC8300DBD2EE /* MaxPrecisionNumber+Helpers.swift in Sources */,
 			);
