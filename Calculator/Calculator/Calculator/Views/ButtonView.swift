@@ -10,8 +10,9 @@ import SwiftUI
 
 struct ButtonView: View {
     @EnvironmentObject var theme: Theme
-    @GestureState var isPressing = false
-
+    @State var isPressing = false
+    @State var animation: Animation? = nil
+    
     let button: Button
     let isToggled: Bool
     let tap: () -> Void
@@ -23,30 +24,27 @@ struct ButtonView: View {
                 .fill(isPressing ? theme.accentColour : theme.primaryColour)
                 .animation(nil)
                 .mask(Circle().frame(width: diameter(for: geometry), height: diameter(for: geometry), alignment: .center))
+                .animation(animation)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .gesture( // TODO: liftup after a long press on a button without a long press mapping should act like a tap
-                    LongPressGesture(minimumDuration: button.hasLongPressMapping ? Theme.defaultAnimationDuration : .infinity)
-                        .updating($isPressing) { currentState, gestureState, transaction in
-                            gestureState = currentState
-                            
-                            if button.hasLongPressMapping {
-                                Haptics.shared.play(.rigid)
-                                transaction.animation = Animation.easeInOut(duration: Theme.defaultAnimationDuration)
-                            } else {
-                                Haptics.shared.play(.heavy)
-                            }
-                        }
-                        .onEnded { _ in
+                .onTapGesture {
+                    tap()
+                }
+                .onLongPressGesture(minimumDuration: button.hasLongPressMapping ? 0 : .infinity) {
+                    Haptics.shared.play(.heavy)
+                    longPress()
+                } onPressingChanged: { isPressing in
+                    self.isPressing = isPressing
+                    self.animation = nil
+                    
+                    if isPressing {
+                        if button.hasLongPressMapping {
+                            Haptics.shared.play(.rigid)
+                            animation = Animation.easeInOut(duration: Theme.defaultAnimationDuration)
+                        } else {
                             Haptics.shared.play(.heavy)
-                            longPress()
                         }
-                )
-                .simultaneousGesture(
-                    TapGesture()
-                        .onEnded { _ in
-                            tap()
-                        }
-                )
+                    }
+                }
             Text(button.rawValue)
                 .foregroundColor(isPressing || !isToggled ? theme.buttonForegroundColour : theme.accentColour)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
