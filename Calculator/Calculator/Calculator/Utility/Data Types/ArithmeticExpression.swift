@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import RxSwift
 
 indirect enum ArithmeticExpression : Equatable {
     case number(MaxPrecisionNumber)
@@ -50,7 +49,7 @@ indirect enum ArithmeticExpression : Equatable {
         case .modulo(let left, let right):
             let leftValue = left.evaluate()
             let rightValue = right.evaluate()
-            let remainder = left.evaluate().truncatingRemainder(dividingBy: right.evaluate())
+            let remainder = leftValue.truncatingRemainder(dividingBy: rightValue)
             
             return leftValue.sign != rightValue.sign ? rightValue + remainder : remainder
         case .multiplication(let left, let right):
@@ -60,21 +59,17 @@ indirect enum ArithmeticExpression : Equatable {
         case .exponentiation(let base, let exponent):
             let baseValue = base.evaluate()
             let exponentValue = exponent.evaluate()
-            guard !baseValue.isNaN && !exponentValue.isNaN else {
-                return .nan
-            }
+            guard !baseValue.isNaN && !exponentValue.isNaN else { return .nan }
             
-            let sign = ((1 / exponentValue).isWhole() && !(1 / exponentValue).isEven()) ? base.evaluate().getSign() : 1
-            return sign * pow(sign * base.evaluate(), exponentValue)
+            let sign = ((1 / exponentValue).isWhole() && !(1 / exponentValue).isEven()) ? baseValue.getSign() : 1
+            return sign * pow(sign * baseValue, exponentValue)
         case .root(let root, let base):
             return ArithmeticExpression.exponentiation(base, .inverse(root)).evaluate()
         case .square(let base):
             return ArithmeticExpression.exponentiation(base, .number(2)).evaluate()
         case .factorial(let expression):
             let value = expression.evaluate()
-            guard abs(value) < MaxPrecisionNumber(Int.max) else {
-                return value.getSign() * .infinity
-            }
+            guard abs(value) < MaxPrecisionNumber(Int.max) else { return value.getSign() * .infinity }
             
             if value.isWhole() {
                 var result: MaxPrecisionNumber = 1

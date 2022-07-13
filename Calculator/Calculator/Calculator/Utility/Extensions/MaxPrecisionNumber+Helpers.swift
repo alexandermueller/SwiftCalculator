@@ -1,9 +1,9 @@
 //
-//  MaxPrecisionNumber+ToSimpleNumericString.swift
+//  MaxPrecisionNumber+Helpers.swift
 //  Calculator
 //
-//  Created by Alexander Mueller on 2019-09-10.
-//  Copyright © 2019 Alexander Mueller. All rights reserved.
+//  Created by Alexander Mueller on 2020-05-31.
+//  Copyright © 2020 Alexander Mueller. All rights reserved.
 //
 
 import Foundation
@@ -15,6 +15,18 @@ enum MaxDisplayLength: Int {
 }
 
 extension MaxPrecisionNumber {
+    func isWhole() -> Bool {
+        return self.remainder(dividingBy: 1) == 0 || self.isInfinite
+    }
+    
+    func isEven() -> Bool {
+        return self.truncatingRemainder(dividingBy: 2.0) == 0
+    }
+    
+    func getSign() -> MaxPrecisionNumber {
+        return self >= 0 ? 1.0 : -1.0
+    }
+    
     // Forces the displayed number to be the appropriate character length depending on the display type
     func toSimpleNumericString(for displayLimit: MaxDisplayLength = .highestLimit) -> String {
         guard !self.isNaN else {
