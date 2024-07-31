@@ -51,11 +51,15 @@ struct CalculatorView: View {
     }
 }
 
+extension ColorScheme: Identifiable {
+    public var id: Self { self }
+}
+
 struct CalculatorView_Previews: PreviewProvider {
     static var previews: some View {
-        CalculatorView(viewModel: CalculatorViewModel(), theme: Theme())
-            .preferredColorScheme(.dark)
-        CalculatorView(viewModel: CalculatorViewModel(), theme: Theme())
-            .preferredColorScheme(.light)
+        ForEach(ColorScheme.allCases, id: \.id) { colourScheme in
+            CalculatorView(viewModel: CalculatorViewModel(), theme: Theme())
+                .preferredColorScheme(colourScheme)
+        }
     }
 }

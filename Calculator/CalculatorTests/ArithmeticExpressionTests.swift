@@ -488,6 +488,8 @@ class ArithmeticExpressionTests: UnitTestSuite {
             ]),
         ]
         
-        evaluateTestCaseSuite(testCaseSuite, using: { $0.evaluate() })
+        evaluateTestCaseSuite(testCaseSuite) { testCase in
+            testCase.evaluate()
+        }
     }
 }

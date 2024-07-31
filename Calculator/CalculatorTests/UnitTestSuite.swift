@@ -22,14 +22,31 @@ class UnitTestSuite : XCTestCase {
     func testCasesEvaluateNonNilOrEmpty<I, O: UnitTestOutput>(_ testCases: [I], using outputClosure: (I) -> O) {
         for input in testCases {
             let output = outputClosure(input)
-            XCTAssert(!output.isNaN() && !output.isEmpty(), "Test Case For Input \"\(input)\" Failed.\nSaw \"\(output)\".")
+            XCTAssert(
+                !output.isNaN() && !output.isEmpty(), 
+                """
+                
+                Test Case For Input \"\(input)\" Failed.
+                Saw \"\(output)\".
+                
+                """
+            )
         }
     }
     
     func evaluateTestCases<I, O: UnitTestOutput>(_ testCases: [TemplateTest<I, O>], using outputClosure: (I) -> O) {
         for testCase in testCases {
             let output = outputClosure(testCase.input)
-            XCTAssert(output == testCase.output || output.isNaN() && testCase.output.isNaN(), "Test Case For Input \(testCase) Failed.\nExpected: \(testCase.output),\n\t  Saw: \(output) ")
+            XCTAssert(
+                output == testCase.output || output.isNaN() && testCase.output.isNaN(), 
+                """
+                
+                Test Case For Input \(testCase) Failed.
+                Expected: \(testCase.output),
+                     Saw: \(output)
+                
+                """
+            )
         }
     }
     
@@ -41,9 +58,27 @@ class UnitTestSuite : XCTestCase {
                 switch condition {
                 case .approximate(within: let threshold):
                     let outputError = output |-| testCase.output
-                    XCTAssert(outputError.isNaN() && output == testCase.output || outputError.isPositive() && outputError <= threshold, "Test Case \(index + 1)/\(testCases.count) in '\(section)' Failed.\nExpected: \(testCase.output),\n\t  Saw: \(outputError) for \(output)")
+                    XCTAssert(
+                        outputError.isNaN() && output == testCase.output || outputError.isPositive() && outputError <= threshold,
+                        """
+                        
+                        Test Case \(index + 1)/\(testCases.count) in '\(section)' Failed.
+                        Expected: \(testCase.output),
+                             Saw: \(outputError) for \(output)
+                        
+                        """
+                    )
                 case .equivalent:
-                    XCTAssert(output == testCase.output || output.isNaN() && testCase.output.isNaN(), "Test Case \(index + 1)/\(testCases.count) in '\(section)' Failed.\nExpected: \(testCase.output),\n\t  Saw: \(output)")
+                    XCTAssert(
+                        output == testCase.output || output.isNaN() && testCase.output.isNaN(),
+                        """
+                        
+                        Test Case \(index + 1)/\(testCases.count) in '\(section)' Failed.
+                        Expected: \(testCase.output),
+                             Saw: \(output)
+                        
+                        """
+                    )
                 }
             }
         }
