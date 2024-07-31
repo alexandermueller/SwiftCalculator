@@ -15,10 +15,10 @@ struct ButtonDisplayView: View {
         case normal
         case alternate
     }
-    
+
     @EnvironmentObject var theme: Theme
     @ObservedObject var viewModel: CalculatorViewModel
-    
+
     var body: some View {
         VStack(spacing: 0) {
             ForEach(Button.layout(for: viewModel.buttonDisplayViewMode), id:\.self) { row in
@@ -36,7 +36,11 @@ struct ButtonDisplayView: View {
                 }
             }
         }
-        .background(Rectangle().fill(theme.primaryColour).frame(maxWidth: .infinity, maxHeight: .infinity))
+        .background(
+            Rectangle()
+                .fill(theme.primaryColour)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        )
     }
 }
 
@@ -60,7 +64,7 @@ extension ButtonLayout {
          [        .digit(.one),         .digit(.two),          .digit(.three), .function(.middle(.subtract)) ],
          [       .digit(.zero),  .modifier(.decimal),          .other(.equal),      .function(.middle(.add)) ]]
     }
-    
+
     static var alternateButtonsLayout: ButtonLayout {
         [[  .other(.alternate),   .variable(.answer),      .variable(.memory),               .other(.delete) ],
          [ .parenthesis(.open), .parenthesis(.close), .convenience(.fraction),         .convenience(.square) ],
@@ -69,7 +73,7 @@ extension ButtonLayout {
          [        .digit(.one),         .digit(.two),          .digit(.three),        .function(.left(.abs)) ],
          [       .digit(.zero),  .modifier(.decimal),            .other(.set),        .function(.left(.sum)) ]]
     }
-    
+
     static var fullButtonsLayout: ButtonLayout {
         [[  .variable(.answer),   .variable(.memory),            .other(.set),               .other(.delete),       .convenience(.fraction) ],
          [ .parenthesis(.open), .parenthesis(.close), .function(.left(.sqrt)), .function(.middle(.exponent)),         .convenience(.square) ],

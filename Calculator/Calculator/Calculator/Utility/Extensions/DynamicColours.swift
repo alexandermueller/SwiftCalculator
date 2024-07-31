@@ -9,7 +9,10 @@
 import SwiftUI
 
 extension UIColor {
-    convenience init(light lightModeColor: @escaping @autoclosure () -> UIColor, dark darkModeColor: @escaping @autoclosure () -> UIColor) {
+    convenience init(
+        light lightModeColor: @escaping @autoclosure () -> UIColor,
+        dark darkModeColor: @escaping @autoclosure () -> UIColor
+    ) {
         self.init { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .light:
@@ -26,7 +29,10 @@ extension UIColor {
 }
 
 extension Color {
-    init(light lightModeColor: @escaping @autoclosure () -> Color, dark darkModeColor: @escaping @autoclosure () -> Color) {
+    init(
+        light lightModeColor: @escaping @autoclosure () -> Color,
+        dark darkModeColor: @escaping @autoclosure () -> Color
+    ) {
         self.init(UIColor(light: UIColor(lightModeColor()), dark: UIColor(darkModeColor())))
     }
 }
