@@ -308,8 +308,8 @@ extension CalculatorViewModel {
     }
     
     func goToCloseParenthesis(with buttonElement: Button? = nil) {
-        guard parenBalance > 0 else { return }
-        
+        guard parenBalance > 0 || buttonElement == nil else { return }
+
         currentExpressionState = .closeParenthesis
         
         if let button = buttonElement {
