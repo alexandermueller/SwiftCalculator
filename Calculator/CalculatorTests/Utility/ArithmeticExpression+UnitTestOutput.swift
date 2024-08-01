@@ -1,5 +1,5 @@
 //
-//  ArithmeticExpression+ImplementsIsNaN.swift
+//  ArithmeticExpression+UnitTestOutput.swift
 //  CalculatorTests
 //
 //  Created by Alex Mueller on 2020-05-31.
@@ -9,7 +9,7 @@
 import Foundation
 @testable import Swift_Calculator
 
-extension ArithmeticExpression : UnitTestOutput {
+extension ArithmeticExpression: UnitTestOutput {
     func isNaN() -> Bool {
         return self == .error
     }

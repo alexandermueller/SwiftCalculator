@@ -8,7 +8,7 @@
 
 import Foundation
 
-indirect enum ArithmeticExpression : Equatable {
+indirect enum ArithmeticExpression: Equatable {
     case number(MaxPrecisionNumber)
     case negation(ArithmeticExpression)
     case squareRoot(ArithmeticExpression)

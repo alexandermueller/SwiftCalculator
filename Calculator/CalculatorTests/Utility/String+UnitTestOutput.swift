@@ -1,5 +1,5 @@
 //
-//  String+ImplementsIsNaN.swift
+//  String+UnitTestOutput.swift
 //  CalculatorTests
 //
 //  Created by Alex Mueller on 2020-05-31.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension String : UnitTestOutput {
+extension String: UnitTestOutput {
     func isNaN() -> Bool {
         return false
     }

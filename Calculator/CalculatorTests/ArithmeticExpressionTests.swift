@@ -110,7 +110,9 @@ class ArithmeticExpressionTests: UnitTestSuite {
             ]),
         ]
         
-        evaluateTestCaseSuite(testCaseSuite, using: { Generator().startGenerator(with: $0).value })
+        evaluateTestCaseSuite(testCaseSuite) { testCase in
+            Generator().startGenerator(with: testCase).value
+        }
     }
     
     func testArithmeticExpressionEvaluate() {

@@ -10,7 +10,7 @@ import Foundation
 
 infix operator |-|
 
-protocol UnitTestOutput : Equatable {
+protocol UnitTestOutput: Equatable {
     func isNaN() -> Bool
     func isEmpty() -> Bool
     func isPositive() -> Bool

@@ -131,7 +131,7 @@ final class CalculatorViewModel: ObservableObject {
     }
     
     private var lastExpressionState: ExpressionState = .zero
-    private var currentExpressionState: ExpressionState = .zero {
+    internal var currentExpressionState: ExpressionState = .zero {
         didSet {
             lastExpressionState = oldValue
         }
@@ -176,11 +176,11 @@ extension CalculatorViewModel {
         guard let firstButton = pressedButtonCombo.first else { return }
         
         let lastExpressionElements = expressionElements
-        modifiedButtonPressed = firstButton
-        
+        buttonPressed = firstButton
+
         if expressionElements != lastExpressionElements {
             for pressedButton in pressedButtonCombo.dropFirst() {
-                modifiedButtonPressed = pressedButton
+                buttonPressed = pressedButton
             }
         }
     }

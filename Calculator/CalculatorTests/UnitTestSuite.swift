@@ -18,7 +18,7 @@ enum SuccessCondition {
 
 typealias TemplateTest<I, O: UnitTestOutput> = (input: I, output: O)
 
-class UnitTestSuite : XCTestCase {
+class UnitTestSuite: XCTestCase {
     func testCasesEvaluateNonNilOrEmpty<I, O: UnitTestOutput>(_ testCases: [I], using outputClosure: (I) -> O) {
         for input in testCases {
             let output = outputClosure(input)

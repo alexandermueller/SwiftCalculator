@@ -1,5 +1,5 @@
 //
-//  MaxPrecisionNumber+isNaN.swift
+//  MaxPrecisionNumber+UnitTestOutput.swift
 //  CalculatorTests
 //
 //  Created by Alex Mueller on 2020-05-31.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension MaxPrecisionNumber : UnitTestOutput {
+extension MaxPrecisionNumber: UnitTestOutput {
     func isNaN() -> Bool {
         return self.isNaN
     }
