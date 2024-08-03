@@ -10,27 +10,56 @@ import XCTest
 @testable import Swift_Calculator
 
 class CalculatorViewModelTests: UnitTestSuite {
+    struct TestCase {
+        let setupPresses: [Button]?
+
+        init(setupPresses: [Button]? = nil) {
+            self.setupPresses = setupPresses
+        }
+    }
+
     func evaluateTransferFunction(
-        setUp: ((CalculatorViewModel) -> Void)? = nil,
-        expectedExpressionStateFor: (CalculatorViewModel) -> CalculatorViewModel.ExpressionState
+        startingState: CalculatorViewModel.ExpressionState,
+        testCases: [TestCase] = [TestCase()],
+        expectedExpressionStateFor: (CalculatorViewModel, ExpressionList) -> CalculatorViewModel.ExpressionState
     ) {
         let viewModel = CalculatorViewModel()
 
-        for button in Button.allCases {
-            if button.isOther {
-                continue
+        for testCase in testCases {
+            for button in Button.allCases {
+                if button.isOther {
+                    continue
+                }
+
+                // Reset to .zero
+                viewModel.goToZero()
+                XCTAssertEqual(viewModel.currentExpressionState, .zero)
+
+                // Setup test case
+                if let setupPresses = testCase.setupPresses {
+                    viewModel.simulate(buttonPresses: setupPresses)
+                }
+                XCTAssertEqual(viewModel.currentExpressionState, startingState)
+
+                // Press button and compare results to expectations
+                let previousExpressionElements = viewModel.expressionElements
+                viewModel.buttonPressed = button
+                XCTAssertEqual(viewModel.currentExpressionState, expectedExpressionStateFor(viewModel, previousExpressionElements),
+                """
+
+                \tResult\t\t->\t\(viewModel.currentExpressionState)
+                \tExpected\t->\t\(expectedExpressionStateFor(viewModel, previousExpressionElements))
+                \tButton\t\t->\t"\(button.rawValue)"
+                \tBefore\t\t->\t\(previousExpressionElements)
+                \tAfter\t\t->\t\(viewModel.expressionElements)
+
+                """)
             }
-
-            viewModel.goToZero()
-            setUp?(viewModel)
-            viewModel.buttonPressed = button
-
-            XCTAssertEqual(viewModel.currentExpressionState, expectedExpressionStateFor(viewModel), "\"\(button.rawValue)\"")
         }
     }
 
     func test_goToZero_transferFunction() {
-        evaluateTransferFunction { viewModel in
+        evaluateTransferFunction(startingState: .zero) { viewModel, _ in
             switch viewModel.modifiedButtonPressed {
             case .digit:
                 .properNumber
@@ -53,22 +82,29 @@ class CalculatorViewModelTests: UnitTestSuite {
     }
 
     func test_goToProperNumber_transferFunction() {
-        evaluateTransferFunction { viewModel in
-            viewModel.simulate(
-                pressedButtonCombo: [
+        evaluateTransferFunction(
+            startingState: .properNumber,
+            testCases: [
+                .init(setupPresses: [
                     .parenthesis(.open),
                     .digit(.one)
-                ]
-            )
-        } expectedExpressionStateFor: { viewModel in
+                ]),
+                .init(setupPresses: [
+                    .parenthesis(.open),
+                    .digit(.one),
+                    .modifier(.decimal),
+                    .digit(.two)
+                ])
+            ]
+        ) { viewModel, previousExpressionElements in
             return switch viewModel.modifiedButtonPressed {
             case .digit:
                 .properNumber
             case .modifier:
-                if let lastElement = viewModel.expressionElements.last, lastElement.isInteger() {
-                    .properNumber
-                } else {
+                if let lastElement = previousExpressionElements.last, lastElement.isInteger() {
                     .modifiedNumber
+                } else {
+                    .properNumber
                 }
             case .parenthesis(.close):
                 .closeParenthesis

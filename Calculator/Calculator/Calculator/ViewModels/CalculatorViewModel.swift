@@ -55,9 +55,20 @@ final class CalculatorViewModel: ObservableObject {
             case .convenience(let convenience):
                 switch convenience {
                 case .fraction:
-                    simulate(pressedButtonCombo: [.parenthesis(.open), .digit(.one), .function(.middle(.divide))])
+                    simulate(
+                        buttonPresses: [
+                            .parenthesis(.open),
+                            .digit(.one),
+                            .function(.middle(.divide))
+                        ]
+                    )
                 case .square:
-                    simulate(pressedButtonCombo: [.function(.middle(.exponent)), .digit(.two)])
+                    simulate(
+                        buttonPresses: [
+                            .function(.middle(.exponent)),
+                            .digit(.two)
+                        ]
+                    )
                 }
             case .other(let other):
                 switch other {
@@ -172,14 +183,14 @@ final class CalculatorViewModel: ObservableObject {
 // MARK: - State Machine
 
 extension CalculatorViewModel {
-    func simulate(pressedButtonCombo: [Button]) {
-        guard let firstButton = pressedButtonCombo.first else { return }
+    func simulate(buttonPresses: [Button]) {
+        guard let firstButton = buttonPresses.first else { return }
 
         let lastExpressionElements = expressionElements
         buttonPressed = firstButton
 
         if expressionElements != lastExpressionElements {
-            for pressedButton in pressedButtonCombo.dropFirst() {
+            for pressedButton in buttonPresses.dropFirst() {
                 buttonPressed = pressedButton
             }
         }
