@@ -79,15 +79,15 @@ final class CalculatorViewModel: ObservableObject {
             }
         }
     }
-    private var modifiedButtonPressed: Button? {
+    internal var modifiedButtonPressed: Button? {
         didSet {
             guard let modifiedButtonPressed = modifiedButtonPressed else { return }
             transferFunction?(modifiedButtonPressed)
         }
     }
-    
+
     private let generator = Generator()
-    
+
     private var valueStack: Stack<MaxPrecisionNumber> = Stack(from: [0])
     private var currentValue: MaxPrecisionNumber = 0 {
         didSet {
@@ -95,12 +95,12 @@ final class CalculatorViewModel: ObservableObject {
         }
     }
     private var lastMappedElements: ExpressionList = .defaultList
-    private var expressionElements: ExpressionList = .defaultList {
+    internal var expressionElements: ExpressionList = .defaultList {
         didSet {
             guard !expressionElements.isEmpty else { return }
-            
+
             expressionText = expressionElements.toExpressionString()
-            
+
             var mappedElements: [String] = expressionElements.map({ element in
                 switch Variable(rawValue: element) {
                 case .some(let variable):
@@ -109,14 +109,14 @@ final class CalculatorViewModel: ObservableObject {
                     return element
                 }
             })
-            
+
             // Soft balance the parentheses so that users can preview the current value
             mappedElements += Array(repeating: Button.parenthesis(.close).rawValue, count: parenBalance)
             let nextValue = generator.startGenerator(with: mappedElements).value.evaluate()
 
             let mappedExpressionString = mappedElements.toExpressionString()
             let lastMappedExpressionString = lastMappedElements.toExpressionString()
-            
+
             if mappedExpressionString == "0" {
                 valueStack = Stack<MaxPrecisionNumber>(from: [0])
             } else if !currentValue.isNaN && mappedExpressionString.count < lastMappedExpressionString.count {
@@ -124,12 +124,12 @@ final class CalculatorViewModel: ObservableObject {
             } else if !nextValue.isNaN && mappedExpressionString.count >= lastMappedExpressionString.count && mappedExpressionString != lastMappedExpressionString {
                 valueStack.push(nextValue)
             }
-            
+
             currentValue = nextValue
             lastMappedElements = mappedElements
         }
     }
-    
+
     private var lastExpressionState: ExpressionState = .zero
     internal var currentExpressionState: ExpressionState = .zero {
         didSet {
@@ -137,22 +137,22 @@ final class CalculatorViewModel: ObservableObject {
         }
     }
     private var transferFunction: ((Button) -> Void)? = nil
-    
+
     private var parenBalance = 0 {
         didSet {
             assert(parenBalance >= 0, "There is a bug in the parenthesis matching code!")
         }
     }
-    
+
     init() {
         goToZero()
     }
-    
+
     private func addExpressionElement(from button: Button) {
         guard let lastElement = expressionElements.last else { return }
-        
+
         let lastElementIndex = expressionElements.count - 1
-        
+
         switch (button, lastExpressionState) {
         case (.digit, .zero), (.parenthesis(.open), .zero), (.function(.left), .zero), (.variable, .zero):
             expressionElements[lastElementIndex] = button.rawValue
@@ -174,7 +174,7 @@ final class CalculatorViewModel: ObservableObject {
 extension CalculatorViewModel {
     func simulate(pressedButtonCombo: [Button]) {
         guard let firstButton = pressedButtonCombo.first else { return }
-        
+
         let lastExpressionElements = expressionElements
         buttonPressed = firstButton
 
@@ -184,14 +184,14 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToZero() {
         currentExpressionState = .zero
-        
+
         parenBalance = 0
         expressionElements = .defaultList
         textDisplayColour = .gray
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .digit:
@@ -211,18 +211,18 @@ extension CalculatorViewModel {
             default:
                 return
             }
-            
+
             textDisplayColour = Color(light: .black, dark: .white)
         }
     }
-    
+
     func goToProperNumber(with buttonElement: Button? = nil) {
         currentExpressionState = .properNumber
-        
+
         if let button = buttonElement {
             addExpressionElement(from: button)
         }
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .digit:
@@ -242,14 +242,14 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToModifiedNumber(with buttonElement: Button? = nil) {
         currentExpressionState = .modifiedNumber
-        
+
         if let button = buttonElement {
             addExpressionElement(from: button)
         }
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .digit:
@@ -259,14 +259,14 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToVariable(with buttonElement: Button? = nil) {
         currentExpressionState = .variable
-        
+
         if let button = buttonElement {
             addExpressionElement(from: button)
         }
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .function(.middle):
@@ -280,15 +280,15 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToOpenParenthesis(with buttonElement: Button? = nil) {
         currentExpressionState = .openParenthesis
-        
+
         if let button = buttonElement {
             parenBalance += 1
             addExpressionElement(from: button)
         }
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .digit:
@@ -306,17 +306,17 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToCloseParenthesis(with buttonElement: Button? = nil) {
         guard parenBalance > 0 || buttonElement == nil else { return }
 
         currentExpressionState = .closeParenthesis
-        
+
         if let button = buttonElement {
             parenBalance -= 1
             addExpressionElement(from: button)
         }
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .parenthesis(.close):
@@ -330,14 +330,14 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToLeftFunction(with buttonElement: Button? = nil) {
         currentExpressionState = .leftFunction
-        
+
         if let button = buttonElement {
             addExpressionElement(from: button)
         }
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .digit:
@@ -358,14 +358,14 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToMiddleFunction(with buttonElement: Button? = nil) {
         currentExpressionState = .middleFunction
-        
+
         if let button = buttonElement {
             addExpressionElement(from: button)
         }
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .digit:
@@ -383,14 +383,14 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToRightFunction(with buttonElement: Button? = nil) {
         currentExpressionState = .rightFunction
-        
+
         if let button = buttonElement {
             addExpressionElement(from: button)
         }
-        
+
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
             case .parenthesis(.close):
@@ -404,7 +404,7 @@ extension CalculatorViewModel {
             }
         }
     }
-    
+
     func goToDelete() {
         if let lastElement = expressionElements.last, lastElement.isOpenParen() || lastElement.isCloseParen() {
             parenBalance += lastElement.isCloseParen() ? 1 : -1
@@ -412,33 +412,33 @@ extension CalculatorViewModel {
 
         if var lastElement = expressionElements.last, lastElement.isNumber() && lastElement.count > 1 {
             lastElement.removeLast(1)
-            
+
             if let lastCharacter = lastElement.last {
                 expressionElements[expressionElements.count - 1] = lastElement
-                
+
                 switch String(lastCharacter) {
                 case Button.modifier(.decimal).rawValue:
                     goToModifiedNumber()
                 default:
                     goToProperNumber()
                 }
-                
+
                 return
             }
         }
-        
+
         expressionElements.removeLast(1)
-        
+
         guard let currentExpression = expressionElements.last, expressionElements != .defaultList else {
             goToZero()
             return
         }
-        
+
         guard let button = Button.from(rawValue: currentExpression) else {
             goToProperNumber()
             return
         }
-        
+
         switch button {
         case .digit:
             goToProperNumber()
@@ -472,11 +472,11 @@ extension Button {
     static var longPressMappings: ButtonMappings {
         [.other(.delete) : .other(.clear), .other(.equal) : .other(.set)]
     }
-    
+
     var hasLongPressMapping: Bool {
         longPressMapping != nil
     }
-    
+
     var longPressMapping: Button? {
         Button.longPressMappings[self]
     }
@@ -488,11 +488,11 @@ extension Button {
 extension Variable {
     static var defaultVariableValueDict: VariableValueDict {
         var variableValueDict: VariableValueDict = [:]
-        
+
         for variable in allCases {
             variableValueDict[variable] = 0
         }
-        
+
         return variableValueDict
     }
 }

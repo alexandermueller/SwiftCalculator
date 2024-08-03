@@ -214,14 +214,14 @@ enum Button: Equatable {
     static var allCases: [Button] {
         var buttons: [Button] = []
         
-        buttons += Digit.allCases.map({ Button.digit($0) })
-        buttons += Modifier.allCases.map({ Button.modifier($0) })
-        buttons += Parenthesis.allCases.map({ Button.parenthesis($0) })
-        buttons += Function.allCases.map({ Button.function($0) })
-        buttons += Variable.allCases.map({ Button.variable($0) })
-        buttons += Convenience.allCases.map({ Button.convenience($0) })
-        buttons += Other.allCases.map({ Button.other($0) })
-        
+        buttons += Digit.allCases.map { Button.digit($0) }
+        buttons += Modifier.allCases.map { Button.modifier($0) }
+        buttons += Parenthesis.allCases.map { Button.parenthesis($0) }
+        buttons += Function.allCases.map { Button.function($0) }
+        buttons += Variable.allCases.map { Button.variable($0) }
+        buttons += Convenience.allCases.map { Button.convenience($0) }
+        buttons += Other.allCases.map { Button.other($0) }
+
         return buttons
     }
     

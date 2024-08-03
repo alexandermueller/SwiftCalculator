@@ -10,22 +10,83 @@ import XCTest
 @testable import Swift_Calculator
 
 class CalculatorViewModelTests: UnitTestSuite {
-    func testStateMachine() {
-        typealias UnitTest = TemplateTest<[Button], Swift_Calculator.CalculatorViewModel.ExpressionState>
+    func evaluateTransferFunction(
+        setUp: ((CalculatorViewModel) -> Void)? = nil,
+        expectedExpressionStateFor: (CalculatorViewModel) -> CalculatorViewModel.ExpressionState
+    ) {
+        let viewModel = CalculatorViewModel()
 
-        let testCaseSuite: [String : (SuccessCondition, [UnitTest])] = [
-            "Empty" : (.equivalent, [
-                UnitTest([], .zero),
-                UnitTest([.digit(.five), .other(.delete)], .zero),
-                UnitTest([.modifier(.decimal), .digit(.zero), .function(.right(.factorial)), .other(.clear)], .zero)
-            ]),
-        ]
+        for button in Button.allCases {
+            if button.isOther {
+                continue
+            }
 
-        evaluateTestCaseSuite(testCaseSuite) { testCase in
-            let viewModel = CalculatorViewModel()
-            viewModel.simulate(pressedButtonCombo: testCase)
+            viewModel.goToZero()
+            setUp?(viewModel)
+            viewModel.buttonPressed = button
 
-            return viewModel.currentExpressionState
+            XCTAssertEqual(viewModel.currentExpressionState, expectedExpressionStateFor(viewModel), "\"\(button.rawValue)\"")
         }
+    }
+
+    func test_goToZero_transferFunction() {
+        evaluateTransferFunction { viewModel in
+            switch viewModel.modifiedButtonPressed {
+            case .digit:
+                .properNumber
+            case .modifier:
+                .modifiedNumber
+            case .parenthesis(.open):
+                .openParenthesis
+            case .function(.left):
+                .leftFunction
+            case .function(.middle):
+                .middleFunction
+            case .function(.right):
+                .rightFunction
+            case .variable:
+                .variable
+            default:
+                .zero
+            }
+        }
+    }
+
+    func test_goToProperNumber_transferFunction() {
+        evaluateTransferFunction { viewModel in
+            viewModel.simulate(
+                pressedButtonCombo: [
+                    .parenthesis(.open),
+                    .digit(.one)
+                ]
+            )
+        } expectedExpressionStateFor: { viewModel in
+            return switch viewModel.modifiedButtonPressed {
+            case .digit:
+                .properNumber
+            case .modifier:
+                if let lastElement = viewModel.expressionElements.last, lastElement.isInteger() {
+                    .properNumber
+                } else {
+                    .modifiedNumber
+                }
+            case .parenthesis(.close):
+                .closeParenthesis
+            case .function(.middle):
+                .middleFunction
+            case .function(.right):
+                .rightFunction
+            default:
+                .properNumber
+            }
+        }
+    }
+
+    // TODO: Finish the rest of the state transfer functions
+}
+
+extension Button {
+    var isOther: Bool {
+        Other(rawValue: self.rawValue) != nil
     }
 }
