@@ -149,7 +149,7 @@ final class CalculatorViewModel: ObservableObject {
     }
     private var transferFunction: ((Button) -> Void)? = nil
 
-    private var parenBalance = 0 {
+    internal var parenBalance = 0 {
         didSet {
             assert(parenBalance >= 0, "There is a bug in the parenthesis matching code!")
         }
@@ -183,13 +183,17 @@ final class CalculatorViewModel: ObservableObject {
 // MARK: - State Machine
 
 extension CalculatorViewModel {
-    func simulate(buttonPresses: [Button]) {
+    func simulate(buttonPress: Button) {
+        simulate(buttonPresses: [buttonPress])
+    }
+
+    func simulate(buttonPresses: [Button], wasZeroed: Bool = false) {
         guard let firstButton = buttonPresses.first else { return }
 
         let lastExpressionElements = expressionElements
         buttonPressed = firstButton
 
-        if expressionElements != lastExpressionElements {
+        if expressionElements != lastExpressionElements || buttonPressed == .digit(.zero) && wasZeroed {
             for pressedButton in buttonPresses.dropFirst() {
                 buttonPressed = pressedButton
             }
