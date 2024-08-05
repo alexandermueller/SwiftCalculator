@@ -231,7 +231,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToProperNumber(with buttonElement: Button? = nil) {
+    private func goToProperNumber(with buttonElement: Button? = nil) {
         currentExpressionState = .properNumber
 
         if let button = buttonElement {
@@ -258,7 +258,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToModifiedNumber(with buttonElement: Button? = nil) {
+    private func goToModifiedNumber(with buttonElement: Button? = nil) {
         currentExpressionState = .modifiedNumber
 
         if let button = buttonElement {
@@ -275,7 +275,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToVariable(with buttonElement: Button? = nil) {
+    private func goToVariable(with buttonElement: Button? = nil) {
         currentExpressionState = .variable
 
         if let button = buttonElement {
@@ -296,7 +296,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToOpenParenthesis(with buttonElement: Button? = nil) {
+    private func goToOpenParenthesis(with buttonElement: Button? = nil) {
         currentExpressionState = .openParenthesis
 
         if let button = buttonElement {
@@ -322,7 +322,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToCloseParenthesis(with buttonElement: Button? = nil) {
+    private func goToCloseParenthesis(with buttonElement: Button? = nil) {
         guard parenBalance > 0 || buttonElement == nil else { return }
 
         currentExpressionState = .closeParenthesis
@@ -346,7 +346,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToLeftFunction(with buttonElement: Button? = nil) {
+    private func goToLeftFunction(with buttonElement: Button? = nil) {
         currentExpressionState = .leftFunction
 
         if let button = buttonElement {
@@ -374,7 +374,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToMiddleFunction(with buttonElement: Button? = nil) {
+    private func goToMiddleFunction(with buttonElement: Button? = nil) {
         currentExpressionState = .middleFunction
 
         if let button = buttonElement {
@@ -399,7 +399,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToRightFunction(with buttonElement: Button? = nil) {
+    private func goToRightFunction(with buttonElement: Button? = nil) {
         currentExpressionState = .rightFunction
 
         if let button = buttonElement {
@@ -420,7 +420,7 @@ extension CalculatorViewModel {
         }
     }
 
-    func goToDelete() {
+    private func goToDelete() {
         if let lastElement = expressionElements.last, lastElement.isOpenParen() || lastElement.isCloseParen() {
             parenBalance += lastElement.isCloseParen() ? 1 : -1
         }
@@ -484,7 +484,7 @@ extension CalculatorViewModel {
 // MARK: - Button Extension
 
 extension Button {
-    static var longPressMappings: ButtonMappings {
+    private static var longPressMappings: ButtonMappings {
         [.other(.delete) : .other(.clear), .other(.equal) : .other(.set)]
     }
 
