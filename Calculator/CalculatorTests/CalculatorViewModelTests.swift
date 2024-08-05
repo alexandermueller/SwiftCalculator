@@ -9,6 +9,8 @@
 import XCTest
 @testable import Swift_Calculator
 
+typealias ExpressionState = CalculatorViewModel.ExpressionState
+
 class CalculatorViewModelTests: UnitTestSuite {
     struct TestCase {
         let setupPresses: [Button]?
@@ -19,11 +21,11 @@ class CalculatorViewModelTests: UnitTestSuite {
     }
 
     struct ViewModelSnapshot {
-        let expressionState: CalculatorViewModel.ExpressionState
+        let expressionState: ExpressionState
         let expressionElements: ExpressionList
         let parenthesisCount: Int
 
-        init(expressionState: CalculatorViewModel.ExpressionState = .zero, expressionElements: ExpressionList = .defaultList, parenthesisCount: Int = 0) {
+        init(expressionState: ExpressionState = .zero, expressionElements: ExpressionList = .defaultList, parenthesisCount: Int = 0) {
             self.expressionState = expressionState
             self.expressionElements = expressionElements
             self.parenthesisCount = parenthesisCount
@@ -31,9 +33,9 @@ class CalculatorViewModelTests: UnitTestSuite {
     }
 
     func evaluateTransferFunction(
-        startingState: CalculatorViewModel.ExpressionState,
+        startingState: ExpressionState,
         testCases: [TestCase] = [TestCase()],
-        expectedExpressionStateFor: (ViewModelSnapshot, Button, CalculatorViewModel) -> CalculatorViewModel.ExpressionState
+        expectedExpressionStateFor: (ViewModelSnapshot, Button, CalculatorViewModel) -> ExpressionState
     ) {
         let viewModel = CalculatorViewModel()
 
@@ -404,16 +406,70 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    // TODO: goToDelete()
+    func test_goToDelete_transferFunction() {
+        var simulatedPresses: [Button] = [
+            .function(.left(.negate)),
+            .parenthesis(.open),
+            .digit(.eight),
+            .modifier(.decimal),
+            .digit(.eight),
+            .digit(.four),
+            .digit(.three),
+            .function(.middle(.add)),
+            .digit(.two),
+            .parenthesis(.close),
+            .function(.middle(.multiply)),
+            .digit(.two),
+            .function(.right(.factorial))
+        ]
+
+        let viewModel = CalculatorViewModel()
+
+        while !simulatedPresses.isEmpty {
+            let snapshot = viewModel.snapshot
+            let lastExpressionText = viewModel.expressionText
+
+            for button in Button.allCases {
+                if button.isOtherType {
+                    continue
+                }
+
+                viewModel.simulate(buttonPress: button)
+
+                if lastExpressionText != viewModel.expressionText {
+                    let newExpressionElements = viewModel.expressionElements
+                    viewModel.simulate(buttonPress: .other(.delete))
+
+                    var expectedState: ExpressionState = snapshot.expressionState
+
+                    if let previousState = button.modifiedPreviousStates(previousState: snapshot.expressionState)?.last {
+                        expectedState = previousState
+                    }
+
+                    let errorMessage = """
+
+                    \tResult\t\t->\t\(viewModel.currentExpressionState)
+                    \tExpected\t\t->\t\(expectedState)
+                    \tButton\t\t->\t"\(button.rawValue)"
+                    \tBefore\t\t->\t\(snapshot.expressionElements)
+                    \tButton\t\t->\t\(newExpressionElements)
+                    \tDelete\t\t->\t\(viewModel.expressionElements)
+
+                    """
+
+                    XCTAssertEqual(expectedState, viewModel.currentExpressionState, errorMessage)
+                }
+            }
+
+            let simulatedPress = simulatedPresses.removeFirst()
+            viewModel.simulate(buttonPress: simulatedPress)
+        }
+    }
 }
 
 extension Button {
     var isOtherType: Bool {
         Other(rawValue: self.rawValue) != nil
-    }
-
-    var isConvenienceType: Bool {
-        Convenience(rawValue: self.rawValue) != nil
     }
 }
 
@@ -424,5 +480,28 @@ extension CalculatorViewModel {
             expressionElements: expressionElements,
             parenthesisCount: parenBalance
         )
+    }
+}
+
+extension Button {
+    func modifiedPreviousStates(previousState: ExpressionState? = nil) -> [ExpressionState]? {
+        switch self {
+        case .digit, .parenthesis, .function, .variable, .other:
+            nil
+        case .modifier:
+            switch previousState {
+            case .none, .zero, .openParenthesis, .leftFunction, .middleFunction:
+                [.properNumber]
+            case .properNumber, .modifiedNumber, .variable, .closeParenthesis, .rightFunction:
+                nil
+            }
+        case .convenience(let convenience):
+            switch convenience {
+            case .square:
+                [.middleFunction]
+            case .fraction:
+                [.properNumber]
+            }
+        }
     }
 }
