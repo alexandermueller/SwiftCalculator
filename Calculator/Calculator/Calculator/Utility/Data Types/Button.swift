@@ -163,24 +163,24 @@ enum Function: Equatable {
     var rawValue: String {
         switch self {
         case .left(let function):
-            return function.rawValue
+            function.rawValue
         case .middle(let function):
-            return function.rawValue
+            function.rawValue
         case .right(let function):
-            return function.rawValue
+            function.rawValue
         }
     }
     
     static func from(rawValue: String) -> Function? {
         if let left = Left(rawValue: rawValue) {
-            return .left(left)
+            .left(left)
         } else if let middle = Middle(rawValue: rawValue) {
-            return .middle(middle)
+            .middle(middle)
         } else if let right = Right(rawValue: rawValue) {
-            return .right(right)
+            .right(right)
+        } else {
+            nil
         }
-        
-        return nil
     }
 }
 
@@ -237,40 +237,40 @@ enum Button: Equatable {
     var rawValue: String {
         switch self {
         case .digit(let button):
-            return button.rawValue
+            button.rawValue
         case .modifier(let button):
-            return button.rawValue
+            button.rawValue
         case .parenthesis(let button):
-            return button.rawValue
+            button.rawValue
         case .function(let button):
-            return button.rawValue
+            button.rawValue
         case .variable(let button):
-            return button.rawValue
+            button.rawValue
         case .convenience(let button):
-            return button.rawValue
+            button.rawValue
         case .other(let button):
-            return button.rawValue
+            button.rawValue
         }
     }
     
     static func from(rawValue: String) -> Button? {
         if let digit = Digit(rawValue: rawValue) {
-            return .digit(digit)
+            .digit(digit)
         } else if let modifier = Modifier(rawValue: rawValue) {
-            return .modifier(modifier)
+            .modifier(modifier)
         } else if let parenthesis = Parenthesis(rawValue: rawValue) {
-            return .parenthesis(parenthesis)
+            .parenthesis(parenthesis)
         } else if let function = Function.from(rawValue: rawValue) {
-            return .function(function)
+            .function(function)
         } else if let variable = Variable(rawValue: rawValue) {
-            return .variable(variable)
+            .variable(variable)
         } else if let convenience = Convenience(rawValue: rawValue) {
-            return .convenience(convenience)
+            .convenience(convenience)
         } else if let other = Other(rawValue: rawValue) {
-            return .other(other)
+            .other(other)
+        } else {
+            nil
         }
-        
-        return nil
     }
 }
 

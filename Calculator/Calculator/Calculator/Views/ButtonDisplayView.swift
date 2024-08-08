@@ -14,10 +14,26 @@ struct ButtonDisplayView: View {
     enum Mode {
         case normal
         case alternate
+        case full
     }
+
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
 
     @EnvironmentObject var theme: Theme
     @ObservedObject var viewModel: CalculatorViewModel
+    
+    @State private var currentOrientation = UIDevice.current.orientation {
+        didSet {
+            if horizontalSizeClass == .regular && verticalSizeClass == .regular {
+                if currentOrientation.isLandscape {
+                    viewModel.buttonDisplayViewMode = .full
+                } else {
+                    viewModel.buttonDisplayViewMode = .normal
+                }
+            }
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -41,6 +57,9 @@ struct ButtonDisplayView: View {
                 .fill(theme.primaryColour)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         )
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            currentOrientation = UIDevice.current.orientation
+        }
     }
 }
 
@@ -48,9 +67,11 @@ extension Button {
     static func layout(for buttonDisplayViewMode: ButtonDisplayView.Mode) -> ButtonLayout {
         switch buttonDisplayViewMode {
         case .normal:
-            return .normalButtonsLayout
+            .normalButtonsLayout
         case .alternate:
-            return .alternateButtonsLayout
+            .alternateButtonsLayout
+        case .full:
+            .fullButtonsLayout
         }
     }
 }

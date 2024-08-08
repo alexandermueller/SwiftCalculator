@@ -79,6 +79,10 @@ indirect enum ArithmeticExpression: Equatable {
                 let lower = sign < 0 ? intValue : sign
                 
                 for i in lower ... upper {
+                    if result.isInfinite {
+                        break
+                    }
+                    
                     result *= MaxPrecisionNumber(i)
                 }
                 
@@ -91,40 +95,44 @@ indirect enum ArithmeticExpression: Equatable {
         }
     }
     
-    static func from(function: Function, leftValue: ArithmeticExpression = .empty, rightValue: ArithmeticExpression = .empty) -> ArithmeticExpression {
+    static func from(
+        function: Function,
+        leftValue: ArithmeticExpression = .empty,
+        rightValue: ArithmeticExpression = .empty
+    ) -> ArithmeticExpression {
         switch function {
         case .left(let leftHandFunction):
             switch leftHandFunction {
             case .negate:
-                return .negation(rightValue)
+                .negation(rightValue)
             case .sqrt:
-                return .squareRoot(rightValue)
+                .squareRoot(rightValue)
             case .abs:
-                return .absoluteValue(rightValue)
+                .absoluteValue(rightValue)
             case .sum:
-                return .summation(rightValue)
+                .summation(rightValue)
             }
         case .middle(let middleFunction):
             switch middleFunction {
             case .add:
-                return .addition(leftValue, rightValue)
+                .addition(leftValue, rightValue)
             case .subtract:
-                return .subtraction(leftValue, rightValue)
+                .subtraction(leftValue, rightValue)
             case .modulo:
-                return .modulo(leftValue, rightValue)
+                .modulo(leftValue, rightValue)
             case .multiply:
-                return .multiplication(leftValue, rightValue)
+                .multiplication(leftValue, rightValue)
             case .divide:
-                return .division(leftValue, rightValue)
+                .division(leftValue, rightValue)
             case .exponent:
-                return .exponentiation(leftValue, rightValue)
+                .exponentiation(leftValue, rightValue)
             case .root:
-                return .root(leftValue, rightValue)
+                .root(leftValue, rightValue)
             }
         case .right(let rightHandFunction):
             switch rightHandFunction {
             case .factorial:
-                return .factorial(leftValue)
+                .factorial(leftValue)
             }
         }
     }
