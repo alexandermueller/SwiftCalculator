@@ -69,6 +69,8 @@ indirect enum ArithmeticExpression: Equatable {
             return ArithmeticExpression.exponentiation(base, .number(2)).evaluate()
         case .factorial(let expression):
             let value = expression.evaluate()
+
+            guard !value.isNaN else { return .nan }
             guard abs(value) < MaxPrecisionNumber(Int.max) else { return value.getSign() * .infinity }
             
             if value.isWhole() {

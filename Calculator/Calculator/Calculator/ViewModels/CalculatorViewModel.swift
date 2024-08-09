@@ -128,6 +128,14 @@ final class CalculatorViewModel: ObservableObject {
             let mappedExpressionString = mappedElements.toExpressionString()
             let lastMappedExpressionString = lastMappedElements.toExpressionString()
 
+            if nextValue.isNaN {
+                textDisplayColour = .red
+            } else if mappedExpressionString == "0" {
+                textDisplayColour = .gray
+            } else {
+                textDisplayColour = Color(light: .black, dark: .white)
+            }
+
             if mappedExpressionString == "0" {
                 valueStack = Stack<MaxPrecisionNumber>(from: [0])
             } else if !currentValue.isNaN && mappedExpressionString.count < lastMappedExpressionString.count {
@@ -205,7 +213,6 @@ extension CalculatorViewModel {
 
         parenBalance = 0
         expressionElements = .defaultList
-        textDisplayColour = .gray
 
         transferFunction = { [unowned self] pressedButton in
             switch pressedButton {
@@ -226,8 +233,6 @@ extension CalculatorViewModel {
             default:
                 return
             }
-
-            textDisplayColour = Color(light: .black, dark: .white)
         }
     }
 
