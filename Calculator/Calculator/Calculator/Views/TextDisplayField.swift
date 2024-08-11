@@ -25,23 +25,29 @@ struct TextDisplayField: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
-                Text(text)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-                    .font(.system(for: geometry))
-                    .multilineTextAlignment(.trailing)
-                    .padding(.leading, hint == nil ? 0 : infoButtonFootprint(for: geometry))
-                
+                HStack {
+                    if let hint {
+                        Spacer()
+                            .frame(width: infoButtonFootprint(for: geometry))
+                    }
+
+                    Text(text)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                        .font(.system(for: geometry))
+                        .multilineTextAlignment(.trailing)
+                }
+
                 if let hint {
                     SwiftUI.Button("ⓘ") {
                         showHint.toggle()
                     }
-                    .padding(10)
+                    .padding(20)
                     .font(.system(for: geometry, scale: infoButtonScale, bold: true))
                     .foregroundColor(.white)
                     .background(
                         Circle()
                             .foregroundColor(.accentColor)
-                            .padding(7)
+                            .padding(15)
                     )
                     .popover(isPresented: $showHint) {
                         Text(hint)
@@ -54,12 +60,9 @@ struct TextDisplayField: View {
             }
         }
         .background(theme.textDisplayFieldBackgroundColour)
-        .onDisappear {
-            
-        }
     }
 
     func infoButtonFootprint(for geometry: GeometryProxy) -> Double {
-        (geometry.size.height + 10.0) * (1 - infoButtonScale)
+        geometry.size.height * infoButtonScale * Theme.labelFontToHeightRatio + 30.0
     }
 }

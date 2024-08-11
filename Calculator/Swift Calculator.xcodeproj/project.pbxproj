@@ -22,7 +22,6 @@
 		84921BF42832C6F3005DFB23 /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84921BF32832C6F3005DFB23 /* CalculatorViewModel.swift */; };
 		84AC054A283712A300861939 /* DynamicColours.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AC0549283712A300861939 /* DynamicColours.swift */; };
 		84F340B32C680EEF00CBCFCA /* ExpressionError+UnitTestOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F340B22C680EEF00CBCFCA /* ExpressionError+UnitTestOutput.swift */; };
-		84F340BB2C684CD000CBCFCA /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F340BA2C684CD000CBCFCA /* Preferences.swift */; };
 		FA0085B42429E04E00DCC90C /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0085B32429E04E00DCC90C /* Generator.swift */; };
 		FA11DB71256DF5B9007E6978 /* MaxPrecisionNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */; };
 		FA11DB72256DFB43007E6978 /* MaxPrecisionNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */; };
@@ -82,7 +81,6 @@
 		84921BF32832C6F3005DFB23 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
 		84AC0549283712A300861939 /* DynamicColours.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicColours.swift; sourceTree = "<group>"; };
 		84F340B22C680EEF00CBCFCA /* ExpressionError+UnitTestOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressionError+UnitTestOutput.swift"; sourceTree = "<group>"; };
-		84F340BA2C684CD000CBCFCA /* Preferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		FA0085B32429E04E00DCC90C /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
 		FA11DB6F256DF3C9007E6978 /* Calculator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Calculator.entitlements; sourceTree = "<group>"; };
 		FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxPrecisionNumber.swift; sourceTree = "<group>"; };
@@ -172,7 +170,6 @@
 				FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */,
 				843129C9285D69C600F61986 /* Stack.swift */,
 				843129CB2862256D00F61986 /* Theme.swift */,
-				84F340BA2C684CD000CBCFCA /* Preferences.swift */,
 			);
 			path = "Data Types";
 			sourceTree = "<group>";
@@ -368,7 +365,6 @@
 				FABEBCE62327FB0000CD024C /* ArithmeticExpression.swift in Sources */,
 				843129BC285BB0F300F61986 /* Haptics.swift in Sources */,
 				FA11DB71256DF5B9007E6978 /* MaxPrecisionNumber.swift in Sources */,
-				84F340BB2C684CD000CBCFCA /* Preferences.swift in Sources */,
 				FAFA73D7234724F5004B0D1C /* Button.swift in Sources */,
 				FABEBCE22327FA2C00CD024C /* String+Checks.swift in Sources */,
 				843129C2285D533800F61986 /* VariableDisplayView.swift in Sources */,
