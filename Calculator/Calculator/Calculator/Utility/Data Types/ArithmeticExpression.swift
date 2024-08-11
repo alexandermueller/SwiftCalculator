@@ -9,6 +9,18 @@
 import Foundation
 
 indirect enum ArithmeticExpression: Equatable {
+    enum ExpressionError: Error, Equatable {
+        case nan(String)
+        case invalidExpression
+        case thresholdExceeded
+
+        static var decimalPrecisionLoss: Self { .nan("Number has too many digits to express decimal places.") }
+        static var incompleteExpression: Self { .nan("Expression is incomplete.") }
+        static var undefinedExponentiation: Self { .nan("Exponentiation could not be evaluated.") }
+        static var undefinedFactorial: Self { .nan("Factorial is only defined for whole numbers.") }
+        static var undefinedSummation: Self { .nan("Summation is only defined for whole numbers.") }
+    }
+
     case number(MaxPrecisionNumber)
     case negation(ArithmeticExpression)
     case squareRoot(ArithmeticExpression)
@@ -25,75 +37,87 @@ indirect enum ArithmeticExpression: Equatable {
     case square(ArithmeticExpression)
     case factorial(ArithmeticExpression)
     case empty
-    case error
-    
-    func evaluate() -> MaxPrecisionNumber {
+    case error(ExpressionError)
+
+    func evaluate() throws -> MaxPrecisionNumber {
         switch self {
         case .number(let value):
             return value
         case .negation(let value):
-            return -value.evaluate()
+            return try -value.evaluate()
         case .squareRoot(let base):
-            return sqrt(base.evaluate())
+            return try sqrt(base.evaluate())
         case .inverse(let expression):
-            return ArithmeticExpression.division(ArithmeticExpression.number(1.0), expression).evaluate()
+            return try ArithmeticExpression.division(ArithmeticExpression.number(1.0), expression).evaluate()
         case .absoluteValue(let expression):
-            return abs(expression.evaluate())
+            return try abs(expression.evaluate())
         case .summation(let expression):
-            let value = expression.evaluate()
-            return value.isWhole() ? (value.getSign() * (abs(value) + 1.0) * abs(value)) / 2.0 : .nan
+            let value = try expression.evaluate()
+
+            guard value.isWhole() else {
+                throw ExpressionError.undefinedSummation
+            }
+
+            return (value.getSign() * (abs(value) + 1.0) * abs(value)) / 2.0
         case .addition(let left, let right):
-            return left.evaluate() + right.evaluate()
+            return try left.evaluate() + right.evaluate()
         case .subtraction(let left, let right):
-            return left.evaluate() - right.evaluate()
+            return try left.evaluate() - right.evaluate()
         case .modulo(let left, let right):
-            let leftValue = left.evaluate()
-            let rightValue = right.evaluate()
+            let leftValue = try left.evaluate()
+            let rightValue = try right.evaluate()
             let remainder = leftValue.truncatingRemainder(dividingBy: rightValue)
-            
+
             return leftValue.sign != rightValue.sign ? rightValue + remainder : remainder
         case .multiplication(let left, let right):
-            return left.evaluate() * right.evaluate()
+            return try left.evaluate() * right.evaluate()
         case .division(let left, let right):
-            return left.evaluate() / right.evaluate()
+            return try left.evaluate() / right.evaluate()
         case .exponentiation(let base, let exponent):
-            let baseValue = base.evaluate()
-            let exponentValue = exponent.evaluate()
-            guard !baseValue.isNaN && !exponentValue.isNaN else { return .nan }
-            
+            let baseValue = try base.evaluate()
+            let exponentValue = try exponent.evaluate()
+
+            guard !baseValue.isNaN && !exponentValue.isNaN else {
+                throw ExpressionError.undefinedExponentiation
+            }
+
             let sign = ((1 / exponentValue).isWhole() && !(1 / exponentValue).isEven()) ? baseValue.getSign() : 1
             return sign * pow(sign * baseValue, exponentValue)
         case .root(let root, let base):
-            return ArithmeticExpression.exponentiation(base, .inverse(root)).evaluate()
+            return try ArithmeticExpression.exponentiation(base, .inverse(root)).evaluate()
         case .square(let base):
-            return ArithmeticExpression.exponentiation(base, .number(2)).evaluate()
+            return try ArithmeticExpression.exponentiation(base, .number(2)).evaluate()
         case .factorial(let expression):
-            let value = expression.evaluate()
+            let value = try expression.evaluate()
 
-            guard !value.isNaN else { return .nan }
-            guard abs(value) < MaxPrecisionNumber(Int.max) else { return value.getSign() * .infinity }
-            
-            if value.isWhole() {
-                var result: MaxPrecisionNumber = 1
-                let intValue = Int(value)
-                let sign = intValue < 0 ? -1 : 1
-                let upper = sign * max(abs(sign < 0 ? sign : intValue), 1)
-                let lower = sign < 0 ? intValue : sign
-                
-                for i in lower ... upper {
-                    if result.isInfinite {
-                        break
-                    }
-                    
-                    result *= MaxPrecisionNumber(i)
-                }
-                
-                return result
+            // TODO: isWhole is basically useless if the value is so great that the precision loses the decimal places
+            guard !value.isNaN && value.isWhole() else {
+                throw ExpressionError.undefinedFactorial
             }
-            
-            return .nan
-        case .empty, .error:
-            return .nan
+
+            guard abs(value) < MaxPrecisionNumber(Int.max) else {
+                return value.getSign() * .infinity
+            }
+
+            var result: MaxPrecisionNumber = 1
+            let intValue = Int(value)
+            let sign = intValue < 0 ? -1 : 1
+            let upper = sign * max(abs(sign < 0 ? sign : intValue), 1)
+            let lower = sign < 0 ? intValue : sign
+
+            for i in lower ... upper {
+                if result.isInfinite {
+                    break
+                }
+
+                result *= MaxPrecisionNumber(i)
+            }
+
+            return result
+        case .empty:
+            throw ExpressionError.incompleteExpression
+        case .error(let error):
+            throw error
         }
     }
     

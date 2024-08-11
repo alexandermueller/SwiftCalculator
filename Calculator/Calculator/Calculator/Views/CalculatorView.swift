@@ -17,7 +17,7 @@ struct CalculatorView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 2) {
-                TextDisplayField(text: viewModel.expressionText + "=")
+                TextDisplayField(text: viewModel.expressionText + "=", hint: viewModel.textDisplayHint)
                     .frame(height: arithmeticExpressionTextDisplayFieldHeight(for: geometry))
                     .foregroundColor(viewModel.textDisplayColour)
                 TextDisplayField(text: viewModel.displayedValue.toSimpleNumericString(for: .fullDisplay))

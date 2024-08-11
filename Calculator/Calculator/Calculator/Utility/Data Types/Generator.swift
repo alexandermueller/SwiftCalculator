@@ -38,6 +38,10 @@ class Generator {
         }
         
         if element.isProperDouble() {
+            if !element.isInteger() && element.toMaxPrecisionNumber().isWhole() {
+                return goToError(with: .error(.decimalPrecisionLoss))
+            }
+
             return goToRightValue(with: .number(element.toMaxPrecisionNumber()))
         }
         
@@ -51,7 +55,7 @@ class Generator {
                 }
             case .function(let function):
                 switch function {
-                case .right(_):
+                case .right:
                     let (leftValue, newElementStack) = Generator().startGenerator(with: elementStack, function: function)
                     elementStack = newElementStack
                     return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue))
@@ -63,7 +67,7 @@ class Generator {
             }
         }
         
-        return goToError(with: .error)
+        return goToError(with: .error(.incompleteExpression))
     }
     
     private func goToRightValue(with expression: ArithmeticExpression) -> GeneratorReturnType {
@@ -77,14 +81,14 @@ class Generator {
                 }
             case .function(let function):
                 switch function {
-                case .left(_):
+                case .left:
                     if rank < function.rank {
                         elementStack += [element]
                         break
                     }
                     
                     return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: .empty, rightValue: rightValue))
-                case .middle(_):
+                case .middle:
                     if let previous = previousFunction, rank < function.rank || previous == function && previous.isGreedy {
                         elementStack += [element]
                         break
@@ -94,7 +98,7 @@ class Generator {
                     elementStack = newElementStack
                     return goToRightValue(with: ArithmeticExpression.from(function: function, leftValue: leftValue, rightValue: rightValue))
                 default:
-                    return goToError(with: .error)
+                    return goToError(with: .error(.invalidExpression))
                 }
             default:
                 break

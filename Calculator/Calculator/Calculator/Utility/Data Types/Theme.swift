@@ -9,7 +9,7 @@
 import SwiftUI
 
 final class Theme: ObservableObject {
-    @Published var primaryColour = Color(light: Color(.brown), dark: Color(.brown))
+    @Published var primaryColour = Color(light: .darkBrown, dark: .darkBrown)
     @Published var accentColour = Color(light: .orange, dark: .orange)
     @Published var textDisplayFieldForegroundColour = Color(light: .black, dark: .white)
     @Published var textDisplayFieldBackgroundColour = Color(light: .white, dark: .black)
@@ -18,4 +18,8 @@ final class Theme: ObservableObject {
     
     static var labelFontToHeightRatio: CGFloat = 0.33
     static var defaultAnimationDuration = 0.5
+}
+
+private extension Color {
+    static var darkBrown: Color { .init(red: 0.6, green: 0.4, blue: 0.2) }
 }

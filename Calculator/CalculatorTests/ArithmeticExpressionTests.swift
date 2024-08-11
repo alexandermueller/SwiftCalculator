@@ -10,7 +10,7 @@ import XCTest
 @testable import Swift_Calculator
 
 class ArithmeticExpressionTests: UnitTestSuite {
-    func testParseExpression() {
+    func test_ArithmeticExpression_value() {
         typealias UnitTest = TemplateTest<[String], ArithmeticExpression>
         
         let testCaseSuite: [String : (SuccessCondition, [UnitTest])] = [
@@ -19,22 +19,22 @@ class ArithmeticExpressionTests: UnitTestSuite {
             ]),
             
             "Number, Decimal" : (.equivalent, [
-                UnitTest(["0."], .error),
+                UnitTest(["0."], .error(.incompleteExpression)),
                 UnitTest(["1"], .number(1)),
                 UnitTest(["0.000001"], .number(0.000001)),
                 UnitTest(["10.000001"], .number(10.000001)),
             ]),
             
             "Addition" : (.equivalent, [
-                UnitTest(["0", "+"], .error),
-                UnitTest(["0", "+", "0."], .error),
+                UnitTest(["0", "+"], .error(.incompleteExpression)),
+                UnitTest(["0", "+", "0."], .error(.incompleteExpression)),
                 UnitTest(["1", "+", "2"], .addition(.number(1), .number(2))),
                 UnitTest(["1", "+", "2", "+", "1", "+", "2"], .addition(.addition(.addition(.number(1), .number(2)), .number(1)), .number(2))),
             ]),
             
             "Subtraction" : (.equivalent, [
-                UnitTest(["0", "-"], .error),
-                UnitTest(["0", "-", "0."], .error),
+                UnitTest(["0", "-"], .error(.incompleteExpression)),
+                UnitTest(["0", "-", "0."], .error(.incompleteExpression)),
                 UnitTest(["1", "–", "1"], .subtraction(.number(1), .number(1))),
                 UnitTest(["1", "+", "2", "+", "1", "+", "2"], .addition(.addition(.addition(.number(1), .number(2)), .number(1)), .number(2))),
             ]),
@@ -45,15 +45,15 @@ class ArithmeticExpressionTests: UnitTestSuite {
             ]),
             
             "Modulo" : (.equivalent, [
-                UnitTest(["0", "%"], .error),
-                UnitTest(["0", "%", "0."], .error),
+                UnitTest(["0", "%"], .error(.incompleteExpression)),
+                UnitTest(["0", "%", "0."], .error(.incompleteExpression)),
                 UnitTest(["1", "+", "1", "%", "1"], .addition(.number(1), .modulo(.number(1), .number(1)))),
                 UnitTest(["1", "%", "1", "–", "1"], .subtraction(.modulo(.number(1), .number(1)), .number(1))),
                 UnitTest(["3", "%", "4", "%", "5"], .modulo(.modulo(.number(3), .number(4)), .number(5))),
             ]),
             
             "Negation" : (.equivalent, [
-                UnitTest(["-"], .error),
+                UnitTest(["-"], .error(.incompleteExpression)),
                 UnitTest(["-", "1"], .negation(.number(1))),
                 UnitTest(["-", "-", "1"], .negation(.negation(.number(1)))),
                 UnitTest(["-", "1", "–", "1"], .subtraction(.negation(.number(1)), .number(1))),
@@ -114,14 +114,18 @@ class ArithmeticExpressionTests: UnitTestSuite {
             Generator().startGenerator(with: testCase).value
         }
     }
-    
-    func testArithmeticExpressionEvaluate() {
+
+    func test_ArithmeticExpression_evaluate() {
         typealias UnitTest = TemplateTest<ArithmeticExpression, MaxPrecisionNumber>
-        
+
         let testCaseSuite: [String : (SuccessCondition, [UnitTest])] = [
             "Empty, Error, NaN" : (.equivalent, [
                 UnitTest(.empty, .nan),
-                UnitTest(.error, .nan),
+                UnitTest(.error(.incompleteExpression), .nan),
+                UnitTest(.error(.invalidExpression), .nan),
+                UnitTest(.error(.thresholdExceeded), .nan),
+                UnitTest(.error(.undefinedFactorial), .nan),
+                UnitTest(.error(.undefinedSummation), .nan),
                 UnitTest(.number(.nan), .nan)
             ]),
 
@@ -319,7 +323,7 @@ class ArithmeticExpressionTests: UnitTestSuite {
             
             // I want to make sure that the accuracy for odd roots is exactly what we expect from even roots (just to show consistency.)
             // Float80.greatestFiniteMagnitude = 1.189731495357231765e+4932, so let's test up to the 2 largest exponent products of 10 for Float80.
-            "Root Positive Whole" : (.approximate(within: kErrorThreshold), [
+            "Root Positive Whole" : (.approximate, [
                 UnitTest(.root(.number(1),    .number(1e1)),    10),
                 UnitTest(.root(.number(2),    .number(1e2)),    10),
                 UnitTest(.root(.number(3),    .number(1e3)),    10),
@@ -344,7 +348,7 @@ class ArithmeticExpressionTests: UnitTestSuite {
             ]),
 
             // And similarly for negative numbers. Float80.leastNormalMagnitude = 3.3621031431120935063e-4932.
-            "Root Negative Whole" : (.approximate(within: kErrorThreshold), [
+            "Root Negative Whole" : (.approximate, [
                 UnitTest(.root(.number(1),    .negation(.number(1e1))),    -10),
                 UnitTest(.root(.number(3),    .negation(.number(1e3))),    -10),
                 UnitTest(.root(.number(5),    .negation(.number(1e5))),    -10),
@@ -359,7 +363,7 @@ class ArithmeticExpressionTests: UnitTestSuite {
             ]),
             
             // Let's go the other way too. Float80.leastNonzeroMagnitude = 4e-4951.
-            "Root Positive Decimal" : (.approximate(within: kErrorThreshold), [
+            "Root Positive Decimal" : (.approximate, [
                 UnitTest(.root(.number(1),   .number(1e-1)),   0.1),
                 UnitTest(.root(.number(2),   .number(1e-2)),   0.1),
                 UnitTest(.root(.number(3),   .number(1e-3)),   0.1),
@@ -385,7 +389,7 @@ class ArithmeticExpressionTests: UnitTestSuite {
             ]),
             
             // And similarly for negative decimals.
-            "Root Negative Decimal" : (.approximate(within: kErrorThreshold), [
+            "Root Negative Decimal" : (.approximate, [
                 UnitTest(.root(.number(1),   .negation(.number(1e-1))),   -0.1),
                 UnitTest(.root(.number(3),   .negation(.number(1e-3))),   -0.1),
                 UnitTest(.root(.number(5),   .negation(.number(1e-5))),   -0.1),
@@ -425,7 +429,7 @@ class ArithmeticExpressionTests: UnitTestSuite {
                 UnitTest(.exponentiation(.number(10), .number(0)), 1),
             ]),
             
-            "Exponent Decimal" : (.approximate(within: kErrorThreshold), [
+            "Exponent Decimal" : (.approximate, [
                 UnitTest(.exponentiation(.number(10), .negation(.number(1))),     1e-1),
                 UnitTest(.exponentiation(.number(10), .negation(.number(2))),     1e-2),
                 UnitTest(.exponentiation(.number(10), .negation(.number(3))),     1e-3),
@@ -491,7 +495,56 @@ class ArithmeticExpressionTests: UnitTestSuite {
         ]
         
         evaluateTestCaseSuite(testCaseSuite) { testCase in
-            testCase.evaluate()
+            do {
+                return try testCase.evaluate()
+            } catch _ {
+                return .nan
+            }
+        }
+    }
+
+    func test_ArithmeticExpression_evaluate_error() {
+        typealias UnitTest = TemplateTest<[String], ArithmeticExpression.ExpressionError>
+
+        let testCaseSuite: [String : (SuccessCondition, [UnitTest])] = [
+            "decimalPrecisionLoss" : (.equivalent, [
+                UnitTest(["66666666666666666666666666666666.6"], .decimalPrecisionLoss),
+                UnitTest(["6.6", "+", "66666666666666666666666666666666.6"], .decimalPrecisionLoss),
+                UnitTest(["∑", "66666666666666666666666666666666.6", "!"], .decimalPrecisionLoss),
+                UnitTest(["∑", "-", "6666666666666666666666666666666666.6", "!"], .decimalPrecisionLoss),
+                UnitTest(["66666666666666666666666666666666.6", "+", "6.6"], .decimalPrecisionLoss),
+                UnitTest(["66666666666666666666666666666666.6", "+", "6.6", "!"], .decimalPrecisionLoss),
+            ]),
+
+            "Incomplete" : (.equivalent, [
+                UnitTest(["1."], .incompleteExpression),
+                UnitTest(["∑", "-", "6.4", "–"], .incompleteExpression),
+                UnitTest(["∑", "-", "6.4", "!", "–"], .incompleteExpression),
+                UnitTest(["~"], .incompleteExpression),
+                UnitTest(["~", "1."], .incompleteExpression),
+            ]),
+
+            "Factorial" : (.equivalent, [
+                UnitTest(["1.6", "!"], .undefinedFactorial),
+                UnitTest(["6.6", "!"], .undefinedFactorial),
+                UnitTest(["-", "6.6", "!"], .undefinedFactorial),
+                UnitTest(["∑", "-", "6.6", "!"], .undefinedFactorial),
+            ]),
+
+            "Summation" : (.equivalent, [
+                UnitTest(["∑", "1.6"], .undefinedSummation),
+                UnitTest(["∑", "6.6"], .undefinedSummation),
+                UnitTest(["∑", "-", "6.6"], .undefinedSummation),
+            ]),
+
+            "Summation, Factorial" : (.equivalent, [
+                UnitTest(["∑", "1.6", "!"], .undefinedSummation),
+                UnitTest(["∑", "6.6", "!"], .undefinedSummation),
+            ]),
+        ]
+
+        testCasesEvaluateError(testCaseSuite) { testCase in
+            _ = try Generator().startGenerator(with: testCase).value.evaluate()
         }
     }
 }

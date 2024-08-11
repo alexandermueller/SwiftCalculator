@@ -75,7 +75,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToZero_transferFunction() {
+    func test_CalculatorViewModel_goToZero_transferFunction() {
         evaluateTransferFunction(startingState: .zero) { _, _, viewModel in
             switch viewModel.modifiedButtonPressed {
             case .digit:
@@ -98,7 +98,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToProperNumber_transferFunction() {
+    func test_CalculatorViewModel_goToProperNumber_transferFunction() {
         evaluateTransferFunction(
             startingState: .properNumber,
             testCases: [
@@ -138,7 +138,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToModifiedNumber_transferFunction() {
+    func test_CalculatorViewModel_goToModifiedNumber_transferFunction() {
         evaluateTransferFunction(
             startingState: .modifiedNumber,
             testCases: [
@@ -166,7 +166,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToVariable_transferFunction() {
+    func test_CalculatorViewModel_goToVariable_transferFunction() {
         evaluateTransferFunction(
             startingState: .variable,
             testCases: [
@@ -205,7 +205,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToOpenParenthesis_transferFunction() {
+    func test_CalculatorViewModel_goToOpenParenthesis_transferFunction() {
         evaluateTransferFunction(
             startingState: .openParenthesis,
             testCases: [
@@ -248,7 +248,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToCloseParenthesis_transferFunction() {
+    func test_CalculatorViewModel_goToCloseParenthesis_transferFunction() {
         evaluateTransferFunction(
             startingState: .closeParenthesis,
             testCases: [
@@ -287,7 +287,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToLeftFunction_transferFunction() {
+    func test_CalculatorViewModel_goToLeftFunction_transferFunction() {
         evaluateTransferFunction(
             startingState: .leftFunction,
             testCases: [
@@ -326,7 +326,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToMiddleFunction_transferFunction() {
+    func test_CalculatorViewModel_goToMiddleFunction_transferFunction() {
         evaluateTransferFunction(
             startingState: .middleFunction,
             testCases: [
@@ -365,7 +365,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToRightFunction_transferFunction() {
+    func test_CalculatorViewModel_goToRightFunction_transferFunction() {
         evaluateTransferFunction(
             startingState: .rightFunction,
             testCases: [
@@ -406,7 +406,7 @@ class CalculatorViewModelTests: UnitTestSuite {
         }
     }
 
-    func test_goToDelete_transferFunction() {
+    func test_CalculatorViewModel_goToDelete_transferFunction() {
         var simulatedPresses: [Button] = [
             .function(.left(.negate)),
             .parenthesis(.open),

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -21,6 +21,8 @@
 		84676C6B2632A95500A3D65D /* ExpressionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84676C6A2632A95500A3D65D /* ExpressionList.swift */; };
 		84921BF42832C6F3005DFB23 /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84921BF32832C6F3005DFB23 /* CalculatorViewModel.swift */; };
 		84AC054A283712A300861939 /* DynamicColours.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AC0549283712A300861939 /* DynamicColours.swift */; };
+		84F340B32C680EEF00CBCFCA /* ExpressionError+UnitTestOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F340B22C680EEF00CBCFCA /* ExpressionError+UnitTestOutput.swift */; };
+		84F340BB2C684CD000CBCFCA /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F340BA2C684CD000CBCFCA /* Preferences.swift */; };
 		FA0085B42429E04E00DCC90C /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0085B32429E04E00DCC90C /* Generator.swift */; };
 		FA11DB71256DF5B9007E6978 /* MaxPrecisionNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */; };
 		FA11DB72256DFB43007E6978 /* MaxPrecisionNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */; };
@@ -79,6 +81,8 @@
 		84676C6A2632A95500A3D65D /* ExpressionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressionList.swift; sourceTree = "<group>"; };
 		84921BF32832C6F3005DFB23 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
 		84AC0549283712A300861939 /* DynamicColours.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicColours.swift; sourceTree = "<group>"; };
+		84F340B22C680EEF00CBCFCA /* ExpressionError+UnitTestOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressionError+UnitTestOutput.swift"; sourceTree = "<group>"; };
+		84F340BA2C684CD000CBCFCA /* Preferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		FA0085B32429E04E00DCC90C /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
 		FA11DB6F256DF3C9007E6978 /* Calculator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Calculator.entitlements; sourceTree = "<group>"; };
 		FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxPrecisionNumber.swift; sourceTree = "<group>"; };
@@ -168,6 +172,7 @@
 				FA11DB70256DF5B9007E6978 /* MaxPrecisionNumber.swift */,
 				843129C9285D69C600F61986 /* Stack.swift */,
 				843129CB2862256D00F61986 /* Theme.swift */,
+				84F340BA2C684CD000CBCFCA /* Preferences.swift */,
 			);
 			path = "Data Types";
 			sourceTree = "<group>";
@@ -202,6 +207,7 @@
 				FA4A0B392484691F006060D1 /* ArithmeticExpression+UnitTestOutput.swift */,
 				840B64A12C5B12BE0054395A /* ExpressionState+UnitTestOutput.swift */,
 				FAD420B126389998005E13AC /* UnitTestSuite.swift */,
+				84F340B22C680EEF00CBCFCA /* ExpressionError+UnitTestOutput.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -295,8 +301,9 @@
 		FABEBCB62326DCED00CD024C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1030;
-				LastUpgradeCheck = 1230;
+				LastUpgradeCheck = 1540;
 				ORGANIZATIONNAME = "Alexander Mueller";
 				TargetAttributes = {
 					FABEBCBD2326DCED00CD024C = {
@@ -361,6 +368,7 @@
 				FABEBCE62327FB0000CD024C /* ArithmeticExpression.swift in Sources */,
 				843129BC285BB0F300F61986 /* Haptics.swift in Sources */,
 				FA11DB71256DF5B9007E6978 /* MaxPrecisionNumber.swift in Sources */,
+				84F340BB2C684CD000CBCFCA /* Preferences.swift in Sources */,
 				FAFA73D7234724F5004B0D1C /* Button.swift in Sources */,
 				FABEBCE22327FA2C00CD024C /* String+Checks.swift in Sources */,
 				843129C2285D533800F61986 /* VariableDisplayView.swift in Sources */,
@@ -389,6 +397,7 @@
 				FAA07C6D2341D27800D9E43F /* ArithmeticExpressionTests.swift in Sources */,
 				FA4A0B3A2484691F006060D1 /* ArithmeticExpression+UnitTestOutput.swift in Sources */,
 				840B64A22C5B12BE0054395A /* ExpressionState+UnitTestOutput.swift in Sources */,
+				84F340B32C680EEF00CBCFCA /* ExpressionError+UnitTestOutput.swift in Sources */,
 				840B64A02C5B10120054395A /* CalculatorViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -408,6 +417,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -444,6 +454,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -458,7 +469,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -472,6 +483,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -509,6 +521,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -517,7 +530,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -541,7 +554,7 @@
 				DEVELOPMENT_TEAM = 39STF66TCU;
 				INFOPLIST_FILE = Calculator/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -573,7 +586,7 @@
 				DEVELOPMENT_TEAM = 39STF66TCU;
 				INFOPLIST_FILE = Calculator/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -603,7 +616,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 39STF66TCU;
 				INFOPLIST_FILE = CalculatorTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -633,7 +646,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 39STF66TCU;
 				INFOPLIST_FILE = CalculatorTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -28,6 +28,7 @@ final class CalculatorViewModel: ObservableObject {
     @Published var displayedValue: MaxPrecisionNumber = 0
     @Published var variableValueDict: VariableValueDict = Variable.defaultVariableValueDict
     @Published var textDisplayColour: Color = .gray
+    @Published var textDisplayHint: String? = nil
     @Published var buttonDisplayViewMode: ButtonDisplayView.Mode = .normal
     @Published var buttonLongPressed: Button? {
         didSet {
@@ -123,7 +124,19 @@ final class CalculatorViewModel: ObservableObject {
 
             // Soft balance the parentheses so that users can preview the current value
             mappedElements += Array(repeating: Button.parenthesis(.close).rawValue, count: parenBalance)
-            let nextValue = generator.startGenerator(with: mappedElements).value.evaluate()
+
+            let nextValue: MaxPrecisionNumber = {
+                do {
+                    textDisplayHint = nil
+                    return try generator.startGenerator(with: mappedElements).value.evaluate()
+                } catch ArithmeticExpression.ExpressionError.nan(let hint) {
+                    textDisplayHint = hint
+                } catch let error {
+                    print(error.localizedDescription)
+                }
+
+                return .nan
+            }()
 
             let mappedExpressionString = mappedElements.toExpressionString()
             let lastMappedExpressionString = lastMappedElements.toExpressionString()
