@@ -32,7 +32,13 @@ final class CalculatorViewModel: ObservableObject {
     @Published var buttonDisplayViewMode: ButtonDisplayView.Mode = .normal
     @Published var buttonLongPressed: Button? {
         didSet {
-            guard let button = buttonLongPressed, let mapping = button.longPressMapping else { return }
+            guard
+                let button = buttonLongPressed,
+                let mapping = button.longPressMapping
+            else {
+                return
+            }
+
             buttonPressed = mapping
         }
     }
@@ -93,7 +99,7 @@ final class CalculatorViewModel: ObservableObject {
     }
     internal var modifiedButtonPressed: Button? {
         didSet {
-            guard let modifiedButtonPressed = modifiedButtonPressed else { return }
+            guard let modifiedButtonPressed else { return }
             transferFunction?(modifiedButtonPressed)
         }
     }
@@ -380,7 +386,14 @@ extension CalculatorViewModel {
             case .parenthesis(.open):
                 goToOpenParenthesis(with: pressedButton)
             case .function(.left(.negate)):
-                guard let lastElement = expressionElements.last, let button = Button.from(rawValue: lastElement), button != pressedButton else { return }
+                guard
+                    let lastElement = expressionElements.last,
+                    let button = Button.from(rawValue: lastElement),
+                    button != pressedButton
+                else {
+                    return
+                }
+
                 goToLeftFunction(with: pressedButton)
             case .function(.left):
                 goToLeftFunction(with: pressedButton)

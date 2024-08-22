@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TextDisplayField: View {
     @EnvironmentObject var theme: Theme
-    @State var showHint: Bool = true
+    @State var presentHint: Bool = true
 
     let text: String
     let hint: String?
@@ -26,7 +26,7 @@ struct TextDisplayField: View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
                 HStack {
-                    if let hint {
+                    if hint != nil {
                         Spacer()
                             .frame(width: infoButtonFootprint(for: geometry))
                     }
@@ -39,7 +39,7 @@ struct TextDisplayField: View {
 
                 if let hint {
                     SwiftUI.Button("ⓘ") {
-                        showHint.toggle()
+                        presentHint.toggle()
                     }
                     .padding(20)
                     .font(.system(for: geometry, scale: infoButtonScale, bold: true))
@@ -49,12 +49,13 @@ struct TextDisplayField: View {
                             .foregroundColor(.accentColor)
                             .padding(15)
                     )
-                    .popover(isPresented: $showHint) {
+                    .popover(isPresented: $presentHint) {
                         Text(hint)
                             .padding(15)
                             .font(.system(for: geometry, scale: 0.5))
                             .foregroundColor(theme.textDisplayFieldForegroundColour)
                             .presentationCompactAdaptation(.popover)
+                            .interactiveDismissDisabled()
                     }
                 }
             }
