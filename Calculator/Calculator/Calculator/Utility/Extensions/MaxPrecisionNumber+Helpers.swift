@@ -1,9 +1,9 @@
 //
-//  MaxPrecisionNumber+ToSimpleNumericString.swift
+//  MaxPrecisionNumber+Helpers.swift
 //  Calculator
 //
-//  Created by Alexander Mueller on 2019-09-10.
-//  Copyright © 2019 Alexander Mueller. All rights reserved.
+//  Created by Alexander Mueller on 2020-05-31.
+//  Copyright © 2020 Alexander Mueller. All rights reserved.
 //
 
 import Foundation
@@ -15,6 +15,18 @@ enum MaxDisplayLength: Int {
 }
 
 extension MaxPrecisionNumber {
+    func isWhole() -> Bool {
+        self.remainder(dividingBy: 1) == 0 || self.isInfinite
+    }
+    
+    func isEven() -> Bool {
+        self.truncatingRemainder(dividingBy: 2.0) == 0
+    }
+    
+    func getSign() -> Double {
+        self >= 0 ? 1.0 : -1.0
+    }
+    
     // Forces the displayed number to be the appropriate character length depending on the display type
     func toSimpleNumericString(for displayLimit: MaxDisplayLength = .highestLimit) -> String {
         guard !self.isNaN else {
@@ -28,12 +40,12 @@ extension MaxPrecisionNumber {
         formatter.maximumSignificantDigits = displayLimit.rawValue
         
         if value.count > displayLimit.rawValue && (displayLimit == .buttonDisplay || self.remainder(dividingBy: 1) == 0) {
-            var formattedValue = formatter.string(from: NSNumber(value: Double(self))) ?? "NaN"
-            
+            var formattedValue = formatter.string(from: NSNumber(value: self)) ?? "NaN"
+
             if formattedValue.count > displayLimit.rawValue {
                 let eLength = max(formattedValue.distance(from: (formattedValue.firstIndex(where: {["E", "e"].contains($0)}) ?? formattedValue.endIndex), to: formattedValue.endIndex), 0)
                 formatter.maximumSignificantDigits = displayLimit.rawValue - formattedValue.countCharacters(["-", "."], until: ["E", "e"]) - eLength
-                formattedValue = formatter.string(from: NSNumber(value: Double(self))) ?? "NaN"
+                formattedValue = formatter.string(from: NSNumber(value: self)) ?? "NaN"
             }
             
             value = formattedValue

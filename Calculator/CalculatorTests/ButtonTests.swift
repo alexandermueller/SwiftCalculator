@@ -10,15 +10,21 @@ import XCTest
 @testable import Swift_Calculator
 
 class ButtonTests: UnitTestSuite {
-    func testButtonDisplayValue() {
-        testCasesEvaluateNonNilOrEmpty(Button.allCases, using: { $0.buttonDisplayValue })
+    func test_ButtonTests_buttonDisplayValue() {
+        testCasesEvaluateNonNilOrEmpty(Button.allCases) { testCase in
+            testCase.buttonDisplayValue
+        }
     }
     
-    func testRawValue() {
-        testCasesEvaluateNonNilOrEmpty(Button.allCases, using: { $0.rawValue })
+    func test_ButtonTests_rawValue() {
+        testCasesEvaluateNonNilOrEmpty(Button.allCases) { testCase in
+            testCase.rawValue
+        }
     }
     
-    func testFromRawValue() {
-        evaluateTestCases(Button.allCases.map({ TemplateTest<String, String>($0.rawValue, $0.rawValue) }), using: { Button.from(rawValue: $0)?.rawValue ?? "" })
+    func test_ButtonTests_fromRawValue() {
+        evaluateTestCases(Button.allCases.map { TemplateTest<String, String>($0.rawValue, $0.rawValue) }) { testCase in
+            Button.from(rawValue: testCase)?.rawValue ?? ""
+        }
     }
 }

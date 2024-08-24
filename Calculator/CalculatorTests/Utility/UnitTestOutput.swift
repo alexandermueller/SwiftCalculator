@@ -8,13 +8,13 @@
 
 import Foundation
 
-infix operator |-|
+infix operator ≈≈
 
-protocol UnitTestOutput : Equatable {
+protocol UnitTestOutput: Equatable {
+    static func ≈≈ (lhs: Self, rhs: Self) -> Bool
+    static func <= (lhs: Self, rhs: MaxPrecisionNumber) -> Bool
+    
     func isNaN() -> Bool
     func isEmpty() -> Bool
     func isPositive() -> Bool
-    
-    static func |-| (lhs: Self, rhs: Self) -> Self
-    static func <= (lhs: Self, rhs: MaxPrecisionNumber) -> Bool
 }

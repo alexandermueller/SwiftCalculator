@@ -1,5 +1,5 @@
 //
-//  String+ImplementsIsNaN.swift
+//  String+UnitTestOutput.swift
 //  CalculatorTests
 //
 //  Created by Alex Mueller on 2020-05-31.
@@ -8,24 +8,11 @@
 
 import Foundation
 
-extension String : UnitTestOutput {
-    func isNaN() -> Bool {
-        return false
-    }
-    
-    func isEmpty() -> Bool {
-        return self == ""
-    }
-    
-    func isPositive() -> Bool {
-        return false
-    }
-    
-    static func |-| (lhs: String, rhs: String) -> String {
-        return ""
-    }
-    
-    static func <= (lhs: String, rhs: MaxPrecisionNumber) -> Bool {
-        return false
-    }
+extension String: UnitTestOutput {
+    static func ≈≈ (lhs: String, rhs: String) -> Bool { false }
+    static func <= (lhs: String, rhs: MaxPrecisionNumber) -> Bool { false }
+
+    func isNaN() -> Bool { false }
+    func isEmpty() -> Bool { self == "" }
+    func isPositive() -> Bool { false }
 }

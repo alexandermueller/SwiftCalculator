@@ -30,7 +30,7 @@ extension String {
     }
     
     func isInteger() -> Bool {
-        return self.toMaxPrecisionNumber().isWhole()
+        return !self.contains(".") && self.toMaxPrecisionNumber().isWhole()
     }
     
     func isOpenParen() -> Bool {
