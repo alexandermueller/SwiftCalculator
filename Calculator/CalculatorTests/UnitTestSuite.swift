@@ -37,6 +37,15 @@ class UnitTestSuite: XCTestCase {
             for (index, testCase) in testCases.enumerated() {
                 do {
                     _ = try outputClosure(testCase.input)
+                    XCTFail(
+                        """
+
+                        Test Case \(index + 1)/\(testCases.count) in '\(section)' Failed.
+                        Expected: \(testCase.output),
+                             Saw: no error
+
+                        """
+                    )
                 } catch let error {
                     guard let error = error as? O else {
                         XCTFail(
@@ -98,7 +107,7 @@ class UnitTestSuite: XCTestCase {
                 let assertion = {
                     switch condition {
                     case .equivalent:
-                        output == testCase.output
+                        output == testCase.output || output.isNaN() && testCase.output.isNaN()
                     case .approximate:
                         output ≈≈ testCase.output
                     }

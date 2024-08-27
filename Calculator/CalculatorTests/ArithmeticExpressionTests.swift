@@ -108,6 +108,11 @@ class ArithmeticExpressionTests: UnitTestSuite {
                 UnitTest(["∑", "(", "3", "–", "4", ")"], .summation(.subtraction(.number(3), .number(4)))),
                 UnitTest(["∑", "(", "3", "–", "4", ")", "!"], .factorial(.summation(.subtraction(.number(3), .number(4))))),
             ]),
+
+            "Undefined Expressions" : (.equivalent, [
+                UnitTest([""], .error(.undefinedExpression)),
+                UnitTest(["Fake Button"], .error(.undefinedExpression)),
+            ]),
         ]
         
         evaluateTestCaseSuite(testCaseSuite) { testCase in
@@ -123,9 +128,7 @@ class ArithmeticExpressionTests: UnitTestSuite {
                 UnitTest(.empty, .nan),
                 UnitTest(.error(.incompleteExpression), .nan),
                 UnitTest(.error(.invalidExpression), .nan),
-                UnitTest(.error(.thresholdExceeded), .nan),
-                UnitTest(.error(.undefinedFactorial), .nan),
-                UnitTest(.error(.undefinedSummation), .nan),
+                UnitTest(.error(.undefinedExpression), .nan),
                 UnitTest(.number(.nan), .nan)
             ]),
 
@@ -541,10 +544,34 @@ class ArithmeticExpressionTests: UnitTestSuite {
                 UnitTest(["∑", "1.6", "!"], .undefinedSummation),
                 UnitTest(["∑", "6.6", "!"], .undefinedSummation),
             ]),
+
+            "Undefined" : (.equivalent, [
+                UnitTest(["inf", "+", "-inf"], .undefinedAddition),
+                UnitTest(["inf", "–", "inf"], .undefinedSubtraction),
+                UnitTest(["-inf", "–", "-inf"], .undefinedSubtraction),
+                UnitTest(["0", "x", "inf"], .undefinedMultiplication),
+                UnitTest(["0", "x", "-inf"], .undefinedMultiplication),
+                UnitTest(["inf", "÷", "inf"], .undefinedDivision),
+                UnitTest(["inf", "÷", "-inf"], .undefinedDivision),
+                UnitTest(["inf", "%", "inf"], .undefinedModulus),
+                UnitTest(["inf", "%", "inf"], .undefinedModulus),
+                UnitTest(["inf", "%", "-inf"], .undefinedModulus),
+                UnitTest(["1", "%", "0"], .undefinedModulus),
+            ])
         ]
 
         testCasesEvaluateError(testCaseSuite) { testCase in
             _ = try Generator().startGenerator(with: testCase).value.evaluate()
         }
     }
+}
+
+private extension ArithmeticExpression.ExpressionError {
+    static var undefinedAddition: Self = .undefined(function: .middle(.add))
+    static var undefinedSubtraction: Self = .undefined(function: .middle(.subtract))
+    static var undefinedMultiplication: Self = .undefined(function: .middle(.multiply))
+    static var undefinedDivision: Self = .undefined(function: .middle(.divide))
+    static var undefinedModulus: Self = .undefined(function: .middle(.modulo))
+    static var undefinedFactorial: Self = .undefined(function: .right(.factorial))
+    static var undefinedSummation: Self = .undefined(function: .left(.sum))
 }

@@ -15,6 +15,7 @@ enum MaxDisplayLength: Int {
 }
 
 extension MaxPrecisionNumber {
+    // TODO: isWhole is basically useless if the value is so great that the precision loses the decimal places
     func isWhole() -> Bool {
         self.remainder(dividingBy: 1) == 0 || self.isInfinite
     }
@@ -55,6 +56,8 @@ extension MaxPrecisionNumber {
             return "inf"
         } else if ("-∞" == value) {
             return "-inf"
+        } else if ("-0" == value) {
+            return "0"
         }
         
         return value.removeFirstContainedSuffix([".0", "E0", "e0"])

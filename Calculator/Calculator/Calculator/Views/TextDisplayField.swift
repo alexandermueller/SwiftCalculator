@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TextDisplayField: View {
     @EnvironmentObject var theme: Theme
-    @State var presentHint: Bool = true
+    @State var presentHint: Bool = false
 
     let text: String
     let hint: String?
@@ -49,7 +49,7 @@ struct TextDisplayField: View {
                             .foregroundColor(.accentColor)
                             .padding(15)
                     )
-                    .popover(isPresented: $presentHint) {
+                    .popover(isPresented: $presentHint, arrowEdge: .top) {
                         Text(hint)
                             .padding(15)
                             .font(.system(for: geometry, scale: 0.5))
