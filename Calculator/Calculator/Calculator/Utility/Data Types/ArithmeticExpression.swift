@@ -17,6 +17,10 @@ indirect enum ArithmeticExpression: Equatable {
         static var incompleteExpression: Self { .nan("Incomplete Expression") }
         static var undefinedExpression: Self { .nan("Undefined Expression") }
 
+        static func undefined(function: Function) -> Self {
+            .nan("Undefined \(function.action)")
+        }
+
         static func undefined(from expression: ArithmeticExpression) -> Self? {
             if case ArithmeticExpression.number = expression {
                 return nil
@@ -26,7 +30,7 @@ indirect enum ArithmeticExpression: Equatable {
                 return undefinedExpression
             }
 
-            return .nan("Undefined \(function.action)")
+            return undefined(function: function)
         }
     }
 

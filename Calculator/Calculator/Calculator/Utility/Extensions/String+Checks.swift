@@ -10,11 +10,11 @@ import Foundation
 
 extension String {
     func isProperDouble() -> Bool {
-        guard let lastCharacter: Character = self.last else {
+        guard let lastCharacter: Character = last else {
             return false
         }
         
-        return self.isVariable() || self.isDouble() && lastCharacter != Character(Modifier.decimal.rawValue)
+        return isVariable() || isDouble() && lastCharacter != Character(Modifier.decimal.rawValue)
     }
     
     func isVariable() -> Bool {
@@ -22,7 +22,7 @@ extension String {
     }
     
     func isNumber() -> Bool {
-        return !self.toMaxPrecisionNumber().isNaN
+        return !toMaxPrecisionNumber().isNaN
     }
     
     func isDouble() -> Bool {
@@ -30,7 +30,7 @@ extension String {
     }
     
     func isInteger() -> Bool {
-        return !self.contains(".") && self.toMaxPrecisionNumber().isWhole()
+        return hasSuffix(".0") || !contains(".") && toMaxPrecisionNumber().isWhole()
     }
     
     func isOpenParen() -> Bool {
@@ -39,10 +39,6 @@ extension String {
     
     func isCloseParen() -> Bool {
         return self == Parenthesis.close.rawValue
-    }
-    
-    func toDouble() -> Double {
-        return Double(self) ?? .nan
     }
     
     func toMaxPrecisionNumber() -> MaxPrecisionNumber {
