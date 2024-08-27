@@ -44,22 +44,14 @@ final class CalculatorViewModel: ObservableObject {
     }
     @Published var buttonPressed: Button? {
         didSet {
-            switch buttonPressed {
-            case .function(.middle(.subtract)):
-                switch currentExpressionState {
-                case .zero, .openParenthesis, .leftFunction, .middleFunction:
-                    modifiedButtonPressed = .function(.left(.negate))
-                default:
-                    modifiedButtonPressed = buttonPressed
-                }
-            case .function(.left(.sqrt)):
-                switch self.currentExpressionState {
-                case .properNumber, .variable, .closeParenthesis, .rightFunction:
-                    modifiedButtonPressed = .function(.middle(.root))
-                default:
-                    modifiedButtonPressed = buttonPressed
-                }
-            case .convenience(let convenience):
+            switch (buttonPressed, currentExpressionState) {
+            case (.modifier(.decimal), .openParenthesis), (.modifier(.decimal), .leftFunction), (.modifier(.decimal), .middleFunction):
+                simulate(buttonPresses: [.digit(.zero), .modifier(.decimal)])
+            case (.function(.middle(.subtract)), .zero), (.function(.middle(.subtract)), .openParenthesis), (.function(.middle(.subtract)), .leftFunction), (.function(.middle(.subtract)), .middleFunction):
+                modifiedButtonPressed = .function(.left(.negate))
+            case (.function(.left(.sqrt)), .properNumber), (.function(.left(.sqrt)), .variable), (.function(.left(.sqrt)), .closeParenthesis), (.function(.left(.sqrt)), .rightFunction):
+                modifiedButtonPressed = .function(.middle(.root))
+            case (.convenience(let convenience), _):
                 switch convenience {
                 case .fraction:
                     simulate(
@@ -77,7 +69,7 @@ final class CalculatorViewModel: ObservableObject {
                         ]
                     )
                 }
-            case .other(let other):
+            case (.other(let other), _):
                 switch other {
                 case .alternate:
                     buttonDisplayViewMode = buttonDisplayViewMode == .alternate ? .normal : .alternate
@@ -149,7 +141,7 @@ final class CalculatorViewModel: ObservableObject {
 
             if nextValue.isNaN {
                 textDisplayColour = .red
-            } else if mappedExpressionString == "0" {
+            } else if currentExpressionState == .zero {
                 textDisplayColour = .gray
             } else {
                 textDisplayColour = Color(light: .black, dark: .white)
@@ -198,9 +190,6 @@ final class CalculatorViewModel: ObservableObject {
             expressionElements[lastElementIndex] = lastElement == "0" ? lastElement : lastElement + button.rawValue
         case (.modifier(.decimal), .properNumber):
             expressionElements[lastElementIndex] = lastElement + button.rawValue
-        case (.modifier(.decimal), .openParenthesis), (.modifier(.decimal), .leftFunction), (.modifier(.decimal), .middleFunction):
-            expressionElements += .defaultList
-            expressionElements += [button.rawValue]
         default:
             expressionElements += [button.rawValue]
         }

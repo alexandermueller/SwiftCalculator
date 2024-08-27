@@ -38,7 +38,7 @@ class Generator {
         }
         
         if element.isProperDouble() {
-            if !element.isInteger() && element.toMaxPrecisionNumber().isWhole() {
+            if !element.toMaxPrecisionNumber().isZero && !element.isInteger() && element.toMaxPrecisionNumber().isWhole() {
                 return goToError(with: .error(.decimalPrecisionLoss))
             }
 
