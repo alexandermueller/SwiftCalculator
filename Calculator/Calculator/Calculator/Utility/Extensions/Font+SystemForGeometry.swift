@@ -10,7 +10,7 @@ import SwiftUI
 
 extension Font {
     static func system(for geometry: GeometryProxy, scale: Double = 1, bold: Bool = false) -> Font {
-        let font: Font = .system(size: geometry.size.height * Theme.labelFontToHeightRatio * scale)
+        let font: Font = .system(size: geometry.size.height * Constants.labelFontToHeightRatio * scale)
 
         if bold {
             return font.bold()

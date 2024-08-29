@@ -2,64 +2,77 @@
 //  CalculatorView.swift
 //  Swift Calculator
 //
-//  Created by Alex Müller on 16.05.22.
-//  Copyright © 2022 Alexander Mueller. All rights reserved.
+//  Created by Alexander Mueller on 29.08.24.
+//  Copyright © 2024 Alexander Mueller. All rights reserved.
 //
 
 import SwiftUI
 
 struct CalculatorView: View {
     @ObservedObject var viewModel: CalculatorViewModel
-    @ObservedObject var theme: Theme
-    
-    let aspectRatioThreshold: CGFloat = 0.75
-    
+
+    @State private var settingsIsOpen = false
+    @State private var settingsHeight: CGFloat = 0
+    @State private var dragOffset: CGFloat = 0 {
+        didSet {
+            settingsHeight += dragOffset
+        }
+    }
+
+    private let showSettingsThreshold = 0.75
+    private let minimumInterfaceHeightRatio = 0.53
+
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 2) {
-                TextDisplayField(text: viewModel.expressionText + "=", hint: viewModel.textDisplayHint)
-                    .frame(height: arithmeticExpressionTextDisplayFieldHeight(for: geometry))
-                    .foregroundColor(viewModel.textDisplayColour)
-                TextDisplayField(text: viewModel.displayedValue.toSimpleNumericString(for: .fullDisplay))
-                    .foregroundColor(theme.primaryColour)
-                VStack(spacing: 0) {
-                    VariableDisplayView(variableValueDict: viewModel.variableValueDict)
-                        .frame(height: buttonViewHeight(for: geometry))
-                        .foregroundColor(theme.accentColour)
-                    ButtonDisplayView(viewModel: viewModel)
-                        .frame(height: buttonDisplayViewHeight(for: geometry))
+            VStack {
+                InterfaceView(viewModel: viewModel)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { value in
+                                dragOffset = -value.translation.height
+                            }
+                            .onEnded { value in
+                                if settingsHeight > showThreshold(for: geometry) {
+                                    settingsIsOpen = true
+                                    
+                                    withAnimation {
+                                        settingsHeight = maxSettingsHeight(for: geometry)
+                                    }
+                                } else {
+                                    settingsIsOpen = false
+                                    
+                                    withAnimation {
+                                         settingsHeight = .zero
+                                    }
+                                }
+                            }
+                    )
+                    .frame(minHeight: geometry.size.height * minimumInterfaceHeightRatio)
+
+                if settingsHeight > 0 {
+                    SettingsMenuView()
+                        .frame(height: settingsHeight)
                 }
             }
-            .lineLimit(1)
-            .minimumScaleFactor(0.01)
-            .background(theme.viewSeparatorColour)
         }
-        .ignoresSafeArea()
-        .environmentObject(theme)
     }
-    
-    private func arithmeticExpressionTextDisplayFieldHeight(for geometry: GeometryProxy) -> CGFloat {
-        buttonViewHeight(for: geometry) * 1.5
-    }
-    
-    private func buttonDisplayViewHeight(for geometry: GeometryProxy) -> CGFloat {
-        geometry.size.height / 2.0
-    }
-    
-    private func buttonViewHeight(for geometry: GeometryProxy) -> CGFloat {
-        buttonDisplayViewHeight(for: geometry) / CGFloat(ButtonLayout.fullButtonsLayout.count)
-    }
-}
 
-extension ColorScheme: Identifiable {
-    public var id: Self { self }
+    func maxSettingsHeight(for geometry: GeometryProxy) -> CGFloat {
+        geometry.size.height * (1 - minimumInterfaceHeightRatio)
+    }
+
+    func showThreshold(for geometry: GeometryProxy) -> CGFloat {
+        geometry.size.height * minimumInterfaceHeightRatio * showSettingsThreshold
+    }
 }
 
 struct CalculatorView_Previews: PreviewProvider {
     static var previews: some View {
         ForEach(ColorScheme.allCases, id: \.id) { colourScheme in
-            CalculatorView(viewModel: CalculatorViewModel(), theme: Theme())
+            CalculatorView(viewModel: CalculatorViewModel())
                 .preferredColorScheme(colourScheme)
+                .environmentObject(Preferences())
         }
     }
 }
+

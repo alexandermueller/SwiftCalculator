@@ -10,11 +10,14 @@ import SwiftUI
 
 @main
 struct SwiftCalculatorApp: App {
-    @StateObject var currentTheme = Theme()
-    
+    @Environment(\.colorScheme) var colorScheme
+    @StateObject var preferences = Preferences.shared
+
     var body: some Scene {
         WindowGroup {
-            CalculatorView(viewModel: CalculatorViewModel(), theme: currentTheme)
+            CalculatorView(viewModel: CalculatorViewModel())
+                .environmentObject(preferences)
+                .preferredColorScheme(preferences.preferredColourScheme ?? colorScheme)
         }
     }
 }

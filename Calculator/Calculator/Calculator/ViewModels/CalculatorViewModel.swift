@@ -27,7 +27,7 @@ final class CalculatorViewModel: ObservableObject {
     @Published var expressionText: String = "0"
     @Published var displayedValue: MaxPrecisionNumber = 0
     @Published var variableValueDict: VariableValueDict = Variable.defaultVariableValueDict
-    @Published var textDisplayColour: Color = .gray
+    @Published var textDisplayColour: Binding<Color> = .constant(.gray)
     @Published var textDisplayHint: String? = nil
     @Published var buttonDisplayViewMode: ButtonDisplayView.Mode = .normal
     @Published var buttonLongPressed: Button? {
@@ -140,11 +140,11 @@ final class CalculatorViewModel: ObservableObject {
             let lastMappedExpressionString = lastMappedElements.toExpressionString()
 
             if nextValue.isNaN {
-                textDisplayColour = .red
+                textDisplayColour = .constant(.red)
             } else if currentExpressionState == .zero {
-                textDisplayColour = .gray
+                textDisplayColour = .constant(.gray)
             } else {
-                textDisplayColour = Color(light: .black, dark: .white)
+                textDisplayColour = Binding(get: { Preferences.shared.textDisplayFieldForegroundColour }, set: { _ in })
             }
 
             if mappedExpressionString == "0" {

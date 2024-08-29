@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct ButtonView: View {
-    @EnvironmentObject var theme: Theme
+    @EnvironmentObject var preferences: Preferences
     @State var isPressing = false
     @State var animation: Animation? = nil
     
@@ -21,7 +21,7 @@ struct ButtonView: View {
     var body: some View {
         GeometryReader { geometry in
             Rectangle()
-                .fill(isPressing ? theme.accentColour : theme.primaryColour)
+                .fill(isPressing ? preferences.accentColour : preferences.primaryColour)
                 .animation(nil)
                 .mask(Circle().frame(width: diameter(for: geometry), height: diameter(for: geometry), alignment: .center))
                 .animation(animation)
@@ -39,14 +39,14 @@ struct ButtonView: View {
                     if isPressing {
                         if button.hasLongPressMapping {
                             Haptics.shared.play(.rigid)
-                            animation = Animation.easeInOut(duration: Theme.defaultAnimationDuration)
+                            animation = Animation.easeInOut(duration: Constants.defaultAnimationDuration)
                         } else {
                             Haptics.shared.play(.heavy)
                         }
                     }
                 }
             Text(button.rawValue)
-                .foregroundColor(isPressing || !isToggled ? theme.buttonForegroundColour : theme.accentColour)
+                .foregroundColor(isPressing || !isToggled ? preferences.buttonForegroundColour : preferences.accentColour)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .clipped()

@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct TextDisplayField: View {
-    @EnvironmentObject var theme: Theme
+    @EnvironmentObject var preferences: Preferences
     @State var presentHint: Bool = false
 
     let text: String
@@ -53,17 +53,16 @@ struct TextDisplayField: View {
                         Text(hint)
                             .padding(15)
                             .font(.system(for: geometry, scale: 0.5))
-                            .foregroundColor(theme.textDisplayFieldForegroundColour)
+                            .foregroundColor(Constants.defaultTextColour)
                             .presentationCompactAdaptation(.popover)
-                            .interactiveDismissDisabled()
                     }
                 }
             }
         }
-        .background(theme.textDisplayFieldBackgroundColour)
+        .background(preferences.textDisplayFieldBackgroundColour)
     }
 
     func infoButtonFootprint(for geometry: GeometryProxy) -> Double {
-        geometry.size.height * infoButtonScale * Theme.labelFontToHeightRatio + 30.0
+        geometry.size.height * infoButtonScale * Constants.labelFontToHeightRatio + 30.0
     }
 }
