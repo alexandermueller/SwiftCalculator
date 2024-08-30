@@ -9,8 +9,25 @@
 import SwiftUI
 
 struct TextDisplayField: View {
+    enum Status {
+        case zero
+        case normal
+        case error
+
+        var colour: Color {
+            switch self {
+            case .zero:
+                .gray
+            case .normal:
+                Preferences.shared.textDisplayFieldForegroundColour
+            case .error:
+                .red
+            }
+        }
+    }
+
     @EnvironmentObject var preferences: Preferences
-    @State var presentHint: Bool = false
+    @State private var presentHint: Bool = false
 
     let text: String
     let hint: String?

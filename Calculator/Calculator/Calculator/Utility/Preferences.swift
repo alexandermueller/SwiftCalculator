@@ -10,7 +10,6 @@ import SwiftUI
 
 final class Preferences: ObservableObject {
     private struct Defaults {
-        // Theme Colours
         static let primaryColour = Color(light: .darkBrown, dark: .darkBrown)
         static let accentColour = Color(light: .orange, dark: .orange)
         static let viewSeparatorColour = Color(light: .black, dark: .white)
@@ -19,8 +18,18 @@ final class Preferences: ObservableObject {
 
     static var shared = Preferences()
 
-    @Published var preferredColourScheme: ColorScheme? = nil
+    // User Experience
+    @Published var hapticsEnabled = true
     @Published var reverseDisplayFields = false
+    @Published var theme: Theme = .auto {
+        didSet {
+            resetThemeColours()
+        }
+    }
+
+    // Text Field Colours
+    @Published var textDisplayFieldForegroundColour = Constants.defaultTextColour
+    @Published var textDisplayFieldBackgroundColour = Constants.defaultBackgroundColour
 
     // Theme Colours
     @Published var primaryColour = Defaults.primaryColour
@@ -28,18 +37,11 @@ final class Preferences: ObservableObject {
     @Published var viewSeparatorColour = Defaults.viewSeparatorColour
     @Published var buttonForegroundColour = Defaults.buttonForegroundColour
 
-    // Text Field Colours
-    @Published var textDisplayFieldForegroundColour = Constants.defaultTextColour
-    @Published var textDisplayFieldBackgroundColour = Constants.defaultBackgroundColour
-
     func resetThemeColours() {
         primaryColour = Defaults.primaryColour
         accentColour = Defaults.accentColour
         viewSeparatorColour = Defaults.viewSeparatorColour
         buttonForegroundColour = Defaults.buttonForegroundColour
-    }
-
-    func resetTextFieldColours() {
         textDisplayFieldForegroundColour = Constants.defaultTextColour
         textDisplayFieldBackgroundColour = Constants.defaultBackgroundColour
     }

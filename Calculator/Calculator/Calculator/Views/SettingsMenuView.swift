@@ -12,27 +12,43 @@ struct SettingsMenuView: View {
     @EnvironmentObject var preferences: Preferences
 
     var body: some View {
-        VStack {
-            List {
-                Label(
-                    title: { Text("Settings") },
-                    icon: { Image(systemName: "gear") }
-                )
-
-                Toggle(
-                    isOn: Binding(
-                        get: { preferences.preferredColourScheme == .dark },
-                        set: { preferences.preferredColourScheme = $0 ? .dark : nil }
-                    )
-                ) {
-                    Text("Dark Mode")
+        List {
+            Label(
+                title: {
+                    Text("Settings")
+                }, icon: {
+                    Image(systemName: "gear")
                 }
-                
+            )
+
+            Section("General") {
+                Toggle(isOn: $preferences.hapticsEnabled) {
+                    Text("Enable Haptics")
+                }
+
                 Toggle(isOn: $preferences.reverseDisplayFields) {
-                    Text("Reverse Text Display Fields")
+                    Text("Flip Display Field Order")
                 }
 
+                Picker(selection: $preferences.theme) {
+                    ForEach(Theme.allCases, id: \.self) { theme in
+                        Text(theme.rawValue.capitalized(with: .current)).tag(theme)
+                    }
+                } label: {
+                    Text("Theme")
+                }
+            }
+
+            if preferences.theme == .custom {
                 Section("Theme Colours") {
+                    ColorPicker(selection: $preferences.textDisplayFieldForegroundColour) {
+                        Text("Display Text")
+                    }
+
+                    ColorPicker(selection: $preferences.textDisplayFieldBackgroundColour) {
+                        Text("Display Background")
+                    }
+
                     ColorPicker(selection: $preferences.primaryColour) {
                         Text("Primary")
                     }
@@ -53,22 +69,7 @@ struct SettingsMenuView: View {
                         preferences.resetThemeColours()
                     }
                 }
-
-                Section("Text Field Colours") {
-                    ColorPicker(selection: $preferences.textDisplayFieldForegroundColour) {
-                        Text("Text")
-                    }
-
-                    ColorPicker(selection: $preferences.textDisplayFieldBackgroundColour) {
-                        Text("Background")
-                    }
-
-                    SwiftUI.Button("Reset To Defaults") {
-                        preferences.resetTextFieldColours()
-                    }
-                }
             }
-            .navigationTitle("Settings")
         }
     }
 }

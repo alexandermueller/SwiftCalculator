@@ -33,6 +33,11 @@ extension Color {
         light lightModeColor: @escaping @autoclosure () -> Color,
         dark darkModeColor: @escaping @autoclosure () -> Color
     ) {
-        self.init(UIColor(light: UIColor(lightModeColor()), dark: UIColor(darkModeColor())))
+        self.init(
+            UIColor(
+                light: UIColor(lightModeColor()),
+                dark: UIColor(darkModeColor())
+            )
+        )
     }
 }

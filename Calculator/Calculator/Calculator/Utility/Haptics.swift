@@ -14,10 +14,18 @@ class Haptics {
     private init() {}
     
     func play(_ feedbackStyle: UIImpactFeedbackGenerator.FeedbackStyle) {
+        guard Preferences.shared.hapticsEnabled else {
+            return
+        }
+
         UIImpactFeedbackGenerator(style: feedbackStyle).impactOccurred()
     }
     
     func notify(_ feedbackType: UINotificationFeedbackGenerator.FeedbackType) {
+        guard Preferences.shared.hapticsEnabled else {
+            return
+        }
+
         UINotificationFeedbackGenerator().notificationOccurred(feedbackType)
     }
 }

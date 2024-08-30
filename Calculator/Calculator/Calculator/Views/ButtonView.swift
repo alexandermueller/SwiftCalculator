@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ButtonView: View {
     @EnvironmentObject var preferences: Preferences
+
     @State var isPressing = false
     @State var animation: Animation? = nil
     

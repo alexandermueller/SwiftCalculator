@@ -25,8 +25,8 @@ struct InterfaceView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 2) {
-                VStack(spacing: 2) {
+            VStack(spacing: Constants.viewSeparatorHeight) {
+                VStack(spacing: Constants.viewSeparatorHeight) {
                     ForEach(Array(displayFieldTypes.enumerated()), id: \.offset) { _, displayFieldType in
                         switch displayFieldType {
                         case .input:
@@ -66,7 +66,7 @@ struct InterfaceView: View {
     @ViewBuilder private func inputDisplayField(for geometry: GeometryProxy) -> some View {
         TextDisplayField(text: viewModel.expressionText + "=", hint: viewModel.textDisplayHint)
             .frame(height: arithmeticExpressionTextDisplayFieldHeight(for: geometry))
-            .foregroundColor(viewModel.textDisplayColour.wrappedValue)
+            .foregroundColor(viewModel.textDisplayStatus.colour)
     }
 
     @ViewBuilder private func outputDisplayField(for geometry: GeometryProxy) -> some View {

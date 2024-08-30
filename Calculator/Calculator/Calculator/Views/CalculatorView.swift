@@ -9,51 +9,51 @@
 import SwiftUI
 
 struct CalculatorView: View {
+    @EnvironmentObject private var preferences: Preferences
     @ObservedObject var viewModel: CalculatorViewModel
 
-    @State private var settingsIsOpen = false
-    @State private var settingsHeight: CGFloat = 0
-    @State private var dragOffset: CGFloat = 0 {
+    @State private var verticalDragOffset: CGFloat = 0
+    @State private var settingsMenuIsOpen = false {
         didSet {
-            settingsHeight += dragOffset
+            if !settingsMenuIsOpen {
+                verticalDragOffset = 0
+            }
         }
     }
 
-    private let showSettingsThreshold = 0.75
+    private let toggleSettingsThreshold = 0.30
     private let minimumInterfaceHeightRatio = 0.53
 
     var body: some View {
         GeometryReader { geometry in
-            VStack {
+            VStack(spacing: Constants.viewSeparatorHeight) {
                 InterfaceView(viewModel: viewModel)
                     .gesture(
                         DragGesture()
                             .onChanged { value in
-                                dragOffset = -value.translation.height
+                                verticalDragOffset = -value.translation.height
                             }
                             .onEnded { value in
-                                if settingsHeight > showThreshold(for: geometry) {
-                                    settingsIsOpen = true
-                                    
-                                    withAnimation {
-                                        settingsHeight = maxSettingsHeight(for: geometry)
-                                    }
-                                } else {
-                                    settingsIsOpen = false
-                                    
-                                    withAnimation {
-                                         settingsHeight = .zero
-                                    }
+                                if settingsMenuIsOpen, -verticalDragOffset > toggleThreshold(for: geometry) {
+                                    settingsMenuIsOpen = false
+                                    return
                                 }
+
+                                if !settingsMenuIsOpen, verticalDragOffset > toggleThreshold(for: geometry) {
+                                    settingsMenuIsOpen = true
+                                }
+
+                                verticalDragOffset = 0
                             }
                     )
                     .frame(minHeight: geometry.size.height * minimumInterfaceHeightRatio)
 
-                if settingsHeight > 0 {
+                if settingsMenuIsOpen || verticalDragOffset > 0 {
                     SettingsMenuView()
-                        .frame(height: settingsHeight)
+                        .frame(maxHeight: max(settingsMenuIsOpen ? maxSettingsHeight(for: geometry) + verticalDragOffset : verticalDragOffset, 0))
                 }
             }
+            .background(preferences.viewSeparatorColour)
         }
     }
 
@@ -61,8 +61,8 @@ struct CalculatorView: View {
         geometry.size.height * (1 - minimumInterfaceHeightRatio)
     }
 
-    func showThreshold(for geometry: GeometryProxy) -> CGFloat {
-        geometry.size.height * minimumInterfaceHeightRatio * showSettingsThreshold
+    func toggleThreshold(for geometry: GeometryProxy) -> CGFloat {
+        geometry.size.height * minimumInterfaceHeightRatio * toggleSettingsThreshold
     }
 }
 

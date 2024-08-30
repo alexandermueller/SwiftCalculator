@@ -14,4 +14,6 @@ struct Constants {
 
     static let labelFontToHeightRatio: CGFloat = 0.33
     static let defaultAnimationDuration = 0.5
+
+    static let viewSeparatorHeight: CGFloat = 2
 }
