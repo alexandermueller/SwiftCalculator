@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct ButtonView: View {
-    @EnvironmentObject var preferences: Preferences
+    @EnvironmentObject var theme: Theme
 
     @State var isPressing = false
     @State var animation: Animation? = nil
@@ -22,7 +22,7 @@ struct ButtonView: View {
     var body: some View {
         GeometryReader { geometry in
             Rectangle()
-                .fill(isPressing ? preferences.accentColour : preferences.primaryColour)
+                .fill(isPressing ? theme.accentColour : theme.primaryColour)
                 .animation(nil)
                 .mask(Circle().frame(width: diameter(for: geometry), height: diameter(for: geometry), alignment: .center))
                 .animation(animation)
@@ -47,7 +47,7 @@ struct ButtonView: View {
                     }
                 }
             Text(button.rawValue)
-                .foregroundColor(isPressing || !isToggled ? preferences.buttonForegroundColour : preferences.accentColour)
+                .foregroundColor(isPressing || !isToggled ? theme.buttonForegroundColour : theme.accentColour)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .clipped()

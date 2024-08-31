@@ -20,7 +20,7 @@ struct ButtonDisplayView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
-    @EnvironmentObject var preferences: Preferences
+    @EnvironmentObject var theme: Theme
     @ObservedObject var viewModel: CalculatorViewModel
     
     @State private var currentOrientation = UIDevice.current.orientation {
@@ -54,7 +54,7 @@ struct ButtonDisplayView: View {
         }
         .background(
             Rectangle()
-                .fill(preferences.primaryColour)
+                .fill(theme.primaryColour)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         )
         .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in

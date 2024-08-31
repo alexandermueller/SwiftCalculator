@@ -15,6 +15,7 @@ fileprivate enum DisplayFieldType: CaseIterable {
 
 struct InterfaceView: View {
     @EnvironmentObject var preferences: Preferences
+    @EnvironmentObject var theme: Theme
     @ObservedObject var viewModel: CalculatorViewModel
 
     private let aspectRatioThreshold: CGFloat = 0.75
@@ -39,14 +40,14 @@ struct InterfaceView: View {
                 VStack(spacing: 0) {
                     VariableDisplayView(variableValueDict: viewModel.variableValueDict)
                         .frame(height: buttonViewHeight(for: geometry))
-                        .foregroundColor(preferences.accentColour)
+                        .foregroundColor(theme.accentColour)
                     ButtonDisplayView(viewModel: viewModel)
                         .frame(height: buttonDisplayViewHeight(for: geometry))
                 }
             }
             .lineLimit(1)
             .minimumScaleFactor(0.01)
-            .background(preferences.viewSeparatorColour)
+            .background(theme.viewSeparatorColour)
         }
         .ignoresSafeArea()
     }
@@ -71,7 +72,7 @@ struct InterfaceView: View {
 
     @ViewBuilder private func outputDisplayField(for geometry: GeometryProxy) -> some View {
         TextDisplayField(text: viewModel.displayedValue.toSimpleNumericString(for: .fullDisplay))
-            .foregroundColor(preferences.primaryColour)
+            .foregroundColor(theme.primaryColour)
     }
 }
 

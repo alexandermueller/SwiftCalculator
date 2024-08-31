@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct CalculatorView: View {
-    @EnvironmentObject private var preferences: Preferences
+    @EnvironmentObject private var theme: Theme
     @ObservedObject var viewModel: CalculatorViewModel
 
     @State private var verticalDragOffset: CGFloat = 0
@@ -53,7 +53,7 @@ struct CalculatorView: View {
                         .frame(maxHeight: max(settingsMenuIsOpen ? maxSettingsHeight(for: geometry) + verticalDragOffset : verticalDragOffset, 0))
                 }
             }
-            .background(preferences.viewSeparatorColour)
+            .background(theme.viewSeparatorColour)
         }
     }
 
@@ -72,6 +72,7 @@ struct CalculatorView_Previews: PreviewProvider {
             CalculatorView(viewModel: CalculatorViewModel())
                 .preferredColorScheme(colourScheme)
                 .environmentObject(Preferences())
+                .environmentObject(Theme.auto)
         }
     }
 }

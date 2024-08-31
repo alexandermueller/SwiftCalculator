@@ -11,7 +11,7 @@ import SwiftUI
 typealias VariableValuePair = (variable: Variable, value: MaxPrecisionNumber)
 
 struct VariableDisplayView: View {
-    @EnvironmentObject var preferences: Preferences
+    @EnvironmentObject var theme: Theme
 
     let variableValueDict: VariableValueDict
     
@@ -23,7 +23,7 @@ struct VariableDisplayView: View {
                     Text("= \(value.toSimpleNumericString(for: .buttonDisplay)) ")
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(preferences.primaryColour)
+                .background(theme.primaryColour)
                 .font(.system(for: geometry))
             }
         }

@@ -10,6 +10,11 @@ import SwiftUI
 
 struct SettingsMenuView: View {
     @EnvironmentObject var preferences: Preferences
+    @EnvironmentObject var theme: Theme
+
+    @State private var showSaveThemeSheet = false
+    @State private var showLoadThemeSheet = false
+    @State private var showResetThemeAlert = false
 
     var body: some View {
         List {
@@ -30,44 +35,73 @@ struct SettingsMenuView: View {
                     Text("Flip Display Field Order")
                 }
 
-                Picker(selection: $preferences.theme) {
-                    ForEach(Theme.allCases, id: \.self) { theme in
-                        Text(theme.rawValue.capitalized(with: .current)).tag(theme)
+                Picker(selection: $theme.type) {
+                    ForEach(ThemeType.allCases, id: \.self) { type in
+                        Text(type.rawValue.capitalized(with: .current)).tag(type)
                     }
                 } label: {
                     Text("Theme")
                 }
             }
 
-            if preferences.theme == .custom {
+            if theme.type == .custom {
                 Section("Theme Colours") {
-                    ColorPicker(selection: $preferences.textDisplayFieldForegroundColour) {
+                    ColorPicker(selection: $theme.textDisplayFieldForegroundColour) {
                         Text("Display Text")
                     }
 
-                    ColorPicker(selection: $preferences.textDisplayFieldBackgroundColour) {
+                    ColorPicker(selection: $theme.textDisplayFieldBackgroundColour) {
                         Text("Display Background")
                     }
 
-                    ColorPicker(selection: $preferences.primaryColour) {
+                    ColorPicker(selection: $theme.primaryColour) {
                         Text("Primary")
                     }
 
-                    ColorPicker(selection: $preferences.accentColour) {
+                    ColorPicker(selection: $theme.accentColour) {
                         Text("Accent")
                     }
 
-                    ColorPicker(selection: $preferences.viewSeparatorColour) {
+                    ColorPicker(selection: $theme.viewSeparatorColour) {
                         Text("Separators")
                     }
 
-                    ColorPicker(selection: $preferences.buttonForegroundColour) {
+                    ColorPicker(selection: $theme.buttonForegroundColour) {
                         Text("Button Text")
                     }
+                }
 
-                    SwiftUI.Button("Reset To Defaults") {
-                        preferences.resetThemeColours()
+                SwiftUI.Button("Save Theme") {
+                    showSaveThemeSheet = true
+                }
+                .sheet(isPresented: $showSaveThemeSheet) {
+                    SaveThemeSheetView()
+                        .presentationDetents([.medium, .large])
+                }
+
+
+                SwiftUI.Button("Load Theme") {
+                    showLoadThemeSheet = true
+                }
+                .sheet(isPresented: $showLoadThemeSheet) {
+                    List {
+                        ForEach(Array(preferences.savedThemes.enumerated()), id: \.offset) { (name, theme) in
+                            
+                        }
                     }
+                    .presentationDetents([.medium, .large])
+                }
+
+                SwiftUI.Button("Reset To Default") {
+                    showResetThemeAlert = true
+                }
+                .foregroundColor(.red)
+                .alert(isPresented: $showResetThemeAlert) {
+                    Alert(
+                        title: Text("Are you sure?"),
+                        primaryButton: .destructive(Text("Okay"), action: theme.resetThemeColours),
+                        secondaryButton: .cancel()
+                    )
                 }
             }
         }
@@ -80,6 +114,7 @@ struct SettingsMenuView_Preview: PreviewProvider {
             SettingsMenuView()
                 .preferredColorScheme(colourScheme)
                 .environmentObject(Preferences())
+                .environmentObject(Theme.custom)
         }
     }
 }

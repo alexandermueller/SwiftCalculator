@@ -19,14 +19,14 @@ struct TextDisplayField: View {
             case .zero:
                 .gray
             case .normal:
-                Preferences.shared.textDisplayFieldForegroundColour
+                Theme.shared.textDisplayFieldForegroundColour
             case .error:
                 .red
             }
         }
     }
 
-    @EnvironmentObject var preferences: Preferences
+    @EnvironmentObject var theme: Theme
     @State private var presentHint: Bool = false
 
     let text: String
@@ -76,7 +76,7 @@ struct TextDisplayField: View {
                 }
             }
         }
-        .background(preferences.textDisplayFieldBackgroundColour)
+        .background(theme.textDisplayFieldBackgroundColour)
     }
 
     func infoButtonFootprint(for geometry: GeometryProxy) -> Double {
