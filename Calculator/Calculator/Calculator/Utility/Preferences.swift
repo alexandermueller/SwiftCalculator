@@ -14,6 +14,6 @@ final class Preferences: ObservableObject {
     // User Experience
     @Published var hapticsEnabled = true
     @Published var reverseDisplayFields = false
-    @Published var savedThemes: [String : Theme] = [:]
+    @Published var savedThemes: Set<Theme> = []
 }
 

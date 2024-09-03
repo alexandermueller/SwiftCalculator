@@ -9,11 +9,17 @@
 import Foundation
 import SwiftUI
 
-enum ThemeType: String, CaseIterable {
+enum ThemeType: CaseIterable, Equatable, Hashable {
     case auto
     case light
     case dark
-    case custom
+    case custom(String?)
+
+    static var allCases: [ThemeType] {
+        [.auto, .light, .dark, .custom]
+    }
+
+    static var custom: ThemeType = .custom(nil)
 
     var colourScheme: ColorScheme? {
         switch self {
@@ -22,6 +28,41 @@ enum ThemeType: String, CaseIterable {
         case .dark:
             .dark
         case .auto, .custom:
+            nil
+        }
+    }
+
+    var isCustom: Bool {
+        rawType == .custom
+    }
+
+    var rawType: ThemeType {
+        switch self {
+        case .light, .dark, .auto:
+            self
+        case .custom:
+            .custom
+        }
+    }
+
+    var rawValue: String {
+        switch self {
+        case .auto:
+            "auto"
+        case .light:
+            "light"
+        case .dark:
+            "dark"
+        case .custom:
+            "custom"
+        }
+    }
+
+    var name: String? {
+        switch self {
+        case .custom(let name):
+            name
+        default:
             nil
         }
     }
@@ -44,7 +85,12 @@ final class Theme: ObservableObject {
 
     @Published var type: ThemeType {
         didSet {
-            resetThemeColours()
+            switch type {
+            case .auto, .light, .dark:
+                resetThemeColours()
+            case .custom:
+                break
+            }
         }
     }
 
@@ -57,6 +103,23 @@ final class Theme: ObservableObject {
     @Published var accentColour: Color
     @Published var viewSeparatorColour: Color
     @Published var buttonForegroundColour: Color
+
+    var copy: Theme {
+        .init(
+            type: type,
+            textDisplayFieldForegroundColour: textDisplayFieldForegroundColour,
+            textDisplayFieldBackgroundColour: textDisplayFieldBackgroundColour,
+            primaryColour: primaryColour,
+            accentColour: accentColour,
+            viewSeparatorColour: viewSeparatorColour,
+            buttonForegroundColour: buttonForegroundColour
+        )
+
+    }
+
+    var name: String? {
+        type.name
+    }
 
     init(
         type: ThemeType,
@@ -76,6 +139,16 @@ final class Theme: ObservableObject {
         self.buttonForegroundColour = buttonForegroundColour
     }
 
+    func load(_ theme: Theme) {
+        self.type = theme.type
+        self.textDisplayFieldForegroundColour = theme.textDisplayFieldForegroundColour
+        self.textDisplayFieldBackgroundColour = theme.textDisplayFieldBackgroundColour
+        self.primaryColour = theme.primaryColour
+        self.accentColour = theme.accentColour
+        self.viewSeparatorColour = theme.viewSeparatorColour
+        self.buttonForegroundColour = theme.buttonForegroundColour
+    }
+
     func resetThemeColours() {
         primaryColour = Defaults.primaryColour
         accentColour = Defaults.accentColour
@@ -88,4 +161,37 @@ final class Theme: ObservableObject {
 
 private extension Color {
     static var darkBrown: Color { .init(red: 0.6, green: 0.4, blue: 0.2) }
+}
+
+extension Theme: Equatable {
+    static func == (lhs: Theme, rhs: Theme) -> Bool {
+        guard lhs.type.rawType == rhs.type.rawType else {
+            return false
+        }
+
+        return switch (lhs.type, rhs.type) {
+        case (.custom(let lhsName), .custom(let rhsName)):
+            lhsName == rhsName &&
+            lhs.textDisplayFieldForegroundColour == rhs.textDisplayFieldForegroundColour &&
+            lhs.textDisplayFieldBackgroundColour == rhs.textDisplayFieldBackgroundColour &&
+            lhs.primaryColour == rhs.primaryColour &&
+            lhs.accentColour == rhs.accentColour &&
+            lhs.viewSeparatorColour == rhs.viewSeparatorColour &&
+            lhs.buttonForegroundColour == rhs.buttonForegroundColour
+        default:
+            true
+        }
+    }
+}
+
+extension Theme: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(type)
+        hasher.combine(textDisplayFieldForegroundColour)
+        hasher.combine(textDisplayFieldBackgroundColour)
+        hasher.combine(primaryColour)
+        hasher.combine(accentColour)
+        hasher.combine(viewSeparatorColour)
+        hasher.combine(buttonForegroundColour)
+    }
 }

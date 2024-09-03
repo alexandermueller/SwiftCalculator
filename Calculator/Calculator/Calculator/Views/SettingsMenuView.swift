@@ -12,9 +12,53 @@ struct SettingsMenuView: View {
     @EnvironmentObject var preferences: Preferences
     @EnvironmentObject var theme: Theme
 
-    @State private var showSaveThemeSheet = false
     @State private var showLoadThemeSheet = false
     @State private var showResetThemeAlert = false
+    @State private var showSaveConfirmation = false
+
+    var pickedType: Binding<ThemeType> {
+        .init(
+            get: { theme.type.rawType },
+            set: { theme.type = $0 }
+        )
+    }
+
+    var saveThemeButtonIsDisabled: Bool {
+        guard let name = theme.name?.trimmingCharacters(in: .whitespaces), !name.isEmpty else {
+            return true
+        }
+
+        return preferences.savedThemes.first(with: name) == theme
+    }
+
+    var saveThemeButtonTitle: String {
+        guard let name = theme.name, !name.isEmpty else {
+            return "Create Theme"
+        }
+
+        return "\(preferences.savedThemes.containsName(name) ? "Update" : "Create") \(name.quoted)"
+    }
+
+    var themeName: Binding<String> {
+        .init(
+            get: { theme.name ?? "" },
+            set: { name in
+                let trimmed = name.trimmingCharacters(in: .whitespaces)
+                theme.type = .custom(trimmed.isEmpty ? nil : trimmed)
+            }
+        )
+    }
+
+    var themeSelection: Binding<Theme?> {
+        .init(
+            get: { theme },
+            set: { newTheme in
+                if let newTheme {
+                    theme.load(newTheme)
+                }
+            }
+        )
+    }
 
     var body: some View {
         List {
@@ -35,7 +79,7 @@ struct SettingsMenuView: View {
                     Text("Flip Display Field Order")
                 }
 
-                Picker(selection: $theme.type) {
+                Picker(selection: pickedType) {
                     ForEach(ThemeType.allCases, id: \.self) { type in
                         Text(type.rawValue.capitalized(with: .current)).tag(type)
                     }
@@ -44,7 +88,7 @@ struct SettingsMenuView: View {
                 }
             }
 
-            if theme.type == .custom {
+            if theme.type.isCustom {
                 Section("Theme Colours") {
                     ColorPicker(selection: $theme.textDisplayFieldForegroundColour) {
                         Text("Display Text")
@@ -69,39 +113,50 @@ struct SettingsMenuView: View {
                     ColorPicker(selection: $theme.buttonForegroundColour) {
                         Text("Button Text")
                     }
-                }
 
-                SwiftUI.Button("Save Theme") {
-                    showSaveThemeSheet = true
-                }
-                .sheet(isPresented: $showSaveThemeSheet) {
-                    SaveThemeSheetView()
-                        .presentationDetents([.medium, .large])
-                }
-
-
-                SwiftUI.Button("Load Theme") {
-                    showLoadThemeSheet = true
-                }
-                .sheet(isPresented: $showLoadThemeSheet) {
-                    List {
-                        ForEach(Array(preferences.savedThemes.enumerated()), id: \.offset) { (name, theme) in
-                            
-                        }
+                    SwiftUI.Button("Reset To Default") {
+                        showResetThemeAlert = true
                     }
-                    .presentationDetents([.medium, .large])
+                    .foregroundColor(.red)
+                    .alert(isPresented: $showResetThemeAlert) {
+                        Alert(
+                            title: Text("Are you sure?"),
+                            primaryButton: .destructive(Text("Okay"), action: theme.resetThemeColours),
+                            secondaryButton: .cancel()
+                        )
+                    }
                 }
 
-                SwiftUI.Button("Reset To Default") {
-                    showResetThemeAlert = true
-                }
-                .foregroundColor(.red)
-                .alert(isPresented: $showResetThemeAlert) {
-                    Alert(
-                        title: Text("Are you sure?"),
-                        primaryButton: .destructive(Text("Okay"), action: theme.resetThemeColours),
-                        secondaryButton: .cancel()
-                    )
+                TextField(
+                    text: themeName,
+                    prompt: Text("Input Custom Theme Name"),
+                    label: {}
+                )
+
+                Section {
+                    SwiftUI.Button(saveThemeButtonTitle) {
+                        preferences.savedThemes.override(theme: theme)
+                        showSaveConfirmation = true
+                    }
+                    .disabled(saveThemeButtonIsDisabled)
+                    .alert(isPresented: $showSaveConfirmation) {
+                        Alert(title: Text("\(theme.name?.quoted ?? "Theme") saved successfully"))
+                    }
+
+                    SwiftUI.Button("Load Saved Theme") {
+                        showLoadThemeSheet = true
+                    }
+                    .disabled(preferences.savedThemes.isEmpty)
+                    .sheet(isPresented: $showLoadThemeSheet) {
+                        List(selection: themeSelection) {
+                            ForEach(Array(preferences.getSavedThemes(sorted: true).enumerated()), id: \.offset) { _, theme in
+                                if let name = theme.name {
+                                    Text(name).tag(theme)
+                                }
+                            }
+                        }
+                        .presentationDetents([.height(200)])
+                    }
                 }
             }
         }
@@ -116,5 +171,36 @@ struct SettingsMenuView_Preview: PreviewProvider {
                 .environmentObject(Preferences())
                 .environmentObject(Theme.custom)
         }
+    }
+}
+
+private extension Set<Theme> {
+    func containsName(_ name: String?) -> Bool {
+        contains(where: { $0.type.name == name })
+    }
+
+    func first(with name: String?) -> Theme? {
+        first(where: { $0.name == name })
+    }
+
+    mutating func override(theme: Theme) {
+        guard let oldTheme = first(with: theme.name) else {
+            insert(theme.copy)
+            return
+        }
+
+        oldTheme.load(theme)
+    }
+}
+
+private extension Preferences {
+    func getSavedThemes(sorted: Bool) -> [Theme] {
+        savedThemes.sorted(by: { $0.type.name ?? "" < $1.type.name ?? "" })
+    }
+}
+
+private extension String {
+    var quoted: String {
+        self.isEmpty ? self : "\"\(self)\""
     }
 }
