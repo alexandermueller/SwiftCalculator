@@ -20,6 +20,14 @@ struct SwiftCalculatorApp: App {
                 .environmentObject(preferences)
                 .environmentObject(theme)
                 .preferredColorScheme(theme.type.colourScheme)
+                .task {
+                    do {
+                        try await preferences.load()
+                        try await theme.load()
+                    } catch {
+                        fatalError(error.localizedDescription)
+                    }
+                }
         }
     }
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 class Haptics {
     static let shared = Haptics()
     

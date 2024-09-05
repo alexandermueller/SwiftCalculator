@@ -57,11 +57,11 @@ struct CalculatorView: View {
         }
     }
 
-    func maxSettingsHeight(for geometry: GeometryProxy) -> CGFloat {
+    private func maxSettingsHeight(for geometry: GeometryProxy) -> CGFloat {
         geometry.size.height * (1 - minimumInterfaceHeightRatio)
     }
 
-    func toggleThreshold(for geometry: GeometryProxy) -> CGFloat {
+    private func toggleThreshold(for geometry: GeometryProxy) -> CGFloat {
         geometry.size.height * minimumInterfaceHeightRatio * toggleSettingsThreshold
     }
 }

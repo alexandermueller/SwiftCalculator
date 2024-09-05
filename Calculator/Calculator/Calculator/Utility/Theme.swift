@@ -9,66 +9,8 @@
 import Foundation
 import SwiftUI
 
-enum ThemeType: CaseIterable, Equatable, Hashable {
-    case auto
-    case light
-    case dark
-    case custom(String?)
-
-    static var allCases: [ThemeType] {
-        [.auto, .light, .dark, .custom]
-    }
-
-    static var custom: ThemeType = .custom(nil)
-
-    var colourScheme: ColorScheme? {
-        switch self {
-        case .light:
-            .light
-        case .dark:
-            .dark
-        case .auto, .custom:
-            nil
-        }
-    }
-
-    var isCustom: Bool {
-        rawType == .custom
-    }
-
-    var rawType: ThemeType {
-        switch self {
-        case .light, .dark, .auto:
-            self
-        case .custom:
-            .custom
-        }
-    }
-
-    var rawValue: String {
-        switch self {
-        case .auto:
-            "auto"
-        case .light:
-            "light"
-        case .dark:
-            "dark"
-        case .custom:
-            "custom"
-        }
-    }
-
-    var name: String? {
-        switch self {
-        case .custom(let name):
-            name
-        default:
-            nil
-        }
-    }
-}
-
-final class Theme: ObservableObject {
+@MainActor
+final class Theme: ObservableObject, Codable, Singleton {
     private struct Defaults {
         static let primaryColour = Color(light: .darkBrown, dark: .darkBrown)
         static let accentColour = Color(light: .orange, dark: .orange)
@@ -141,12 +83,15 @@ final class Theme: ObservableObject {
 
     func load(_ theme: Theme) {
         self.type = theme.type
-        self.textDisplayFieldForegroundColour = theme.textDisplayFieldForegroundColour
-        self.textDisplayFieldBackgroundColour = theme.textDisplayFieldBackgroundColour
-        self.primaryColour = theme.primaryColour
-        self.accentColour = theme.accentColour
-        self.viewSeparatorColour = theme.viewSeparatorColour
-        self.buttonForegroundColour = theme.buttonForegroundColour
+
+        if theme.type.isCustom {
+            self.textDisplayFieldForegroundColour = theme.textDisplayFieldForegroundColour
+            self.textDisplayFieldBackgroundColour = theme.textDisplayFieldBackgroundColour
+            self.primaryColour = theme.primaryColour
+            self.accentColour = theme.accentColour
+            self.viewSeparatorColour = theme.viewSeparatorColour
+            self.buttonForegroundColour = theme.buttonForegroundColour
+        }
     }
 
     func resetThemeColours() {
@@ -157,10 +102,56 @@ final class Theme: ObservableObject {
         textDisplayFieldForegroundColour = Constants.defaultTextColour
         textDisplayFieldBackgroundColour = Constants.defaultBackgroundColour
     }
+
+    // MARK: - Codable
+
+    enum CodingKeys: CodingKey {
+        case type
+        case textDisplayFieldForegroundColour
+        case textDisplayFieldBackgroundColour
+        case primaryColour
+        case accentColour
+        case viewSeparatorColour
+        case buttonForegroundColour
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        type = try container.decode(ThemeType.self, forKey: .type)
+        textDisplayFieldForegroundColour = try container.decodeResolvedColor(forKey: .textDisplayFieldForegroundColour)
+        textDisplayFieldBackgroundColour = try container.decodeResolvedColor(forKey: .textDisplayFieldBackgroundColour)
+        primaryColour = try container.decodeResolvedColor(forKey: .primaryColour)
+        accentColour = try container.decodeResolvedColor(forKey: .accentColour)
+        viewSeparatorColour = try container.decodeResolvedColor(forKey: .viewSeparatorColour)
+        buttonForegroundColour = try container.decodeResolvedColor(forKey: .buttonForegroundColour)
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(type, forKey: .type)
+        try container.encode(textDisplayFieldForegroundColour.resolved, forKey: .textDisplayFieldForegroundColour)
+        try container.encode(textDisplayFieldBackgroundColour.resolved, forKey: .textDisplayFieldBackgroundColour)
+        try container.encode(primaryColour.resolved, forKey: .primaryColour)
+        try container.encode(accentColour.resolved, forKey: .accentColour)
+        try container.encode(viewSeparatorColour.resolved, forKey: .viewSeparatorColour)
+        try container.encode(buttonForegroundColour.resolved, forKey: .buttonForegroundColour)
+    }
 }
 
 private extension Color {
     static var darkBrown: Color { .init(red: 0.6, green: 0.4, blue: 0.2) }
+
+    var resolved: Resolved {
+        resolve(in: .init())
+    }
+}
+
+private extension KeyedDecodingContainer {
+    func decodeResolvedColor(forKey key: KeyedDecodingContainer<K>.Key) throws -> Color {
+        Color(try decode(Color.Resolved.self, forKey: key))
+    }
 }
 
 extension Theme: Equatable {
@@ -193,5 +184,42 @@ extension Theme: Hashable {
         hasher.combine(accentColour)
         hasher.combine(viewSeparatorColour)
         hasher.combine(buttonForegroundColour)
+    }
+}
+
+extension Theme: Storable {
+    static func fileURL() throws -> URL {
+        try FileManager.default.url(
+            for: .documentDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: false
+        )
+        .appendingPathComponent(Constants.themeFileName)
+    }
+
+    func load() async throws {
+        let task = Task<Theme, Error> {
+            let fileURL = try Self.fileURL()
+            
+            guard let data = try? Data(contentsOf: fileURL) else {
+                FileManager().createFile(atPath: fileURL.absoluteString, contents: nil)
+                return Theme.shared
+            }
+            
+            return try JSONDecoder().decode(Theme.self, from: data)
+        }
+        
+        load(try await task.value)
+    }
+
+    func save() async throws {
+        let task = Task {
+            let data = try JSONEncoder().encode(self)
+            let outfile = try Self.fileURL()
+            try data.write(to: outfile)
+        }
+
+        _ = try await task.value
     }
 }

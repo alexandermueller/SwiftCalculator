@@ -16,4 +16,7 @@ struct Constants {
     static let defaultAnimationDuration = 0.5
 
     static let viewSeparatorHeight: CGFloat = 2
+
+    static let preferencesFileName = "spark_calculator_preferences.data"
+    static let themeFileName = "spark_calculator_theme.data"
 }

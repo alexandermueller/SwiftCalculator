@@ -16,14 +16,14 @@ struct SettingsMenuView: View {
     @State private var showResetThemeAlert = false
     @State private var showSaveConfirmation = false
 
-    var pickedType: Binding<ThemeType> {
+    private var pickedType: Binding<ThemeType> {
         .init(
             get: { theme.type.rawType },
             set: { theme.type = $0 }
         )
     }
 
-    var saveThemeButtonIsDisabled: Bool {
+    private var saveThemeButtonIsDisabled: Bool {
         guard let name = theme.name?.trimmingCharacters(in: .whitespaces), !name.isEmpty else {
             return true
         }
@@ -31,7 +31,7 @@ struct SettingsMenuView: View {
         return preferences.savedThemes.first(with: name) == theme
     }
 
-    var saveThemeButtonTitle: String {
+    private var saveThemeButtonTitle: String {
         guard let name = theme.name, !name.isEmpty else {
             return "Create Theme"
         }
@@ -39,7 +39,7 @@ struct SettingsMenuView: View {
         return "\(preferences.savedThemes.containsName(name) ? "Update" : "Create") \(name.quoted)"
     }
 
-    var themeName: Binding<String> {
+    private var themeName: Binding<String> {
         .init(
             get: { theme.name ?? "" },
             set: { name in
@@ -49,7 +49,7 @@ struct SettingsMenuView: View {
         )
     }
 
-    var themeSelection: Binding<Theme?> {
+    private var themeSelection: Binding<Theme?> {
         .init(
             get: { theme },
             set: { newTheme in
@@ -71,15 +71,15 @@ struct SettingsMenuView: View {
             )
 
             Section("General") {
-                Toggle(isOn: $preferences.hapticsEnabled) {
+                Toggle(isOn: $preferences.hapticsEnabled.onChange(savePreferences)) {
                     Text("Enable Haptics")
                 }
 
-                Toggle(isOn: $preferences.reverseDisplayFields) {
+                Toggle(isOn: $preferences.reverseDisplayFields.onChange(savePreferences)) {
                     Text("Flip Display Field Order")
                 }
 
-                Picker(selection: pickedType) {
+                Picker(selection: pickedType.onChange(saveTheme)) {
                     ForEach(ThemeType.allCases, id: \.self) { type in
                         Text(type.rawValue.capitalized(with: .current)).tag(type)
                     }
@@ -90,27 +90,27 @@ struct SettingsMenuView: View {
 
             if theme.type.isCustom {
                 Section("Theme Colours") {
-                    ColorPicker(selection: $theme.textDisplayFieldForegroundColour) {
+                    ColorPicker(selection: $theme.textDisplayFieldForegroundColour.onChange(saveTheme)) {
                         Text("Display Text")
                     }
 
-                    ColorPicker(selection: $theme.textDisplayFieldBackgroundColour) {
+                    ColorPicker(selection: $theme.textDisplayFieldBackgroundColour.onChange(saveTheme)) {
                         Text("Display Background")
                     }
 
-                    ColorPicker(selection: $theme.primaryColour) {
+                    ColorPicker(selection: $theme.primaryColour.onChange(saveTheme)) {
                         Text("Primary")
                     }
 
-                    ColorPicker(selection: $theme.accentColour) {
+                    ColorPicker(selection: $theme.accentColour.onChange(saveTheme)) {
                         Text("Accent")
                     }
 
-                    ColorPicker(selection: $theme.viewSeparatorColour) {
+                    ColorPicker(selection: $theme.viewSeparatorColour.onChange(saveTheme)) {
                         Text("Separators")
                     }
 
-                    ColorPicker(selection: $theme.buttonForegroundColour) {
+                    ColorPicker(selection: $theme.buttonForegroundColour.onChange(saveTheme)) {
                         Text("Button Text")
                     }
 
@@ -128,7 +128,7 @@ struct SettingsMenuView: View {
                 }
 
                 TextField(
-                    text: themeName,
+                    text: themeName.onChange(saveTheme),
                     prompt: Text("Input Custom Theme Name"),
                     label: {}
                 )
@@ -136,6 +136,7 @@ struct SettingsMenuView: View {
                 Section {
                     SwiftUI.Button(saveThemeButtonTitle) {
                         preferences.savedThemes.override(theme: theme)
+                        savePreferences()
                         showSaveConfirmation = true
                     }
                     .disabled(saveThemeButtonIsDisabled)
@@ -148,7 +149,7 @@ struct SettingsMenuView: View {
                     }
                     .disabled(preferences.savedThemes.isEmpty)
                     .sheet(isPresented: $showLoadThemeSheet) {
-                        List(selection: themeSelection) {
+                        List(selection: themeSelection.onChange(saveTheme)) {
                             ForEach(Array(preferences.getSavedThemes(sorted: true).enumerated()), id: \.offset) { _, theme in
                                 if let name = theme.name {
                                     Text(name).tag(theme)
@@ -160,6 +161,24 @@ struct SettingsMenuView: View {
                 }
             }
         }
+    }
+
+    private func saveAction<T: Singleton & Storable>(on objectType: T.Type) {
+        Task {
+            do {
+                try await T.shared.save()
+            } catch {
+                fatalError(error.localizedDescription)
+            }
+        }
+    }
+
+    private func savePreferences() {
+        saveAction(on: Preferences.self)
+    }
+
+    private func saveTheme() {
+        saveAction(on: Theme.self)
     }
 }
 
@@ -174,6 +193,7 @@ struct SettingsMenuView_Preview: PreviewProvider {
     }
 }
 
+@MainActor
 private extension Set<Theme> {
     func containsName(_ name: String?) -> Bool {
         contains(where: { $0.type.name == name })

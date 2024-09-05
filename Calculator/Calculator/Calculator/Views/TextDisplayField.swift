@@ -14,7 +14,7 @@ struct TextDisplayField: View {
         case normal
         case error
 
-        var colour: Color {
+        @MainActor var colour: Color {
             switch self {
             case .zero:
                 .gray
