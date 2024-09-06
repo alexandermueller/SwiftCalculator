@@ -47,6 +47,7 @@ struct CalculatorView: View {
                             }
                     )
                     .frame(minHeight: geometry.size.height * minimumInterfaceHeightRatio)
+                    .touchOverlay()
 
                 if settingsMenuIsOpen || verticalDragOffset > 0 {
                     SettingsMenuView()
