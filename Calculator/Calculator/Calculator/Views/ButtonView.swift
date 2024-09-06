@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct ButtonView: View {
-    @EnvironmentObject var theme: Theme
+    @EnvironmentObject private var theme: Theme
 
     @State var isPressing = false
     @State var animation: Animation? = nil

@@ -9,7 +9,9 @@
 import SwiftUI
 
 struct CalculatorView: View {
+    @EnvironmentObject private var preferences: Preferences
     @EnvironmentObject private var theme: Theme
+
     @ObservedObject var viewModel: CalculatorViewModel
 
     @State private var verticalDragOffset: CGFloat = 0
@@ -47,7 +49,7 @@ struct CalculatorView: View {
                             }
                     )
                     .frame(minHeight: geometry.size.height * minimumInterfaceHeightRatio)
-                    .touchOverlay()
+                    .touchOverlay(isEnabled: preferences.showInterfaceDragGestures)
 
                 if settingsMenuIsOpen || verticalDragOffset > 0 {
                     SettingsMenuView()

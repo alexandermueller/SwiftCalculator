@@ -11,7 +11,7 @@ import SwiftUI
 typealias VariableValuePair = (variable: Variable, value: MaxPrecisionNumber)
 
 struct VariableDisplayView: View {
-    @EnvironmentObject var theme: Theme
+    @EnvironmentObject private var theme: Theme
 
     let variableValueDict: VariableValueDict
     

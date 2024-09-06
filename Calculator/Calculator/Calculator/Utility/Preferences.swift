@@ -12,6 +12,9 @@ import SwiftUI
 final class Preferences: ObservableObject, Codable, Singleton {
     static var shared = Preferences()
 
+    // Secret
+    @Published var showInterfaceDragGestures = false
+
     // User Experience
     @Published var hapticsEnabled = true
     @Published var reverseDisplayFields = false
@@ -44,6 +47,7 @@ final class Preferences: ObservableObject, Codable, Singleton {
     }
 }
 
+// MARK: - Equatable
 extension Preferences: Equatable {
     static func == (lhs: Preferences, rhs: Preferences) -> Bool {
         lhs.hapticsEnabled == rhs.hapticsEnabled &&
@@ -52,6 +56,7 @@ extension Preferences: Equatable {
     }
 }
 
+// MARK: - Storable
 extension Preferences: Storable {
     static func fileURL() throws -> URL {
         try FileManager.default.url(

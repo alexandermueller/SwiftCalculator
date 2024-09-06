@@ -26,7 +26,7 @@ struct TextDisplayField: View {
         }
     }
 
-    @EnvironmentObject var theme: Theme
+    @EnvironmentObject private var theme: Theme
     @State private var presentHint: Bool = false
 
     let text: String

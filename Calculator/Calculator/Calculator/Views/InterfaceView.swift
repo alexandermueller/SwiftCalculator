@@ -14,8 +14,9 @@ fileprivate enum DisplayFieldType: CaseIterable {
 }
 
 struct InterfaceView: View {
-    @EnvironmentObject var preferences: Preferences
-    @EnvironmentObject var theme: Theme
+    @EnvironmentObject private var preferences: Preferences
+    @EnvironmentObject private var theme: Theme
+
     @ObservedObject var viewModel: CalculatorViewModel
 
     private let aspectRatioThreshold: CGFloat = 0.75

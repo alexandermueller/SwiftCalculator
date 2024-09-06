@@ -17,10 +17,10 @@ struct ButtonDisplayView: View {
         case full
     }
 
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    @Environment(\.verticalSizeClass) var verticalSizeClass
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-    @EnvironmentObject var theme: Theme
+    @EnvironmentObject private var theme: Theme
     @ObservedObject var viewModel: CalculatorViewModel
     
     @State private var currentOrientation = UIDevice.current.orientation {

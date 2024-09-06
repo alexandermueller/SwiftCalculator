@@ -154,6 +154,7 @@ private extension KeyedDecodingContainer {
     }
 }
 
+// MARK: - Equatable
 extension Theme: Equatable {
     static func == (lhs: Theme, rhs: Theme) -> Bool {
         guard lhs.type.rawType == rhs.type.rawType else {
@@ -175,6 +176,7 @@ extension Theme: Equatable {
     }
 }
 
+// MARK: - Hashable
 extension Theme: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(type)
@@ -187,6 +189,7 @@ extension Theme: Hashable {
     }
 }
 
+// MARK: - Storable
 extension Theme: Storable {
     static func fileURL() throws -> URL {
         try FileManager.default.url(

@@ -9,8 +9,10 @@
 import SwiftUI
 
 struct SettingsMenuView: View {
-    @EnvironmentObject var preferences: Preferences
-    @EnvironmentObject var theme: Theme
+    @EnvironmentObject private var preferences: Preferences
+    @EnvironmentObject private var theme: Theme
+
+    @State private var showSecretMenu = false
 
     @State private var showLoadThemeSheet = false
     @State private var showResetThemeAlert = false
@@ -69,6 +71,17 @@ struct SettingsMenuView: View {
                     Image(systemName: "gear")
                 }
             )
+            .onTapGesture(count: 5) {
+                showSecretMenu.toggle()
+            }
+
+            if showSecretMenu {
+                Section("Secret") {
+                    Toggle(isOn: $preferences.showInterfaceDragGestures) {
+                        Text("Show Interface Drag Gestures")
+                    }
+                }
+            }
 
             Section("General") {
                 Toggle(isOn: $preferences.hapticsEnabled.onChange(savePreferences)) {

@@ -12,10 +12,12 @@ import SwiftUI
 struct TouchOverlay: ViewModifier {
     @State private var touchLocation: CGPoint? = nil
 
+    let isEnabled: Bool
+
     func body(content: Content) -> some View {
         content
             .overlay {
-                if let touchLocation {
+                if let touchLocation, isEnabled {
                     Circle()
                         .fill(Constants.defaultTextColour)
                         .frame(width: 55)
@@ -30,8 +32,8 @@ struct TouchOverlay: ViewModifier {
 }
 
 extension View {
-    func touchOverlay() -> some View {
-        modifier(TouchOverlay())
+    func touchOverlay(isEnabled: Bool = false) -> some View {
+        modifier(TouchOverlay(isEnabled: isEnabled))
     }
 }
 
