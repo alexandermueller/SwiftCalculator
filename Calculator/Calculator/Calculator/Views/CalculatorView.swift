@@ -49,7 +49,7 @@ struct CalculatorView: View {
                             }
                     )
                     .frame(minHeight: geometry.size.height * minimumInterfaceHeightRatio)
-                    .dragOverlay(isEnabled: preferences.showInterfaceDragGestures)
+                    .dragOverlay(isEnabled: preferences.showDragOverlay)
 
                 if settingsMenuIsOpen || verticalDragOffset > 0 {
                     SettingsMenuView()

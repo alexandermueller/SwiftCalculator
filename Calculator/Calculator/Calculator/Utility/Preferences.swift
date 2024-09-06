@@ -13,7 +13,7 @@ final class Preferences: ObservableObject, Codable, Singleton {
     static var shared = Preferences()
 
     // Secret
-    @Published var showInterfaceDragGestures = false
+    @Published var showDragOverlay = false
 
     // User Experience
     @Published var hapticsEnabled = true
