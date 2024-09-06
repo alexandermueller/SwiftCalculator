@@ -15,7 +15,7 @@ private struct OnTouchDownGestureModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .simultaneousGesture(
-                DragGesture(minimumDistance: 0)
+                DragGesture(minimumDistance: 1)
                     .onChanged { gesture in
                         self.callback(gesture.location)
                     }

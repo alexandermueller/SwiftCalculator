@@ -151,7 +151,6 @@
 				8459189E2C7FE24700EDA9B6 /* SettingsMenuView.swift */,
 				843129BD285D4FF700F61986 /* TextDisplayField.swift */,
 				843129C1285D533800F61986 /* VariableDisplayView.swift */,
-				848B89BE2C8A79D3003377C3 /* ViewModifiers */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -170,6 +169,7 @@
 				84A50E8D262EC29300F9A2F3 /* Utility */,
 				84080BBF2832BB3500D85161 /* Views */,
 				84080BC02832BB4500D85161 /* ViewModels */,
+				848B89BE2C8A79D3003377C3 /* ViewModifiers */,
 			);
 			path = Calculator;
 			sourceTree = "<group>";
