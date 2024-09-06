@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct TouchOverlay: ViewModifier {
+private struct DragOverlay: ViewModifier {
     @State private var touchLocation: CGPoint? = nil
 
     let isEnabled: Bool
@@ -25,15 +25,15 @@ struct TouchOverlay: ViewModifier {
                         .position(touchLocation)
                 }
             }
-            .onTouchDownGesture { location in
+            .onTouchDownGesture(minimumDistance: 1) { location in
                 touchLocation = location
             }
     }
 }
 
 extension View {
-    func touchOverlay(isEnabled: Bool = false) -> some View {
-        modifier(TouchOverlay(isEnabled: isEnabled))
+    func dragOverlay(isEnabled: Bool = false) -> some View {
+        modifier(DragOverlay(isEnabled: isEnabled))
     }
 }
 

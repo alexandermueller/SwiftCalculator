@@ -10,12 +10,13 @@ import Foundation
 import SwiftUI
 
 private struct OnTouchDownGestureModifier: ViewModifier {
+    let minimumDistance: CGFloat
     let callback: (CGPoint?) -> Void
 
     func body(content: Content) -> some View {
         content
             .simultaneousGesture(
-                DragGesture(minimumDistance: 1)
+                DragGesture(minimumDistance: minimumDistance)
                     .onChanged { gesture in
                         self.callback(gesture.location)
                     }
@@ -27,7 +28,7 @@ private struct OnTouchDownGestureModifier: ViewModifier {
 }
 
 extension View {
-    func onTouchDownGesture(callback: @escaping (CGPoint?) -> Void) -> some View {
-        modifier(OnTouchDownGestureModifier(callback: callback))
+    func onTouchDownGesture(minimumDistance: CGFloat = 0, callback: @escaping (CGPoint?) -> Void) -> some View {
+        modifier(OnTouchDownGestureModifier(minimumDistance: minimumDistance, callback: callback))
     }
 }

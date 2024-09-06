@@ -78,7 +78,7 @@ struct SettingsMenuView: View {
             if showSecretMenu {
                 Section("Secret") {
                     Toggle(isOn: $preferences.showInterfaceDragGestures) {
-                        Text("Show Interface Drag Gestures")
+                        Text("Show Drag Overlay")
                     }
                 }
             }
