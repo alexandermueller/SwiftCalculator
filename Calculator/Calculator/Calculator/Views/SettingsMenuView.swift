@@ -16,6 +16,7 @@ struct SettingsMenuView: View {
 
     @State private var showLoadThemeSheet = false
     @State private var showResetThemeAlert = false
+    @State private var showDeleteThemeAlert = false
     @State private var showSaveConfirmation = false
 
     private var pickedType: Binding<ThemeType> {
@@ -33,12 +34,8 @@ struct SettingsMenuView: View {
         return preferences.savedThemes.first(with: name) == theme
     }
 
-    private var saveThemeButtonTitle: String {
-        guard let name = theme.name, !name.isEmpty else {
-            return "Create Theme"
-        }
-
-        return "\(preferences.savedThemes.containsName(name) ? "Update" : "Create") \(name.quoted)"
+    private var saveThemeButtonIcon: String {
+        preferences.savedThemes.containsName(theme.name) ? "pencil.and.list.clipboard" : "plus.circle"
     }
 
     private var themeName: Binding<String> {
@@ -130,36 +127,74 @@ struct SettingsMenuView: View {
                     SwiftUI.Button("Reset To Default") {
                         showResetThemeAlert = true
                     }
+                    .buttonStyle(BorderlessButtonStyle())
                     .foregroundColor(.red)
                     .alert(isPresented: $showResetThemeAlert) {
                         Alert(
-                            title: Text("Are you sure?"),
+                            title: Text("Are you sure you want to reset \(theme.name?.quoted ?? "this theme")'s colours?"),
                             primaryButton: .destructive(Text("Okay"), action: theme.resetThemeColours),
                             secondaryButton: .cancel()
                         )
                     }
                 }
 
-                TextField(
-                    text: themeName.onChange(saveTheme),
-                    prompt: Text("Input Custom Theme Name"),
-                    label: {}
-                )
-
                 Section {
-                    SwiftUI.Button(saveThemeButtonTitle) {
-                        preferences.savedThemes.override(theme: theme)
-                        savePreferences()
-                        showSaveConfirmation = true
-                    }
-                    .disabled(saveThemeButtonIsDisabled)
-                    .alert(isPresented: $showSaveConfirmation) {
-                        Alert(title: Text("\(theme.name?.quoted ?? "Theme") saved successfully"))
+                    HStack {
+                        TextField(
+                            text: themeName.onChange(saveTheme),
+                            prompt: Text("Input Custom Theme Name"),
+                            label: {}
+                        )
+
+                        Spacer()
+
+                        if let name = theme.name, !name.isEmpty {
+                            HStack(spacing: 20) {
+                                SwiftUI.Button {
+                                    preferences.savedThemes.override(theme: theme)
+                                    savePreferences()
+                                    showSaveConfirmation = true
+                                } label: {
+                                    Image(systemName: saveThemeButtonIcon)
+                                        .foregroundColor(.blue)
+                                }
+                                .buttonStyle(BorderlessButtonStyle())
+                                .alert(isPresented: $showSaveConfirmation) {
+                                    Alert(title: Text("\(theme.name?.quoted ?? "Theme") saved successfully"))
+                                }
+
+                                if preferences.savedThemes.containsName(name) {
+                                    SwiftUI.Button {
+                                        showDeleteThemeAlert.toggle()
+                                    } label: {
+                                        Image(systemName: "trash")
+                                            .foregroundColor(.red)
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
+                                    .alert(isPresented: $showDeleteThemeAlert) {
+                                        Alert(
+                                            title: Text("Are you sure you want to delete \(theme.name?.quoted ?? "this theme")?"),
+                                            primaryButton: .destructive(
+                                                Text("Okay"),
+                                                action: {
+                                                    preferences.savedThemes.remove(theme)
+                                                    theme.type = .custom
+                                                    savePreferences()
+                                                    saveTheme()
+                                                }
+                                            ),
+                                            secondaryButton: .cancel()
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     SwiftUI.Button("Load Saved Theme") {
                         showLoadThemeSheet = true
                     }
+                    .buttonStyle(BorderlessButtonStyle())
                     .disabled(preferences.savedThemes.isEmpty)
                     .sheet(isPresented: $showLoadThemeSheet) {
                         List(selection: themeSelection.onChange(saveTheme)) {

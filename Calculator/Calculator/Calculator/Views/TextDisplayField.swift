@@ -72,6 +72,9 @@ struct TextDisplayField: View {
                             .font(.system(for: geometry, scale: 0.5))
                             .foregroundColor(Constants.defaultTextColour)
                             .presentationCompactAdaptation(.popover)
+                            .onDisappear {
+                                presentHint = false
+                            }
                     }
                 }
             }
